@@ -379,7 +379,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $select->setIntegrityCheck(false);
         $select->from(
             array('pre' => $this->_name),
-            array('nomeProjeto' => 'pre.nomeprojeto', 'pronac' => 'pre.idPreProjeto'),
+            array('nomeProjeto' => 'pre.NomeProjeto', 'pronac' => 'pre.idPreProjeto'),
             $this->_schema
         );
 
@@ -389,8 +389,8 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             array(
                 'aval.stProrrogacao',
                 'idDiligencia' => 'aval.idAvaliacaoProposta',
-                'dataSolicitacao' => 'CONVERT(VARCHAR,aval.DtAvaliacao,120)',
-                'dataResposta' => 'CONVERT(VARCHAR,aval.dtResposta,120)',
+                'dataSolicitacao' => "to_char(\"aval\".\"DtAvaliacao\", 'YYYY-MM-DD HH24:MI:SS')",
+                'dataResposta' => "to_char(\"aval\".\"dtResposta\", 'YYYY-MM-DD HH24:MI:SS')",
                 'Solicitacao' => 'aval.Avaliacao',
                 'Resposta' => 'aval.dsResposta',
                 'aval.idCodigoDocumentosExigidos',
@@ -400,17 +400,17 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         );
 
         $select->joinLeft(
-            array('arq' => 'tbArquivo'),
+            array('arq' => 'scCorp.tbArquivo'),
             'arq.idArquivo = aval.idArquivo',
             array(
                 'arq.nmArquivo',
                 'arq.idArquivo'
             ),
-            $this->getSchema('bdcorporativo', true, 'sccorp')
+            $this->getSchema('bdcorporativo')
         );
 
         $select->joinLeft(
-            array('a' => 'AGENTES'),
+            array('a' => 'Agentes'),
             'pre.idAgente = a.idAgente',
             array(
                 'a.idAgente'
@@ -419,7 +419,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         );
 
         $select->joinLeft(
-            array('n' => 'NOMES'),
+            array('n' => 'Nomes'),
             'a.idAgente = n.idAgente',
             array(
                 'n.Descricao'
@@ -431,9 +431,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             $select->where($coluna, $valor);
         }
 
-
         if ($retornaSelect) {
-
             return $select;
         } else {
             return $this->fetchAll($select);
