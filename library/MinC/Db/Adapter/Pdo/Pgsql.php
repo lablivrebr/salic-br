@@ -11,7 +11,7 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
         if (is_array($bind)) {
             foreach ($bind as $name => $value) {
                 if (!is_numeric($name) && !preg_match('/^:/', $name)) {
-                    $newName = ":$name";
+                    $newName = ":{$name}";
                     unset($bind[$name]);
                     $bind[$newName] = $value;
                 }

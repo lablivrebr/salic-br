@@ -164,7 +164,10 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
     public function salvar($dados)
     {
         if (!empty ($dados['idPreProjeto'])) {
-            $rsPreProjeto = $this->find($dados['idPreProjeto'])->current();
+            $rsPreProjeto = $this->findBy(
+                [
+                    'idPreProjeto' => $dados['idPreProjeto']
+                ]);
         } else {
             unset($dados['idPreProjeto']);
             $id = $this->insert($dados);
@@ -174,38 +177,9 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             return $id;
         }
 
-        $rsPreProjeto->idAgente = $dados["idAgente"];
-        $rsPreProjeto->NomeProjeto = $dados["nomeprojeto"];
-        $rsPreProjeto->Mecanismo = $dados["mecanismo"];
-        $rsPreProjeto->AgenciaBancaria = $dados["agenciabancaria"];
-        $rsPreProjeto->AreaAbrangencia = $dados["areaabrangencia"];
-        $rsPreProjeto->DtInicioDeExecucao = $dados["dtiniciodeexecucao"];
-        $rsPreProjeto->DtFinalDeExecucao = $dados["dtfinaldeexecucao"];
-        $rsPreProjeto->NrAtoTombamento = $dados["nratotombamento"];
-        $rsPreProjeto->DtAtoTombamento = $dados["dtatotombamento"];
-        $rsPreProjeto->EsferaTombamento = $dados["esferatombamento"];
-        $rsPreProjeto->ResumoDoProjeto = $dados["resumodoprojeto"];
-        $rsPreProjeto->Objetivos = $dados["objetivos"];
-        $rsPreProjeto->Justificativa = $dados["justificativa"];
-        $rsPreProjeto->Acessibilidade = $dados["acessibilidade"];
-        $rsPreProjeto->DemocratizacaoDeAcesso = $dados["democratizacaodeacesso"];
-        $rsPreProjeto->EtapaDeTrabalho = $dados["etapadetrabalho"];
-        $rsPreProjeto->FichaTecnica = $dados["fichatecnica"];
-        $rsPreProjeto->Sinopse = $dados["sinopse"];
-        $rsPreProjeto->ImpactoAmbiental = $dados["impactoambiental"];
-        $rsPreProjeto->EspecificacaoTecnica = $dados["especificacaotecnica"];
-        $rsPreProjeto->EstrategiadeExecucao = $dados["estrategiadeexecucao"];
-        $rsPreProjeto->dtAceite = $dados["dtaceite"];
-        $rsPreProjeto->DtArquivamento = (isset($dados["dtarquivamento"])) ? $dados["dtarquivamento"] : null;
-        $rsPreProjeto->stEstado = $dados["stestado"];
-        $rsPreProjeto->stDataFixa = $dados["stdatafixa"];
-        $rsPreProjeto->stProposta = $dados["stproposta"];
-        $rsPreProjeto->idUsuario = $dados["idusuario"];
-        $rsPreProjeto->stTipoDemanda = $dados["sttipodemanda"];
-        $rsPreProjeto->idEdital = (isset($dados["idedital"])) ? $dados["idedital"] : null;
-        $rsPreProjeto->tpProrrogacao = $dados["tpprorrogacao"];
-
-        $id = $rsPreProjeto->save();
+        $objPreprojeto = new Proposta_Model_PreProjeto($dados);
+        $objPreprojetoMapper = new Proposta_Model_PreProjetoMapper();
+        $id = $objPreprojetoMapper->save($objPreprojeto);
 
         if ($id) {
             return $id;
