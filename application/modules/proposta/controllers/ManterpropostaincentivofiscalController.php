@@ -233,7 +233,6 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
      */
     public function salvarAction()
     {
-
         $post = array_change_key_case($this->getRequest()->getPost());
 
         if (empty($post['idagente'])) {
@@ -394,7 +393,7 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
             return;
         } catch (Zend_Exception $ex) {
             //$ex->getMessage()
-xd($ex);
+xd($ex->getMessage());
             if($idPreProjeto) {
                 parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!" . $ex->getMessage(), "/proposta/manterpropostaincentivofiscal/index?idPreProjeto=" . $idPreProjeto, "ERROR");
             } else {
