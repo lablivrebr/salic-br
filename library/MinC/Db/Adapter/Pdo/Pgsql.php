@@ -255,4 +255,14 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
     {
         return $this->_quoteIdentifierTable($ident, $alias, $auto);
     }
+
+    public function treatBooleanValues(array $data) {
+        foreach($data as $key => $value) {
+            if(is_bool($value)) {
+                $data[$key] = ($value === true ) ? 't' : 'f';
+            }
+        }
+
+        return $data;
+    }
 }
