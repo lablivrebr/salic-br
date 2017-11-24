@@ -591,8 +591,8 @@ abstract class MinC_Db_Table_Abstract extends Zend_Db_Table_Abstract
     {
         if ($this->getAdapter() instanceof MinC_Db_Adapter_Pdo_Pgsql) {
             $where = $this->getAdapter()->treatConditionDoubleQuotes($where);
+            $data = $this->getAdapter()->treatBooleanValues($data);
         }
-        $data = $this->getAdapter()->treatBooleanValues($data);
         return parent::update($data, $where);
     }
 
