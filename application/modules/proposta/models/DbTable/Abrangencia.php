@@ -1,36 +1,10 @@
 <?php
 
-/**
- * Class Proposta_Model_DbTable_Abrangencia
- *
- * @name Proposta_Model_DbTable_Abrangencia
- * @package Modules/Agente
- * @subpackage Models/DbTable
- * @version $Id$
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 20/09/2016
- *
- * @copyright © 2012 - Ministerio da Cultura - Todos os direitos reservados.
- * @link http://salic.cultura.gov.br
- *
- * idAbrangencia
- * idProjeto
- * idPais
- * idUF
- * idMunicipioIBGE
- * Usuario
- * stAbrangencia
- * siAbrangencia
- * dsJustificativa
- * dtInicioRealizacaodtFimRealizacao
- */
 class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
 {
     protected $_schema = 'sac';
     protected $_name = 'Abrangencia';
     protected $_primary = 'idAbrangencia';
-
 
     /**
      * Retorna registros do banco de dados
@@ -44,14 +18,14 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     {
         $sql = $this->select()
             ->setIntegrityCheck(false)
-            ->from(array('a' => 'abrangencia'), $this->_getCols(), $this->_schema)
-            ->join(array('p' => 'Pais'), 'a.idpais = p.idpais and a.stabrangencia = 1', 'p.Descricao as pais', $this->getSchema('agentes'))
-            ->joinLeft(array('u' => 'uf'), '(a.iduf = u.iduf)', 'u.Descricao as uf', $this->getSchema('agentes'))
-            ->joinLeft(array('m' => 'municipios'), '(a.idMunicipioIBGE = m.idMunicipioIBGE)', 'm.Descricao as cidade', $this->getSchema('agentes'));
+            ->from(array('a' => 'Abrangencia'), $this->_getCols(), $this->_schema)
+            ->join(array('p' => 'Pais'), 'a.idPais = p.idPais and a.stAbrangencia = true', 'p.Descricao as pais', $this->getSchema('agentes'))
+            ->joinLeft(array('u' => 'UF'), 'a.idUF = u.idUF', 'u.Descricao as uf', $this->getSchema('agentes'))
+            ->joinLeft(array('m' => 'Municipios'), 'a.idMunicipioIBGE = m.idMunicipioIBGE::varchar(6)', 'm.Descricao as cidade', $this->getSchema('agentes'));
         foreach ($where as $coluna => $valor) {
             $sql->where($coluna . '= ?', $valor);
         }
-
+//xd($sql->assemble());
         $result = $this->fetchAll($sql);
         return ($result) ? $result->toArray() : array();
     }
@@ -135,7 +109,7 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
      * @return void
      * @todo retirar Zend_Db_Expr
      */
-    public function abrangenciaProjeto($retornaSelect = false)
+    public function AbrangenciaProjeto($retornaSelect = false)
     {
 
         $selectAbrangencia = $this->select();
@@ -166,7 +140,7 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
      * @return void
      * @todo retirar Zend_Db_Expr
      */
-    public function abrangenciaProjetoPesquisa($retornaSelect = false, $where = array())
+    public function AbrangenciaProjetoPesquisa($retornaSelect = false, $where = array())
     {
 
         $selectAbrangencia = $this->select();
