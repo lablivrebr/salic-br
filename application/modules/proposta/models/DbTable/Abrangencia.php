@@ -13,42 +13,22 @@
  *
  * @copyright © 2012 - Ministerio da Cultura - Todos os direitos reservados.
  * @link http://salic.cultura.gov.br
-
-    idAbrangencia
-    idProjeto
-    idPais
-    idUF
-    idMunicipioIBGE
-    Usuario
-    stAbrangencia
-    siAbrangencia
-    dsJustificativa
-    dtInicioRealizacaodtFimRealizacao
+ *
+ * idAbrangencia
+ * idProjeto
+ * idPais
+ * idUF
+ * idMunicipioIBGE
+ * Usuario
+ * stAbrangencia
+ * siAbrangencia
+ * dsJustificativa
+ * dtInicioRealizacaodtFimRealizacao
  */
 class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
 {
-    /**
-     * _schema
-     *
-     * @var string
-     * @access protected
-     */
     protected $_schema = 'sac';
-
-    /**
-     * _name
-     *
-     * @var bool
-     * @access protected
-     */
-    protected $_name = 'abrangencia';
-
-    /**
-     * _primary
-     *
-     * @var bool
-     * @access protected
-     */
+    protected $_name = 'Abrangencia';
     protected $_primary = 'idAbrangencia';
 
 
@@ -96,27 +76,19 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     }
 
     /**
-     * Grava registro. Se seja passado um ID ele altera um registro existente
      * @param array $dados - array com dados referentes as colunas da tabela no formato "nome_coluna_1"=>"valor_1","nome_coluna_2"=>"valor_2"
      * @return ID do registro inserido/alterado ou FALSE em caso de erro
      */
     public function salvar($dados)
     {
-        //INSTANCIANDO UM OBJETO DE ACESSO AOS DADOS DA TABELA
-
-        //DECIDINDO SE INCLUI OU ALTERA UM REGISTRO
         $dados['stAbrangencia'] = 1;
         if (isset($dados['idAbrangencia']) && !empty ($dados['idAbrangencia'])) {
-            //UPDATE
             $rsAbrangencia = $this->find($dados['idAbrangencia'])->current();
         } else {
-            //INSERT
             $dados['idAbrangencia'] = null;
             return $this->insert($dados);
-            //$rsAbrangencia = $tblAbrangencia->createRow();
         }
 
-        //ATRIBUINDO VALORES AOS CAMPOS QUE FORAM PASSADOS
         if (!empty($dados['idProjeto'])) {
             $rsAbrangencia->idProjeto = $dados['idProjeto'];
         }
@@ -129,8 +101,6 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
             $rsAbrangencia->Usuario = $dados['Usuario'];
         }
         $rsAbrangencia->stAbrangencia = 1;
-
-        //SALVANDO O OBJETO
         $id = $rsAbrangencia->save();
 
         if ($id) {
@@ -141,7 +111,6 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     }
 
     /**
-     * Apaga locais de ralizacao a partir do ID do PreProjeto
      * @param number $idProjeto - ID do PerProjeto ao qual as lcoaliza��es est�o vinculadas
      * @return true or false
      * @todo colocar padrao ORM
@@ -161,8 +130,6 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     }
 
     /**
-     * abrangenciaProjeto
-     *
      * @param bool $retornaSelect
      * @access public
      * @return void
@@ -193,8 +160,6 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     }
 
     /**
-     * abrangenciaProjetoPesquisa
-     *
      * @param bool $retornaSelect
      * @param bool $where
      * @access public
@@ -259,11 +224,10 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
         } else {
             return false;
         }
-    } // fecha m�todo cadastrar()
+    }
 
 
     /**
-     * M�todo para excluir
      * @access public
      * @
      * @param array $dados
@@ -276,23 +240,18 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
 
         $where = array("idAbrangencia = ? " => $where, "stAbrangencia = ?" => 1);
 
-        // limpa a associa��o antes de excluir
         $alterar = $db->update("sac.dbo.tbAbrangencia", array("idAbrangenciaAntiga" => NULL), array("idAbrangenciaAntiga = ? " => $where));
-
         $excluir = $db->delete("sac.dbo.Abrangencia", $where);
 
         if ($excluir) {
             return true;
-        } else {
-            return false;
         }
-    } // fecha m�todo excluir()
+
+        return false;
+    }
 
 
     /**
-     * metodo para alterar
-     * @access public
-     * @
      * @param array $dados
      * @return bool
      * @todo verificar impactos e remover, faz a mesma coisa da abstract
@@ -301,7 +260,7 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     {
 
         $where = "idAbrangencia = $where";
-        $alterar = $this->update( $dados, $where);
+        $alterar = $this->update($dados, $where);
 
         if ($alterar) {
             return true;
@@ -329,7 +288,7 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
     }
 
 
-    public  function buscarDadosAbrangenciaAlteracao($idpedidoalteracao, $avaliacao)
+    public function buscarDadosAbrangenciaAlteracao($idpedidoalteracao, $avaliacao)
     {
         if ($avaliacao == "SEM_AVALIACAO") {
             $sql = "
@@ -371,8 +330,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao asipa ON (taipa.
             ) as minhaTabela
             ORDER BY pais, uf, mun, idAvaliacaoItemPedidoAlteracao DESC
             ";
-        } // fecha if
-        else {
+        } else {
 
             $sql = "
             SELECT *, CAST(dsjustificativa AS text) as dsjustificativa FROM
@@ -417,7 +375,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
             ) as minhaTabela
             ORDER BY pais, uf, mun, idAvaliacaoItemPedidoAlteracao DESC
             ";
-        } // fecha else
+        }
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
@@ -427,7 +385,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
     }
 
 
-    public  function buscarDadosAbrangenciaAlteracaoCoord($idpedidoalteracao, $avaliacao)
+    public function buscarDadosAbrangenciaAlteracaoCoord($idpedidoalteracao, $avaliacao)
     {
         if ($avaliacao == "SEM_AVALIACAO") {
             $sql = "SELECT * , CAST(dsjustificativa AS text) AS dsjustificativa , CAST(dsjustificativa AS text) AS dsjustificativa  FROM  (
@@ -514,7 +472,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
     }
 
 
-    public  function buscarDadosAbrangencia($idpedidoalteracao)
+    public function buscarDadosAbrangencia($idpedidoalteracao)
     {
         $sql = "select
                     distinct (abran.idAbrangencia),
@@ -541,7 +499,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
         return $resultado;
     }
 
-    public  function buscarDadosAbrangenciaSolicitada($idpedidoalteracao)
+    public function buscarDadosAbrangenciaSolicitada($idpedidoalteracao)
     {
         $sql = "SELECT pais.Descricao pais,
                             uf.Descricao uf,
@@ -571,7 +529,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
         return $resultado;
     }
 
-    public  function buscarDadosAbrangenciaSolicitadaLocal($idpedidoalteracao, $tpAcao = null)
+    public function buscarDadosAbrangenciaSolicitadaLocal($idpedidoalteracao, $tpAcao = null)
     {
         $sql = "SELECT tpa.idPedidoAlteracao,
             				pais.Descricao pais,
@@ -614,7 +572,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
      * @param $dados array
      * @return boolean
      */
-    public  function avaliarLocalRealizacao($dados)
+    public function avaliarLocalRealizacao($dados)
     {
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
@@ -632,7 +590,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
     /**
      * M�todo para verificar se o loca de realiza��o j� existe
      */
-    public  function verificarLocalRealizacao($idProjeto, $idMunicipio)
+    public function verificarLocalRealizacao($idProjeto, $idMunicipio)
     {
         $sql = "SELECT idMunicip�oIBGE FROM Abrangencia WHERE idProjeto=$idProjeto AND stAbrangencia = 1 AND idMunicipioIBGE=$idMunicipio";
         return $sql;
