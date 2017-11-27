@@ -2,8 +2,8 @@
 
 class UsuarioDAO extends MinC_Db_Table_Abstract
 {
-    protected $_banco = "tabelas";
-    protected $_name = 'usuarios';
+    protected $_name = 'Usuarios';
+    protected $_primary = 'usu_codigo';
     protected $_schema = 'tabelas';
 
     /**
@@ -18,11 +18,11 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
 					,usu_identificacao
 					,usu_senha
 
-				FROM TABELAS.dbo.Usuarios
+				FROM TABELAS.Usuarios
 
 				WHERE usu_identificacao = '" . $username . "'
-					AND usu_senha = (SELECT TABELAS.dbo.fnEncriptaSenha('" . $username . "', '" . $password . "')
-									 FROM TABELAS.dbo.Usuarios
+					AND usu_senha = (SELECT TABELAS.fnEncriptaSenha('" . $username . "', '" . $password . "')
+									 FROM TABELAS.Usuarios
 									 WHERE usu_identificacao = '" . $username . "')
 					AND usu_status = 1";
 
@@ -33,7 +33,7 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
         if ($buscar)
         {
             $authAdapter = new Zend_Auth_Adapter_DbTable(Zend_Registry::get('db'));
-            $authAdapter->setTableName('dbo.Usuarios')// TABELAS.dbo.Usuarios
+            $authAdapter->setTableName('Usuarios')// TABELAS.Usuarios
             ->setIdentityColumn('usu_identificacao')
                 ->setCredentialColumn('usu_senha');
 
@@ -65,8 +65,8 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
      */
     public function alterarSenha($username, $password)
     {
-        $sql = "UPDATE tabelas.dbo.Usuarios
-					SET usu_senha = TABELAS.dbo.fnEncriptaSenha('" . $username . "', '" . $password . "')
+        $sql = "UPDATE tabelas.Usuarios
+					SET usu_senha = TABELAS.fnEncriptaSenha('" . $username . "', '" . $password . "')
 				WHERE usu_identificacao = '" . $username . "'";
 
         $db = Zend_Db_Table::getDefaultAdapter();
@@ -87,7 +87,7 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
 					,org_superior
 					,uog_status
 
-				FROM TABELAS.dbo.vwUsuariosOrgaosGrupos
+				FROM TABELAS.vwUsuariosOrgaosGrupos
 
 				WHERE usu_codigo = $usu_codigo ";
 
@@ -110,15 +110,27 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
 
     public static function getIdUsuario($usu_codigo)
     {
-        $sql = "SELECT usu_codigo
-					,idAgente
-				FROM " . UsuarioDAO::getStaticTableName('tabelas') . ".USUARIOS u
-					INNER JOIN " . UsuarioDAO::getStaticTableName('agentes') . ".Agentes a ON (u.usu_identificacao = a.CNPJCPF)
-				WHERE usu_codigo = $usu_codigo";
+        $usuario = new UsuarioDAO();
+        $query = $usuario->select();
+        $query->from(
+            ['usuarios' => $usuario->_name],
+            [
+                'usu_codigo'
+            ],
+            $usuario->getSchema('tabelas')
+        );
+        $query->joinInner(
+            ['agentes' => 'Agentes'],
+            'usuarios.usu_identificacao = agentes.CNPJCPF',
+            ['idAgente'],
+            $usuario->getSchema('agentes')
+        );
+        $query->where('usuarios.usu_codigo = ?', $usu_codigo);
+
         try {
             $db = Zend_Db_Table::getDefaultAdapter();
             $db->setFetchMode(Zend_DB::FETCH_ASSOC);
-            return $db->fetchRow($sql);
+            return $db->fetchRow($query);
         } catch (Zend_Exception_Db $objException) {
             throw new Exception($objException->getMessage(), 0, $objException);
         }
