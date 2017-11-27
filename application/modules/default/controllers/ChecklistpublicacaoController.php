@@ -46,7 +46,7 @@ class ChecklistPublicacaoController extends MinC_Controller_Action_Abstract
             }
 
             // pega as unidades autorizadas, org�os e grupos do usu�rio (pega todos os grupos)
-            $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
+            $grupos = $Usuario->buscarUnidadesAutorizadas($auth->getIdentity()->usu_codigo, 21);
 
             // manda os dados para a vis�o
             $this->view->usuario = $auth->getIdentity(); // manda os dados do usu�rio para a vis�o

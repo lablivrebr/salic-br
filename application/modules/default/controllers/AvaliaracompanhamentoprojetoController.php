@@ -35,7 +35,7 @@ class AvaliaracompanhamentoprojetoController extends MinC_Controller_Action_Abst
             }
 
             // pega as unidades autorizadas, orgaos e grupos do usuario (pega todos os grupos)
-            $grupos = $Usuario->buscarUnidades(isset($auth->getIdentity()->usu_codigo) ? $auth->getIdentity()->usu_codigo : $auth->getIdentity()->IdUsuario, 21);
+            $grupos = $Usuario->buscarUnidadesAutorizadas(isset($auth->getIdentity()->usu_codigo) ? $auth->getIdentity()->usu_codigo : $auth->getIdentity()->IdUsuario, 21);
 
             // manda os dados para a visao
             $this->view->usuario = $auth->getIdentity(); // manda os dados do usuario para a visao

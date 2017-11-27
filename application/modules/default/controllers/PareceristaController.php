@@ -27,17 +27,17 @@ class PareceristaController extends MinC_Controller_Action_Abstract {
 
             if (!in_array($GrupoAtivo->codGrupo, $PermissoesGrupo)) // verifica se o grupo ativo est&aacute; no array de permiss&otilde;es
             {
-                parent::message("Você n&atilde;o tem permiss&atilde;o para acessar essa &aacute;rea do sistema!", "principal/index", "ALERT");
+                parent::message("Vocï¿½ n&atilde;o tem permiss&atilde;o para acessar essa &aacute;rea do sistema!", "principal/index", "ALERT");
             }
 
             // pega as unidades autorizadas, org&atilde;os e grupos do usu&aacute;rio (pega todos os grupos)
-            $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
+            $grupos = $Usuario->buscarUnidadesAutorizadas($auth->getIdentity()->usu_codigo, 21);
 
             // manda os dados para a vis&atilde;o
             $this->view->usuario        = $auth->getIdentity(); // manda os dados do usu&aacute;rio para a vis&atilde;o
             $this->view->arrayGrupos    = $grupos; // manda todos os grupos do usu&aacute;rio para a vis&atilde;o
             $this->view->grupoAtivo     = $GrupoAtivo->codGrupo; // manda o grupo ativo do usu&aacute;rio para a vis&atilde;o
-            $this->view->orgaoAtivo     = $GrupoAtivo->codOrgao; // manda o órg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
+            $this->view->orgaoAtivo     = $GrupoAtivo->codOrgao; // manda o ï¿½rg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
 
             if (isset($auth->getIdentity()->usu_codigo)) // autenticacao novo salic
             {
@@ -524,7 +524,7 @@ class PareceristaController extends MinC_Controller_Action_Abstract {
         $modelAssinantes = new tbAssinantes();
         $modeltbConfigurarPagamentoXtbAssinantes = new tbConfigurarPagamentoXtbAssinantes();
 
-        // Buscar o Último despacho gerado
+        // Buscar o ï¿½ltimo despacho gerado
         $ultimoDespachoDoAno = $modelGerarPagamentoParecerista->ultimoDespachoDoAno();
         $this->view->assign('ultimoDespachoDoAno', $ultimoDespachoDoAno['UltimoDespachoDoAno']);
 
@@ -1772,7 +1772,7 @@ class PareceristaController extends MinC_Controller_Action_Abstract {
             $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
             $this->view->message_type = 'ERROR';
         } else {
-            // lê os cabe&ccedil;alhos formatado
+            // lï¿½ os cabe&ccedil;alhos formatado
             foreach ($resultado as $r) {
                 $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
                 $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
