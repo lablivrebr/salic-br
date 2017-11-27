@@ -21,11 +21,10 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
             ->from(array('a' => 'Abrangencia'), $this->_getCols(), $this->_schema)
             ->join(array('p' => 'Pais'), 'a.idPais = p.idPais and a.stAbrangencia = true', 'p.Descricao as pais', $this->getSchema('agentes'))
             ->joinLeft(array('u' => 'UF'), 'a.idUF = u.idUF', 'u.Descricao as uf', $this->getSchema('agentes'))
-            ->joinLeft(array('m' => 'Municipios'), 'a.idMunicipioIBGE = m.idMunicipioIBGE::varchar(6)', 'm.Descricao as cidade', $this->getSchema('agentes'));
+            ->joinLeft(array('m' => 'Municipios'), 'a.idMunicipioIBGE::varchar(6) = m.idMunicipioIBGE::varchar(6)', 'm.Descricao as cidade', $this->getSchema('agentes'));
         foreach ($where as $coluna => $valor) {
             $sql->where($coluna . '= ?', $valor);
         }
-//xd($sql->assemble());
         $result = $this->fetchAll($sql);
         return ($result) ? $result->toArray() : array();
     }

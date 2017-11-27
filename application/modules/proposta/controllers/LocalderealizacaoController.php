@@ -107,8 +107,8 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
     {
         //RECUPERA OS LOCAIS DE REALIZACAO CADASTRADOS
         $arrBusca = array();
-        $arrBusca['idprojeto'] = $this->idPreProjeto;
-        $arrBusca['stabrangencia'] = 1;
+        $arrBusca['idProjeto'] = $this->idPreProjeto;
+        $arrBusca['stAbrangencia'] = true;
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
         $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
 
