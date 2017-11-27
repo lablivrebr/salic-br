@@ -25,5 +25,4 @@ Para parar o container basta digitar:
 ```
   docker-compose stop
 ```
-
-Para substituir os valores das variáveis de ambiente, como ```development``` e ```production``` por exemplo, acesse o arquivo ```docker_web-variables.env```:
+Mais informamações sobre a construção da imagem Docker utilizada nesse projeto acesse [aqui](https://github.com/culturagovbr/docker-salic-br).
