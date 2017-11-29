@@ -107,11 +107,14 @@ class Autenticacao_Model_FnVerificarPermissao extends MinC_Db_Table_Abstract {
 //xd($sql->assemble());
             $agente = $db->fetchRow($sql);
 
-            if ($agente['TipoPessoa'] == 0) {
+            $permissao = 0;
+            if (is_object($agente) && $agente->TipoPessoa == 0) {
+                if ($cpfLogado == $agente->CNPJCPF ||  $agente->idUsuario == $idUsuarioLogado) {
+                    $permissao = 1;
+                }
+            } elseif (is_array($agente) && $agente['TipoPessoa'] == 0) {
                 if ($cpfLogado == $agente['CNPJCPF'] ||  $agente['idUsuario'] == $idUsuarioLogado) {
                     $permissao = 1;
-                } else {
-                    $permissao = 0;
                 }
             } else {
                 $sql = $this->select()

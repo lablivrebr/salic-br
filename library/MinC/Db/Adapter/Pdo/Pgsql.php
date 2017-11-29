@@ -11,7 +11,7 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
         if (is_array($bind)) {
             foreach ($bind as $name => $value) {
                 if (!is_numeric($name) && !preg_match('/^:/', $name)) {
-                    $newName = ":$name";
+                    $newName = ":{$name}";
                     unset($bind[$name]);
                     $bind[$newName] = $value;
                 }
@@ -254,5 +254,15 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
     public function quoteTableAs($ident, $alias = null, $auto = false)
     {
         return $this->_quoteIdentifierTable($ident, $alias, $auto);
+    }
+
+    public function treatBooleanValues(array $data) {
+        foreach($data as $key => $value) {
+            if(is_bool($value)) {
+                $data[$key] = ($value === true ) ? 't' : 'f';
+            }
+        }
+
+        return $data;
     }
 }

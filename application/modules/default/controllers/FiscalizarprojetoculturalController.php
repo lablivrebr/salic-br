@@ -25,13 +25,13 @@ class FiscalizarprojetoculturalController extends MinC_Controller_Action_Abstrac
             }
 
             // pega as unidades autorizadas, org&atilde;os e grupos do usu&aacute;rio (pega todos os grupos)
-            $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
+            $grupos = $Usuario->buscarUnidadesAutorizadas($auth->getIdentity()->usu_codigo, 21);
 
             // manda os dados para a vis&atilde;o
             $this->view->usuario = $auth->getIdentity(); // manda os dados do usu&aacute;rio para a vis&atilde;o
             $this->view->arrayGrupos = $grupos; // manda todos os grupos do usu&aacute;rio para a vis&atilde;o
             $this->view->grupoAtivo = $GrupoAtivo->codGrupo; // manda o grupo ativo do usu&aacute;rio para a vis&atilde;o
-            $this->view->orgaoAtivo = $GrupoAtivo->codOrgao; // manda o órg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
+            $this->view->orgaoAtivo = $GrupoAtivo->codOrgao; // manda o ï¿½rg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
         } // fecha if
         else { // caso o usu&aacute;rio n&atilde;o esteja autenticado
             return $this->_helper->redirector->goToRoute(array('controller' => 'index', 'action' => 'logout'), null, true);
@@ -205,7 +205,7 @@ class FiscalizarprojetoculturalController extends MinC_Controller_Action_Abstrac
             'stAtivo' => 'A');
         $cadastrarArquivo = ArquivoDAO::cadastrar($dadosArquivo);
 
-        // pega o id do último arquivo cadastrado
+        // pega o id do ï¿½ltimo arquivo cadastrado
         $idUltimoArquivo = ArquivoDAO::buscarIdArquivo();
         $idUltimoArquivo = (int) $idUltimoArquivo[0]->id;
 

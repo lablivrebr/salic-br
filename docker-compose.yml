@@ -1,8 +1,7 @@
 version: '2'
 services:
   web:
-    build: ./docker
-    image: culturagovbr/salic-br:1.5
+    image: culturagovbr/salic-br:1.6
     container_name: salic-br
     ports:
      - "80:80"
@@ -12,8 +11,23 @@ services:
      - ./log/apache2:/var/log/apache2
      - ./public/txt:/var/www/salic-br/public/txt/
      - ./public/plenaria:/var/www/salic-br/public/plenaria/
-    env_file:
-      - docker_web-variables.env
+    environment:
+      - APPLICATION_ENV=development
+
+        #xDebug configs for 'development' enviroment
+      - XDEBUG_INSTALL="true"
+      - XDEBUG_REMOTE_ENABLE=on
+      - XDEBUG_REMOTE_AUTOSTART=on
+      - XDEBUG_REMOTE_HANDLER=dbgp
+      - XDEBUG_REMOTE_CONNECT_BACK=1
+      - XDEBUG_PROFILER_ENABLE=1
+      - XDEBUG_PROFILER_OUTPUT_DIR=/tmp/www/html
+      - XDEBUG_REMOTE_PORT=9000
+      - XDEBUGINI_PATH=/usr/local/etc/php/conf.d/xdebug.ini
+
+        #PHP_IDE_CONFIG="serverName=Test"
+      - XDEBUG_DEFAULT_ENABLE=1
+      - XDEBUG_IDEKEY=PHPSTORM
      # restart: always
   dependency_manager:
       image: composer:1.5.1

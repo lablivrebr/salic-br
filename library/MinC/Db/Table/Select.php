@@ -7,9 +7,11 @@
  */
 class MinC_Db_Table_Select extends Zend_Db_Table_Select
 {
+    protected $_info;
+    protected $_integrityCheck = true;
+    protected $_table;
 
     protected $isUseSchema = true;
-
     protected $databaseAdapter;
 
     public function isUseSchema($isUseSchema)

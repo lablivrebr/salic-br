@@ -164,7 +164,10 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
     public function salvar($dados)
     {
         if (!empty ($dados['idPreProjeto'])) {
-            $rsPreProjeto = $this->find($dados['idPreProjeto'])->current();
+            $rsPreProjeto = $this->findBy(
+                [
+                    'idPreProjeto' => $dados['idPreProjeto']
+                ]);
         } else {
             unset($dados['idPreProjeto']);
             $id = $this->insert($dados);
@@ -174,38 +177,9 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             return $id;
         }
 
-        $rsPreProjeto->idAgente = $dados["idAgente"];
-        $rsPreProjeto->NomeProjeto = $dados["nomeprojeto"];
-        $rsPreProjeto->Mecanismo = $dados["mecanismo"];
-        $rsPreProjeto->AgenciaBancaria = $dados["agenciabancaria"];
-        $rsPreProjeto->AreaAbrangencia = $dados["areaabrangencia"];
-        $rsPreProjeto->DtInicioDeExecucao = $dados["dtiniciodeexecucao"];
-        $rsPreProjeto->DtFinalDeExecucao = $dados["dtfinaldeexecucao"];
-        $rsPreProjeto->NrAtoTombamento = $dados["nratotombamento"];
-        $rsPreProjeto->DtAtoTombamento = $dados["dtatotombamento"];
-        $rsPreProjeto->EsferaTombamento = $dados["esferatombamento"];
-        $rsPreProjeto->ResumoDoProjeto = $dados["resumodoprojeto"];
-        $rsPreProjeto->Objetivos = $dados["objetivos"];
-        $rsPreProjeto->Justificativa = $dados["justificativa"];
-        $rsPreProjeto->Acessibilidade = $dados["acessibilidade"];
-        $rsPreProjeto->DemocratizacaoDeAcesso = $dados["democratizacaodeacesso"];
-        $rsPreProjeto->EtapaDeTrabalho = $dados["etapadetrabalho"];
-        $rsPreProjeto->FichaTecnica = $dados["fichatecnica"];
-        $rsPreProjeto->Sinopse = $dados["sinopse"];
-        $rsPreProjeto->ImpactoAmbiental = $dados["impactoambiental"];
-        $rsPreProjeto->EspecificacaoTecnica = $dados["especificacaotecnica"];
-        $rsPreProjeto->EstrategiadeExecucao = $dados["estrategiadeexecucao"];
-        $rsPreProjeto->dtAceite = $dados["dtaceite"];
-        $rsPreProjeto->DtArquivamento = (isset($dados["dtarquivamento"])) ? $dados["dtarquivamento"] : null;
-        $rsPreProjeto->stEstado = $dados["stestado"];
-        $rsPreProjeto->stDataFixa = $dados["stdatafixa"];
-        $rsPreProjeto->stProposta = $dados["stproposta"];
-        $rsPreProjeto->idUsuario = $dados["idusuario"];
-        $rsPreProjeto->stTipoDemanda = $dados["sttipodemanda"];
-        $rsPreProjeto->idEdital = (isset($dados["idedital"])) ? $dados["idedital"] : null;
-        $rsPreProjeto->tpProrrogacao = $dados["tpprorrogacao"];
-
-        $id = $rsPreProjeto->save();
+        $objPreprojeto = new Proposta_Model_PreProjeto($dados);
+        $objPreprojetoMapper = new Proposta_Model_PreProjetoMapper();
+        $id = $objPreprojetoMapper->save($objPreprojeto);
 
         if ($id) {
             return $id;
@@ -379,7 +353,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $select->setIntegrityCheck(false);
         $select->from(
             array('pre' => $this->_name),
-            array('nomeProjeto' => 'pre.nomeprojeto', 'pronac' => 'pre.idPreProjeto'),
+            array('nomeProjeto' => 'pre.NomeProjeto', 'pronac' => 'pre.idPreProjeto'),
             $this->_schema
         );
 
@@ -389,8 +363,8 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             array(
                 'aval.stProrrogacao',
                 'idDiligencia' => 'aval.idAvaliacaoProposta',
-                'dataSolicitacao' => 'CONVERT(VARCHAR,aval.DtAvaliacao,120)',
-                'dataResposta' => 'CONVERT(VARCHAR,aval.dtResposta,120)',
+                'dataSolicitacao' => "to_char(\"aval\".\"DtAvaliacao\", 'YYYY-MM-DD HH24:MI:SS')",
+                'dataResposta' => "to_char(\"aval\".\"dtResposta\", 'YYYY-MM-DD HH24:MI:SS')",
                 'Solicitacao' => 'aval.Avaliacao',
                 'Resposta' => 'aval.dsResposta',
                 'aval.idCodigoDocumentosExigidos',
@@ -400,17 +374,17 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         );
 
         $select->joinLeft(
-            array('arq' => 'tbArquivo'),
+            array('arq' => 'scCorp.tbArquivo'),
             'arq.idArquivo = aval.idArquivo',
             array(
                 'arq.nmArquivo',
                 'arq.idArquivo'
             ),
-            $this->getSchema('bdcorporativo', true, 'sccorp')
+            $this->getSchema('bdcorporativo')
         );
 
         $select->joinLeft(
-            array('a' => 'AGENTES'),
+            array('a' => 'Agentes'),
             'pre.idAgente = a.idAgente',
             array(
                 'a.idAgente'
@@ -419,7 +393,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         );
 
         $select->joinLeft(
-            array('n' => 'NOMES'),
+            array('n' => 'Nomes'),
             'a.idAgente = n.idAgente',
             array(
                 'n.Descricao'
@@ -431,9 +405,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
             $select->where($coluna, $valor);
         }
 
-
         if ($retornaSelect) {
-
             return $select;
         } else {
             return $this->fetchAll($select);

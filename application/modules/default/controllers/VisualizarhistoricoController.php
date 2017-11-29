@@ -30,17 +30,17 @@ class VisualizarhistoricoController extends MinC_Controller_Action_Abstract {
 			//$PermissoesGrupo[] = 120; // Coordenador Administrativo CNIC
 			if (!in_array($GrupoAtivo->codGrupo, $PermissoesGrupo)) // verifica se o grupo ativo est&aacute; no array de permiss&otilde;es
 			{
-				parent::message("Você n&atilde;o tem permiss&atilde;o para acessar essa &aacute;rea do sistema!", "principal/index", "ALERT");
+				parent::message("Vocï¿½ n&atilde;o tem permiss&atilde;o para acessar essa &aacute;rea do sistema!", "principal/index", "ALERT");
 			}
 
 			// pega as unidades autorizadas, org&atilde;os e grupos do usu&aacute;rio (pega todos os grupos)
-			$grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
+			$grupos = $Usuario->buscarUnidadesAutorizadas($auth->getIdentity()->usu_codigo, 21);
 
 			// manda os dados para a vis&atilde;o
 			$this->view->usuario     = $auth->getIdentity(); // manda os dados do usu&aacute;rio para a vis&atilde;o
 			$this->view->arrayGrupos = $grupos; // manda todos os grupos do usu&aacute;rio para a vis&atilde;o
 			$this->view->grupoAtivo  = $GrupoAtivo->codGrupo; // manda o grupo ativo do usu&aacute;rio para a vis&atilde;o
-			$this->view->orgaoAtivo  = $GrupoAtivo->codOrgao; // manda o órg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
+			$this->view->orgaoAtivo  = $GrupoAtivo->codOrgao; // manda o ï¿½rg&atilde;o ativo do usu&aacute;rio para a vis&atilde;o
 		} // fecha if
 		else // caso o usu&aacute;rio n&atilde;o esteja autenticado
 		{
@@ -116,7 +116,7 @@ class VisualizarhistoricoController extends MinC_Controller_Action_Abstract {
 				}
 				else
 				{
-					// realiza a inser&ccedil;&atilde;o do histórico
+					// realiza a inser&ccedil;&atilde;o do histï¿½rico
 					$resultado = $mens->inserirMensagem($pronac, $componenteComissao, $mensagem);
 					if ($resultado)
 					{

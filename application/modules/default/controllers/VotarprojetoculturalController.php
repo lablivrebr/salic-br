@@ -28,7 +28,7 @@ class VotarProjetoCulturalController extends MinC_Controller_Action_Abstract {
             }
 
             // pega as unidades autorizadas, orgaos e grupos do usuario (pega todos os grupos)
-            $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
+            $grupos = $Usuario->buscarUnidadesAutorizadas($auth->getIdentity()->usu_codigo, 21);
 
             // manda os dados para a visao
             $this->view->usuario = $auth->getIdentity(); // manda os dados do usuario para a visao

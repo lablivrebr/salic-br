@@ -233,7 +233,6 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
      */
     public function salvarAction()
     {
-
         $post = array_change_key_case($this->getRequest()->getPost());
 
         if (empty($post['idagente'])) {

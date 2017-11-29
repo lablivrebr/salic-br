@@ -1,11 +1,5 @@
 <?php
 
-/**
- * Class Parecer
- * @author augusto
- * @author Vin&iacute;cius Feitosa da Silva <viniciusfesil@mail.com>
- * @since
- */
 class Parecer extends MinC_Db_Table_Abstract
 {
 
@@ -23,7 +17,6 @@ class Parecer extends MinC_Db_Table_Abstract
             $tmpRsParecer = $tmpTblParecer->createRow();
         }
 
-        //ATRIBUINDO VALORES AOS CAMPOS QUE FORAM PASSADOS
         if (isset($dados['IdPRONAC'])) {
             $tmpRsParecer->IdPRONAC = $dados['IdPRONAC'];
         }
@@ -38,7 +31,7 @@ class Parecer extends MinC_Db_Table_Abstract
         }
         if (isset($dados['TipoParecer'])) {
             $tmpRsParecer->TipoParecer = $dados['TipoParecer'];
-        }
+        }Proposta_Model_DbTable_PreProjeto
         if (isset($dados['ParecerFavoravel'])) {
             $tmpRsParecer->ParecerFavoravel = $dados['ParecerFavoravel'];
         }
@@ -81,9 +74,6 @@ class Parecer extends MinC_Db_Table_Abstract
         if (isset($dados['idTipoAgente'])) {
             $tmpRsParecer->idTipoAgente = $dados['idTipoAgente'];
         }
-
-//        echo "<pre>";
-
 
         //SALVANDO O OBJETO CRIADO
         $id = $tmpRsParecer->save();
