@@ -1,158 +1,160 @@
 <?php
 
-/**
- * Class Proposta_Model_TbDeslocamento
- *
- * @name Proposta_Model_TbDeslocamento
- * @package Modules/Agente
- * @subpackage Models
- * @version $Id$
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 20/09/2016
- *
- * @copyright © 2012 - Ministerio da Cultura - Todos os direitos reservados.
- * @link http://salic.cultura.gov.br
- */
 class Proposta_Model_TbDeslocamento extends MinC_Db_Model
 {
-    protected $_iddeslocamento;
-    protected $_idprojeto;
-    protected $_idpaisorigem;
-    protected $_iduforigem;
-    protected $_idmunicipioorigem;
-    protected $_idpaisdestino;
-    protected $_idufdestino;
-    protected $_idmunicipiodestino;
-    protected $_qtde;
-    protected $_idusuario;
+    protected $_idDeslocamento;
+    protected $_idProjeto;
+    protected $_idPaisOrigem;
+    protected $_idUFOrigem;
+    protected $_idMunicipioOrigem;
+    protected $_idPaisDestino;
+    protected $_idUFDestino;
+    protected $_idMunicipioDestino;
+    protected $_Qtde;
+    protected $_idUsuario;
 
     /**
      * @return mixed
      */
-    public function getIddeslocamento()
+    public function getIdDeslocamento()
     {
-        return $this->_iddeslocamento;
+        return $this->_idDeslocamento;
     }
 
     /**
-     * @param mixed $iddeslocamento
+     * @param mixed $idDeslocamento
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIddeslocamento($iddeslocamento)
+    public function setIdDeslocamento($idDeslocamento)
     {
-        $this->_iddeslocamento = $iddeslocamento;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIdprojeto()
-    {
-        return $this->_idprojeto;
-    }
-
-    /**
-     * @param mixed $idprojeto
-     */
-    public function setIdprojeto($idprojeto)
-    {
-        $this->_idprojeto = $idprojeto;
+        $this->_idDeslocamento = $idDeslocamento;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdpaisorigem()
+    public function getIdProjeto()
     {
-        return $this->_idpaisorigem;
+        return $this->_idProjeto;
     }
 
     /**
-     * @param mixed $idpaisorigem
+     * @param mixed $idProjeto
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIdpaisorigem($idpaisorigem)
+    public function setIdProjeto($idProjeto)
     {
-        $this->_idpaisorigem = $idpaisorigem;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIduforigem()
-    {
-        return $this->_iduforigem;
-    }
-
-    /**
-     * @param mixed $iduforigem
-     */
-    public function setIduforigem($iduforigem)
-    {
-        $this->_iduforigem = $iduforigem;
+        $this->_idProjeto = $idProjeto;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdmunicipioorigem()
+    public function getIdPaisOrigem()
     {
-        return $this->_idmunicipioorigem;
+        return $this->_idPaisOrigem;
     }
 
     /**
-     * @param mixed $idmunicipioorigem
+     * @param mixed $idPaisOrigem
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIdmunicipioorigem($idmunicipioorigem)
+    public function setIdPaisOrigem($idPaisOrigem)
     {
-        $this->_idmunicipioorigem = $idmunicipioorigem;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getIdpaisdestino()
-    {
-        return $this->_idpaisdestino;
-    }
-
-    /**
-     * @param mixed $idpaisdestino
-     */
-    public function setIdpaisdestino($idpaisdestino)
-    {
-        $this->_idpaisdestino = $idpaisdestino;
+        $this->_idPaisOrigem = $idPaisOrigem;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdufdestino()
+    public function getIdUFOrigem()
     {
-        return $this->_idufdestino;
+        return $this->_idUFOrigem;
     }
 
     /**
-     * @param mixed $idufdestino
+     * @param mixed $idUFOrigem
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIdufdestino($idufdestino)
+    public function setIdUFOrigem($idUFOrigem)
     {
-        $this->_idufdestino = $idufdestino;
+        $this->_idUFOrigem = $idUFOrigem;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdmunicipiodestino()
+    public function getIdMunicipioOrigem()
     {
-        return $this->_idmunicipiodestino;
+        return $this->_idMunicipioOrigem;
     }
 
     /**
-     * @param mixed $idmunicipiodestino
+     * @param mixed $idMunicipioOrigem
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIdmunicipiodestino($idmunicipiodestino)
+    public function setIdMunicipioOrigem($idMunicipioOrigem)
     {
-        $this->_idmunicipiodestino = $idmunicipiodestino;
+        $this->_idMunicipioOrigem = $idMunicipioOrigem;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdPaisDestino()
+    {
+        return $this->_idPaisDestino;
+    }
+
+    /**
+     * @param mixed $idPaisDestino
+     * @return Proposta_Model_TbDeslocamento
+     */
+    public function setIdPaisDestino($idPaisDestino)
+    {
+        $this->_idPaisDestino = $idPaisDestino;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdUFDestino()
+    {
+        return $this->_idUFDestino;
+    }
+
+    /**
+     * @param mixed $idUFDestino
+     * @return Proposta_Model_TbDeslocamento
+     */
+    public function setIdUFDestino($idUFDestino)
+    {
+        $this->_idUFDestino = $idUFDestino;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getIdMunicipioDestino()
+    {
+        return $this->_idMunicipioDestino;
+    }
+
+    /**
+     * @param mixed $idMunicipioDestino
+     * @return Proposta_Model_TbDeslocamento
+     */
+    public function setIdMunicipioDestino($idMunicipioDestino)
+    {
+        $this->_idMunicipioDestino = $idMunicipioDestino;
+        return $this;
     }
 
     /**
@@ -160,31 +162,36 @@ class Proposta_Model_TbDeslocamento extends MinC_Db_Model
      */
     public function getQtde()
     {
-        return $this->_qtde;
+        return $this->_Qtde;
     }
 
     /**
-     * @param mixed $qtde
+     * @param mixed $Qtde
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setQtde($qtde)
+    public function setQtde($Qtde)
     {
-        $this->_qtde = $qtde;
+        $this->_Qtde = $Qtde;
+        return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdusuario()
+    public function getIdUsuario()
     {
-        return $this->_idusuario;
+        return $this->_idUsuario;
     }
 
     /**
-     * @param mixed $idusuario
+     * @param mixed $idUsuario
+     * @return Proposta_Model_TbDeslocamento
      */
-    public function setIdusuario($idusuario)
+    public function setIdUsuario($idUsuario)
     {
-        $this->_idusuario = $idusuario;
+        $this->_idUsuario = $idUsuario;
+        return $this;
     }
+
 
 }

@@ -156,12 +156,12 @@ class Proposta_DeslocamentoController extends Proposta_GenericController {
         $post['idusuario'] = $this->getIdUsuario;
 
         $deslocamentos = $mapper->getDbTable()->buscarDeslocamentosGeral(array(
-            "de.idpaisorigem "=>$post["idpaisorigem"],
-            "de.idpaisdestino "=> $post["idpaisdestino"],
-            "de.idmunicipioorigem "=> $post["idmunicipioorigem"],
-            "de.idmunicipiodestino "=> $post["idmunicipiodestino"],
-            "de.idprojeto "=> $post['idprojeto'],
-            "de.qtde "=>$post['qtde']), array(), array('iddeslocamento' => $post['iddeslocamento']));
+            "de.idPaisOrigem "=>$post["idpaisorigem"],
+            "de.idPaisDestino "=> $post["idpaisdestino"],
+            "de.idMunicipioOrigem "=> $post["idmunicipioorigem"],
+            "de.idMunicipioDestino "=> $post["idmunicipiodestino"],
+            "de.idProjeto "=> $post['idprojeto'],
+            "de.Qtde "=>$post['qtde']), array(), array('idDeslocamento' => $post['iddeslocamento']));
 
         if(!empty($deslocamentos)){
             parent::message("Trecho j&aacute; cadastrado, transa&ccedil;&atilde;o cancelada!", "/proposta/localderealizacao/index?idPreProjeto=".$this->idPreProjeto, "ALERT");
@@ -172,8 +172,8 @@ class Proposta_DeslocamentoController extends Proposta_GenericController {
         try {
             if( empty($post['iddeslocamento']) )
                 unset($post['iddeslocamento']);
-
-            $intIdSave = $mapper->save(new Proposta_Model_TbDeslocamento($post));
+            $deslocamento = new Proposta_Model_TbDeslocamento($post);
+            $intIdSave = $mapper->save($deslocamento);
 //            $mapper->commit();
             if($post['iddeslocamento'] == '') {
                 parent::message("Cadastro realizado com sucesso!", "/proposta/localderealizacao/index?deslocamento=true&idPreProjeto=".$this->idPreProjeto, "CONFIRM");

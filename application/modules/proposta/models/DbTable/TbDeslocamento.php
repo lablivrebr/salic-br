@@ -11,12 +11,12 @@ class Proposta_Model_DbTable_TbDeslocamento extends MinC_Db_Table_Abstract
         $select = $this->select();
         $select->setIntegrityCheck(false);
         $select->from(array('de' => $this->_name), '*', $this->_schema)
-            ->joinLeft(array('pao' => 'Pais'), 'de.idPaisOrigem = pao.idpais', array('continente as continenteorigem', 'descricao as paisorigem'), $this->getSchema('agentes'))
-            ->joinLeft(array('ufO' => 'UF'), 'de.iduforigem = ufo.idUF', array('descricao as uforigem'), $this->getSchema('agentes'))
-            ->joinLeft(array('muO' => 'Municipios'), 'de.idmunicipioorigem = muo.idMunicipioIBGE', array('descricao as municipioorigem'), $this->getSchema('agentes'))
-            ->joinLeft(array('paD' => 'Pais'), 'de.idpaisdestino = pad.idpais', array('continente as continentedestino', 'descricao as paisodestino'), $this->getSchema('agentes'))
-            ->joinLeft(array('ufD' => 'UF'), 'de.idufdestino = ufd.idUF', array('descricao as ufdestino'), $this->getSchema('agentes'))
-            ->joinLeft(array('muD' => 'Municipios'), 'de.idmunicipiodestino = mud.idMunicipioIBGE', array('descricao as municipiodestino'), $this->getSchema('agentes'));
+            ->joinLeft(array('pao' => 'Pais'), 'de.idPaisOrigem = pao.idPais', array('pao.Continente as continenteorigem', 'pao.Descricao as paisorigem'), $this->getSchema('agentes'))
+            ->joinLeft(array('ufo' => 'UF'), 'de.idUFOrigem = ufo.idUF', array('ufo.Descricao as uforigem'), $this->getSchema('agentes'))
+            ->joinLeft(array('muo' => 'Municipios'), 'de.idMunicipioOrigem::varchar(6) = muo.idMunicipioIBGE', array('muo.Descricao as municipioorigem'), $this->getSchema('agentes'))
+            ->joinLeft(array('pad' => 'Pais'), 'de.idPaisDestino = pad.idPais', array('pad.Continente as continentedestino', 'pad.Descricao as paisodestino'), $this->getSchema('agentes'))
+            ->joinLeft(array('ufd' => 'UF'), 'de.idUFDestino = ufd.idUF', array('ufd.Descricao as ufdestino'), $this->getSchema('agentes'))
+            ->joinLeft(array('mud' => 'Municipios'), 'de.idMunicipioDestino::varchar(6) = mud.idMunicipioIBGE', array('mud.Descricao as municipiodestino'), $this->getSchema('agentes'));
         foreach ($where as $coluna => $valor) {
             $select->where($coluna . ' = ?', $valor);
         }
