@@ -11,12 +11,12 @@ class Proposta_Model_DbTable_TbDocumentosPreProjeto  extends MinC_Db_Table_Abstr
         $slct->setIntegrityCheck(false);
         $slct->from(
             array("a"=>$this->_name),
-            array("codigodocumento", new Zend_Db_Expr('(2) as tpdoc'), 'idprojeto as codigo',
-                'data', 'imdocumento', 'noarquivo', 'taarquivo', 'iddocumentospreprojetos'),
+            array("CodigoDocumento", new Zend_Db_Expr('(2) as tpdoc'), 'idProjeto as codigo',
+                'Data', 'imDocumento', 'NoArquivo', 'TaArquivo', 'idDocumentosPreprojetos'),
             $this->_schema
         );
         $slct->joinInner(
-            array("b"=> "documentosexigidos"), "a.codigodocumento = b.codigo",
+            array("b"=> "DocumentosExigidos"), "a.CodigoDocumento = b.Codigo",
             array("Descricao"), $this->getSchema('sac')
         );
 

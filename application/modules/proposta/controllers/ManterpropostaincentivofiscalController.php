@@ -567,7 +567,7 @@ xd($ex->getMessage());
                 $idDocumento = 162;
             }
             if (!empty($idDocumento))
-                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idprojeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
+                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idProjeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
 
             $this->view->arquivoExecucaoImediata = $arquivoExecucaoImediata;
         }

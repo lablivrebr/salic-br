@@ -7,14 +7,8 @@ class Autenticacao_Model_Sgcacesso extends MinC_Db_Table_Abstract
     protected $_schema = 'controledeacesso';
     protected $_primary = 'Cpf';
 
-    /**
-     * @var Zend_Db_Table $instancia
-     */
     private static $instancia;
 
-    /**
-     * @return Autenticacao_Model_Sgcacesso
-     */
     public static function obterInstancia()
     {
         if (!self::$instancia) {
@@ -57,7 +51,7 @@ class Autenticacao_Model_Sgcacesso extends MinC_Db_Table_Abstract
         // configuracoes do banco de dados (seta uma nova conexao no arquivo config.ini)
 
         $config = new Zend_Config_Ini(
-            APPLICATION_PATH. '/configs/application.ini',
+            APPLICATION_PATH . '/configs/application.ini',
             $conexao_scriptcase
         );
 
@@ -141,7 +135,8 @@ class Autenticacao_Model_Sgcacesso extends MinC_Db_Table_Abstract
         }
     }
 
-    public function loginSemCript($username, $password) {
+    public function loginSemCript($username, $password)
+    {
         // busca o usu?rio de acordo com o login e a senha
 
 
@@ -164,7 +159,7 @@ class Autenticacao_Model_Sgcacesso extends MinC_Db_Table_Abstract
             // pegamos o zend_auth
 
             $authAdapter = new Zend_Auth_Adapter_DbTable($dbAdapter);
-            $authAdapter->setTableName($this->getTableName(null, null, false)) // controledeacesso.dbo.sgcacesso
+            $authAdapter->setTableName($this->getTableName(null, null, false))// controledeacesso.dbo.sgcacesso
             ->setIdentityColumn('Cpf')
                 ->setCredentialColumn('Senha');
 

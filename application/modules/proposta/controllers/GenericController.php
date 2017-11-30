@@ -4,20 +4,45 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
 {
 
     protected $_proposta;
-
     protected $_proponente;
-
-    private $_movimentacaoAlterarProposta = '95';
-
-    private $_situacaoAlterarProjeto = Projeto_Model_Situacao::PROJETO_LIBERADO_PARA_AJUSTES;
-
-    private $_diasParaAlterarProjeto = 10;
+    protected $_movimentacaoAlterarProposta = '95';
+    protected $_situacaoAlterarProjeto = Projeto_Model_Situacao::PROJETO_LIBERADO_PARA_AJUSTES;
+    protected $_diasParaAlterarProjeto = 10;
+    protected $_idAgente;
+    protected $_idUsuario;
+    protected $_Agente;
+    protected $_Usuario;
+    protected $_SGCacesso;
+    protected $_cpfLogado;
 
     public function init()
     {
         parent::init();
 
-        //recupera ID do pre projeto (proposta)
+        $auth = Zend_Auth::getInstance()->getIdentity();
+        $arrAuth = array_change_key_case((array)$auth);
+
+        # Quando eh colabadordor do MinC (funcionarios e pareceristas) o cpf eh usu_identificacao
+        $this->_cpfLogado = isset($arrAuth['usu_identificacao']) ? $arrAuth['usu_identificacao'] : $arrAuth['cpf'];
+
+        if (isset($arrAuth['usu_identificacao'])) {
+            $dataTableUsuario = new Autenticacao_Model_Usuario();
+            $this->_Usuario = $dataTableUsuario->findBy(['usu_identificacao' => $this->_cpfLogado]);
+        } elseif (isset($arrAuth['cpf'])) {
+            $dbTableSgcAcesso = new Autenticacao_Model_Sgcacesso();
+            $this->_SGCacesso = $dbTableSgcAcesso->findBy(['Cpf' => $this->_cpfLogado]);
+        }
+
+        # Agentes sao proponentes da proposta ou do projeto
+        $tblAgentes = new Agente_Model_DbTable_Agentes();
+        $this->_Agente = $tblAgentes->findBy(array('CNPJCPF' => $this->_cpfLogado));
+
+        if ($this->_Agente) {
+            $this->_idAgente = $this->_Agente['idAgente'];
+            $this->view->idAgente = $this->_Agente['idAgente'];
+        }
+
+        # recupera ID do pre projeto (proposta)
         $idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
 
         if (!empty($idPreProjeto)) {
@@ -28,7 +53,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             $this->view->idPreProjeto = $idPreProjeto;
             $this->view->proposta = $this->_proposta;
             $this->view->proponente = $this->_proponente;
-
             $this->view->url = $this->getRequest()->REQUEST_URI;
             $this->view->isEditarProposta = $this->isEditarProposta($idPreProjeto);
             $this->view->isEditarProjeto = $this->isEditarProjeto($idPreProjeto);
@@ -41,7 +65,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
                 'listagem' => array('Lista de propostas' => array('controller' => 'manterpropostaincentivofiscal', 'action' => 'listarproposta')),
             );
 
-            // Alterar projeto
+            # Alterar projeto
             if (!empty($this->view->isEditarProjeto)) {
 
                 $tblProjetos = new Projetos();
@@ -113,84 +137,72 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     public function isEditarProjeto($idPreProjeto)
     {
 
-        if (empty($idPreProjeto))
-            return false;
+        if (!empty($idPreProjeto)) {
+            $tblProjetos = new Projetos();
+            $projeto = $tblProjetos->findBy(array('idProjeto = ?' => $idPreProjeto));
 
-        // Verifica se o projeto esta na situacao para editar
-        $tblProjetos = new Projetos();
-        $projeto = $tblProjetos->findBy(array('idProjeto = ?' => $idPreProjeto));
+            if ($tblProjetos->verificarLiberacaoParaAdequacao($projeto['IdPRONAC'])
+                && $this->contagemRegressivaSegundos($projeto['DtSituacao'], $this->_diasParaAlterarProjeto) > 0
+                && $projeto['Situacao'] == $this->_situacaoAlterarProjeto) {
+                return true;
+            }
+        }
 
-//        $tblProjetos->verificarLiberacaoParaAdequacao($projeto['IdPRONAC']);
-        if (!$tblProjetos->verificarLiberacaoParaAdequacao($projeto['IdPRONAC']))
-            return false;
-
-        if ($this->contagemRegressivaSegundos($projeto['DtSituacao'], $this->_diasParaAlterarProjeto) < 0)
-            return false;
-
-        if ($projeto['Situacao'] == $this->_situacaoAlterarProjeto)
-            return true;
-
-        return false;
     }
 
     public function isEditavel($idPreProjeto)
     {
-        if (!$this->isEditarProjeto($idPreProjeto) && !$this->isEditarProposta($idPreProjeto))
-            return false;
+        if ($this->isEditarProjeto($idPreProjeto) || $this->isEditarProposta($idPreProjeto)) {
+            return true;
+        }
 
-        return true;
     }
 
     public function buscarStatusProposta($idPreProjeto)
     {
-        if (empty($idPreProjeto))
-            return false;
+        if (!empty($idPreProjeto)) {
+            $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
+            $rsStatusAtual = $tbMovimentacao->buscarStatusPropostaNome($idPreProjeto);
 
-        $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
-        $rsStatusAtual = $tbMovimentacao->buscarStatusPropostaNome($idPreProjeto);
-
-        return $rsStatusAtual;
-
+            return $rsStatusAtual;
+        }
     }
 
-    /**
-     * salvarcustosvinculadosAction
-     *
-     * @access public
-     * @return void
-     */
     public function salvarcustosvinculados($idPreProjeto)
     {
         $idEtapa = '8'; // Custos Vinculados
         $tipoCusto = 'A';
 
-        if (empty($idPreProjeto))
-            return false;
+        if (!empty($idPreProjeto)) {
+            $TPP = new Proposta_Model_DbTable_TbPlanilhaProposta();
+            $somaPlanilhaPropostaProdutos = $TPP->somarPlanilhaPropostaProdutos($idPreProjeto, 109);
 
-        $TPP = new Proposta_Model_DbTable_TbPlanilhaProposta();
-        $somaPlanilhaPropostaProdutos = $TPP->somarPlanilhaPropostaProdutos($idPreProjeto, 109);
+            if (
+                empty($somaPlanilhaPropostaProdutos['soma'])
+                || (is_numeric($somaPlanilhaPropostaProdutos['soma']) && $somaPlanilhaPropostaProdutos['soma'] <= 0)
+            ) {
+                $TPP->excluirCustosVinculados($idPreProjeto);
+                return true;
+            }
 
-        if (empty($somaPlanilhaPropostaProdutos['soma']) || (is_numeric($somaPlanilhaPropostaProdutos['soma']) && $somaPlanilhaPropostaProdutos['soma'] <= 0)) {
-            $TPP->excluirCustosVinculados($idPreProjeto);
-            return true;
-        }
+            $itens = $this->calcularCustosVinculados($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
 
-        $itens = $this->calcularCustosVinculados($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
+            foreach ($itens as $item) {
 
-        foreach ($itens as $item) {
+                $custosVinculados = null;
 
-            $custosVinculados = null;
+                //fazer uma nova busca com o essencial para este caso
+                $custosVinculados = $TPP->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
 
-            //fazer uma nova busca com o essencial para este caso
-            $custosVinculados = $TPP->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
-
-            if (isset($custosVinculados[0]->idItem)) {
-                $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
-                $TPP->update($item, $where);
-            } else {
-                $TPP->insert($item);
+                if (isset($custosVinculados[0]->idItem)) {
+                    $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
+                    $TPP->update($item, $where);
+                } else {
+                    $TPP->insert($item);
+                }
             }
         }
+
     }
 
     public function calcularCustosVinculados($idPreProjeto, $valorTotalProdutos = null)

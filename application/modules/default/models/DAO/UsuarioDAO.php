@@ -108,7 +108,7 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
         return $db->fetchAll($sql);
     }
 
-    public static function getIdUsuario($usu_codigo)
+    public static function getIdUsuario($usu_codigo = null, $idUsuario = null)
     {
         $usuario = new UsuarioDAO();
         $query = $usuario->select();
@@ -125,7 +125,12 @@ class UsuarioDAO extends MinC_Db_Table_Abstract
             ['idAgente'],
             $usuario->getSchema('agentes')
         );
-        $query->where('usuarios.usu_codigo = ?', $usu_codigo);
+        if($usu_codigo) {
+            $query->where('usuarios.usu_codigo = ?', $usu_codigo);
+        }
+        if($idUsuario) {
+            $query->where('usuarios.usu_codigo = ?', $idUsuario);
+        }
 
         try {
             $db = Zend_Db_Table::getDefaultAdapter();
