@@ -1,20 +1,10 @@
 <?php
-/**
- * DAO Municipios
- * @author emanuel.sampaio <emanuelonline@gmail.com>
- * @since 18/04/2012
- * @version 1.0
- * @package application
- * @subpackage application.model
- * @copyright � 2012 - Minist�rio da Cultura - Todos os direitos reservados.
- * @link http://salic.cultura.gov.br
- */
 
 class Municipios extends MinC_Db_Table_Abstract
 {
-	protected $_banco  = 'agentes';
 	protected $_name   = 'Municipios';
 	protected $_schema = 'agentes';
+	protected $_primary = 'idMunicipioIBGE';
 
 
 	/**
