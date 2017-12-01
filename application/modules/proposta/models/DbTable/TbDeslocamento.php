@@ -22,7 +22,7 @@ class Proposta_Model_DbTable_TbDeslocamento extends MinC_Db_Table_Abstract
         }
         foreach ($arrNot as $coluna => $valor) {
             if (!empty($valor)) {
-                $select->where($coluna . ' != ?', $valor);
+                $select->where($coluna . ' <> ?', $valor);
             }
         }
         if ($order) {

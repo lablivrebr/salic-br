@@ -1,11 +1,15 @@
 <script type="text/javascript">
     $(document).ready(function(){
+
         $("#quantidade").numeric();
 
         <?php if (!$this->isEditavel) : ?>
         //DESABILITA ALTERACOES NOS DADOS DO FORMULARIO (INCLUIR/ALTERAR/EXCLUIR)
         JSBloquearAlteracaoFormulario();
         <?php endif; ?>
+
+        $('select').material_select('destroy');
+        $('select').material_select();
     });
 
     function alerta(ms){
@@ -177,10 +181,11 @@
                             </table>
                             <div class="row">
                                 <div class="col s12">
-                                    <fieldset>
-                                        <legend>Origem</legend>
+                                    <div>
+                                        <h2>Origem</h2>
+                                        <div class="row"></div>
                                         <div class="input-field col s3">
-                                            <select name="paisOrigem" id="paisOrigem" onchange="FpaisOrigem(this.value);" class="select_simples">
+                                            <select name="paisOrigem" id="paisOrigem" onchange="FpaisOrigem(this.value);" class="">
                                                 <?php foreach ($this->paises as $key => $paises): ?>
                                                     <option value="<?php echo $key; ?>"
                                                         <?php if(($this->idPaisO == '') && ($key == 31)) :?>
@@ -196,46 +201,56 @@
                                             <label class="active" id="LpaisOrigem">Pa&iacute;s de Origem</label>
                                         </div>
                                         <div class="input-field col s4">
-                                            <select name="uf" id="uf" class="w100 select_simples" <?php if(($this->idPaisO) && ($this->idPaisO != 31))  echo 'style="display:none"'; ?>
+                                            <select name="uf" id="uf" class=""
+                                                    <?php if(($this->idPaisO) && ($this->idPaisO != 31))  echo 'style="display:none"'; ?>
                                                     onchange="carregar_combo(this.value,'cidade','<?php echo $this->url(array('module'=>'default','controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ');">
                                                 <?php if (!isset($this->uf) || empty($this->uf)) {?>
                                                     <option value="0"> -- </option>
                                                 <?php } ?>
 
-                                                <?php foreach ($this->comboestados as $key => $comboestado){ ?>
-                                                    <option value="<?php echo $key; ?>" <?php if ($this->idUFO == $key) echo "selected=\"selected\""; ?>>
+                                                <?php foreach ($this->comboestados as $key => $comboestado): ?>
+                                                    <option
+                                                        <?php if ($this->idUFO == $key) :
+                                                                echo " selected='selected'";
+                                                            endif; ?>
+                                                            value="<?php echo $key; ?>">
                                                         <?php echo $comboestado; ?>
                                                     </option>
-                                                <?php } ?>
+                                                <?php endforeach; ?>
                                             </select>
                                             <label  class="active" id="Luf" <?php if(($this->idPaisO) && ($this->idPaisO != 31)) echo 'style="display:none"'; ?>>UF de Origem</label>
                                         </div>
                                         <div class="input-field col s4">
-                                            <select name="cidade" id="cidade" class="select_simples" <?php if(($this->idPaisO) && ($this->idPaisO != 31)) {
+                                            <select name="cidade" id="cidade" class="" <?php if(($this->idPaisO) && ($this->idPaisO != 31)) {
                                                 echo 'style="display:none; width:300px;"';
                                             } else {
                                                 echo 'style="width:300px;"';
                                             }?>>
                                                 <option value="0"> - Selecione - </option>
                                                 <?php if ($this->combocidadesO): ?>
-                                                    <?php foreach ($this->combocidadesO as $combocidade){ ?>
-                                                        <option value="<?php echo $combocidade->id; ?>" id="<?php //echo $combocidade->idUF; ?>" <?php if ($this->idCidadeO == $combocidade->id) echo "selected=\"selected\""; ?>>
+                                                    <?php foreach ($this->combocidadesO as $combocidade) : ?>
+                                                        <option value="<?php echo $combocidade->id; ?>" id="<?php //echo $combocidade->idUF; ?>"
+                                                            <?php if ($this->idCidadeO == $combocidade->id) :
+                                                                    echo " selected='selected'";
+                                                                endif;
+                                                            ?>>
                                                             <?php echo $combocidade->descricao; ?>
                                                         </option>
-                                                    <?php } ?>
+                                                    <?php endforeach; ?>
                                                 <?php endif; ?>
                                             </select>
                                             <label class="active"  id="Lcidade" <?php if(($this->idPaisO) && ($this->idPaisO != 31))echo 'style="display:none"'; ?>>Cidade de Origem</label>
                                         </div>
-                                    </fieldset>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col s12">
-                                    <fieldset>
-                                        <legend>Destino</legend></th>
+                                    <div>
+                                        <h2>Destino</h2>
+                                        <div class="row"></div>
                                         <div class="input-field col s3">
-                                            <select name="paisDestino" id="paisDestino" onchange="FpaisDestino(this.value);" class="select_simples" >
+                                            <select name="paisDestino" id="paisDestino" onchange="FpaisDestino(this.value);" class="" >
                                                 <?php foreach ($this->paises as $key => $paises): ?>
                                                     <option value="<?php echo $key; ?>"
                                                         <?php if(($this->idPaisD == '') && ($key == 31)): ?>
@@ -251,9 +266,9 @@
                                             <label class="active" id="LpaisDestino">Pa&iacute;s de Destino</label>
                                         </div>
                                         <div class="input-field col s4">
-                                            <select name="ufD" id="ufD" class="w100 input_simples"
+                                            <select name="ufD" id="ufD" class=""
                                                     onchange="carregar_combo(this.value,'cidadeD','<?php echo $this->url(array('module'=>'default', 'controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ');"
-                                                <?php if(($this->idPaisD) && ($this->idPaisD != 31))echo 'style="display:none; width:50px;"'; ?> class="select_simples" >
+                                                <?php if(($this->idPaisD) && ($this->idPaisD != 31))echo 'style="display:none; width:50px;"'; ?> class="" >
                                                 <?php if (!isset($this->uf) || empty($this->uf)) { ?>
                                                     <option value="0"> -- </option>
                                                 <?php } ?>
@@ -267,7 +282,7 @@
                                             <label class="active" id="LudD" <?php if(($this->idPaisD) && ($this->idPaisD != 31))echo 'style="display:none;"'; ?>>UF de Destino</label>
                                         </div>
                                         <div class="input-field col s4">
-                                            <select name="cidadeD" id="cidadeD" class="select_simples" <?php if(($this->idPaisD) && ($this->idPaisD != 31)) {
+                                            <select name="cidadeD" id="cidadeD" class="" <?php if(($this->idPaisD) && ($this->idPaisD != 31)) {
                                                 echo 'style="display:none; width:300px;"';
                                             }else {
                                                 echo 'style="width:300px;"';
@@ -283,18 +298,19 @@
                                             </select>
                                             <label class="active" id="LcidadeD" <?php if(($this->idPaisD) && ($this->idPaisD != 31))echo 'style="display:none;"'; ?>>Cidade de Destino</label>
                                         </div>
-                                    </fieldset>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col s12">
-                                    <fieldset>
-                                        <legend>Quantidade</legend>
+                                    <div>
+                                        <h2>Quantidade</h2>
+                                        <div class="row"></div>
                                         <div class="input-field col s3">
-                                            <input class="input_simples" value="<?php echo $this->Qtde; ?>" type="text" name="quantidade" id="quantidade" size="5" maxlength="9" />
+                                            <input class="" value="<?php echo $this->Qtde; ?>" type="text" name="quantidade" id="quantidade" size="5" maxlength="9" />
                                             <label class="active" id="Lquantidade">Quantidade de Trechos</label>
                                         </div>
-                                    </fieldset>
+                                    </div>
                                 </div>
                             </div>
                             <div class="row">
@@ -322,10 +338,10 @@
                                             <td><?php echo $desloca['pd'];?></td>
                                             <td><?php echo $desloca['ufd'];?></td>
                                             <td><?php echo $desloca['mud'];?></td>
-                                            <td><?php echo $desloca['qtde'];?></td>
+                                            <td><?php echo $desloca['Qtde'];?></td>
                                             <td>
-                                                <button type="button" title="Editar" class="btn" value=" " onclick="location.href ='<?php echo $this->baseUrl(); ?>/proposta/deslocamento/index?s=s&verifica=S&idPreProjeto=<?php echo $this->idPreProjeto; ?>&id=<?php echo $desloca['iddeslocamento']; ?>'" >Editar</button>
-                                                <button type="button" title="Excluir" class="btn red white-text" value=" " onclick="confirma(<?php echo $this->idPreProjeto; ?>,<?php echo $desloca['iddeslocamento']; ?>);">excluir</button>
+                                                <button type="button" title="Editar" class="btn" value=" " onclick="location.href ='<?php echo $this->baseUrl(); ?>/proposta/deslocamento/index?s=s&verifica=S&idPreProjeto=<?php echo $this->idPreProjeto; ?>&id=<?php echo $desloca['idDeslocamento']; ?>'" >Editar</button>
+                                                <button type="button" title="Excluir" class="btn red white-text" value=" " onclick="confirma(<?php echo $this->idPreProjeto; ?>,<?php echo $desloca['idDeslocamento']; ?>);">excluir</button>
                                             </td>
                                         </tr>
                                     <?php endforeach ?>
