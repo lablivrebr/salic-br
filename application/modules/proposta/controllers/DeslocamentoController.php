@@ -63,28 +63,27 @@ class Proposta_DeslocamentoController extends Proposta_GenericController
             $dados = $deslocamentos->getDbTable()->buscarDeslocamento($idPreProjeto, $id);
 
             if ($id && !empty($dados)) {
-                foreach ($dados as $d) {
-                    $idPaisO = $d['idpaisorigem'];
-                    $idUFO = $d['iduforigem'];
-                    $idCidadeO = $d['idmunicipioorigem'];
-                    $idPaisD = $d['idpaisdestino'];
-                    $idUFD = $d['idufdestino'];
-                    $idCidadeD = $d['idmunicipiodestino'];
-                    $Qtde = $d['qtde'];
-                }
 
                 $mapperMunicipio = new Agente_Model_MunicipiosMapper();
-                $this->view->combocidadesO = $mapperMunicipio->fetchPairs('idMunicipioIBGE', 'Descricao', array('idufibge' => $idUFO));
+                $this->view->combocidadesO = $mapperMunicipio->fetchPairs(
+                    'idMunicipioIBGE',
+                    'Descricao',
+                    array('idUFIBGE' => $dados[0]['idUFOrigem'])
+                );
                 //$this->view->combocidadesO = Cidade::buscar($idUFO);
-                $this->view->combocidadesD = $mapperMunicipio->fetchPairs('idMunicipioIBGE', 'Descricao', array('idufibge' => $idUFD));
+                $this->view->combocidadesD = $mapperMunicipio->fetchPairs(
+                    'idMunicipioIBGE',
+                    'Descricao',
+                    array('idUFIBGE' => $dados[0]['idUFOrigem'])
+                );
 
-                $this->view->idPaisO = $idPaisO;
-                $this->view->idPaisD = $idPaisD;
-                $this->view->idUFO = $idUFO;
-                $this->view->idUFD = $idUFD;
-                $this->view->idCidadeO = $idCidadeO;
-                $this->view->idCidadeD = $idCidadeD;
-                $this->view->Qtde = $Qtde;
+                $this->view->idPaisO = $dados[0]['idPaisOrigem'];
+                $this->view->idPaisD = $dados[0]['idPaisDestino'];
+                $this->view->idUFO = $dados[0]['idUFOrigem'];
+                $this->view->idUFD = $dados[0]['idUFDestino'];
+                $this->view->idCidadeO = $dados[0]['idMunicipioOrigem'];
+                $this->view->idCidadeD = $dados[0]['idMunicipioDestino'];
+                $this->view->Qtde = $dados[0]['Qtde'];
                 $this->view->idDeslocamento = $id;
             }
 
@@ -148,8 +147,9 @@ class Proposta_DeslocamentoController extends Proposta_GenericController
     {
         if ($_GET['id']) {
             try {
-                $mapper = new Proposta_Model_TbDeslocamentoMapper();
-                $excluir = $mapper->delete($_GET['id']);
+
+                $DbTableTbDeslocamneto = new Proposta_Model_DbTable_TbDeslocamento();
+                $DbTableTbDeslocamneto->delete(['idDeslocamento = ?' => $_GET['id']]);
                 parent::message("Exclus&atilde;o realizada com sucesso!", "/proposta/localderealizacao/index?deslocamento=true&idPreProjeto=" . $this->idPreProjeto, "CONFIRM");
             } catch (Zend_Exception $ex) {
                 $this->view->message = $ex->getMessage();
