@@ -54,7 +54,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
         $arrBusca = array();
         $arrBusca['idprojeto'] = $this->_idPreProjeto;
-        $arrBusca['stabrangencia'] = 1;
+        $arrBusca['stabrangencia'] = true;
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
         $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
 
@@ -297,7 +297,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
                     );
 
         $arrBusca['idprojeto'] = $this->_idPreProjeto;
-        $arrBusca['stabrangencia'] = 1;
+        $arrBusca['stabrangencia'] = true;
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
         $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
 

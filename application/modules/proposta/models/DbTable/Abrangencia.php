@@ -54,7 +54,7 @@ class Proposta_Model_DbTable_Abrangencia extends MinC_Db_Table_Abstract
      */
     public function salvar($dados)
     {
-        $dados['stAbrangencia'] = 1;
+        $dados['stAbrangencia'] = true;
         if (isset($dados['idAbrangencia']) && !empty ($dados['idAbrangencia'])) {
             $rsAbrangencia = $this->find($dados['idAbrangencia'])->current();
         } else {

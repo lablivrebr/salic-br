@@ -145,7 +145,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
         $arrBusca = array();
         $arrBusca['idProjeto'] = $this->idPreProjeto;
-        $arrBusca['stAbrangencia'] = 1;
+        $arrBusca['stAbrangencia'] = true;
         if (!empty($idAbrangencia)) {
             $arrBusca['idAbrangencia'] = $idAbrangencia;
         }
@@ -255,7 +255,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
                 "idUF" => ($locais[$i]["idPais"] == 31) ? $locais[$i]["idUF"] : 0,
                 "idMunicipioIBGE" => ($locais[$i]["idPais"] == 31) ? $locais[$i]["idMunicipioIBGE"] : 0);
 
-            $dados['stAbrangencia'] = 1;
+            $dados['stAbrangencia'] = true;
             $dados['idAbrangencia'] = $idAbrangencia;
 
 
@@ -334,7 +334,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
             //RECUPERA OS LOCAIS DE REALIZACAO CADASTRADOS
             $arrBusca = array();
             $arrBusca['idProjeto'] = $idProjeto;
-            $arrBusca['stAbrangencia'] = 1;
+            $arrBusca['stAbrangencia'] = true;
 
             $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
             $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
@@ -406,7 +406,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
         //RECUPERA LOCALIZACOES CADASTRADAS
         $arrBusca = array();
         $arrBusca['idProjeto'] = $this->idPreProjeto;
-        $arrBusca['stAbrangencia'] = 1;
+        $arrBusca['stAbrangencia'] = true;
         $arrBusca['p.idPais'] = $post->pais;
         if ($post->pais == 31) {
             $arrBusca['u.idUF'] = $post->estados;

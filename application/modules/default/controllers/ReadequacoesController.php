@@ -3251,7 +3251,7 @@ class ReadequacoesController extends MinC_Controller_Action_Abstract {
                                             $novoLocalRead['idUF'] = $abg->idUF;
                                             $novoLocalRead['idMunicipioIBGE'] = $abg->idMunicipioIBGE;
                                             $novoLocalRead['Usuario'] = $this->idUsuario;
-                                            $novoLocalRead['stAbrangencia'] = 1;
+                                            $novoLocalRead['stAbrangencia'] = true;
                                             $Abrangencia->salvar($novoLocalRead);
                                         }
                                     }
@@ -3715,7 +3715,7 @@ class ReadequacoesController extends MinC_Controller_Action_Abstract {
                             $novoLocalRead['idUF'] = $abg->idUF;
                             $novoLocalRead['idMunicipioIBGE'] = $abg->idMunicipioIBGE;
                             $novoLocalRead['Usuario'] = $this->idUsuario;
-                            $novoLocalRead['stAbrangencia'] = 1;
+                            $novoLocalRead['stAbrangencia'] = true;
                             $Abrangencia->salvar($novoLocalRead);
                         }
                     }

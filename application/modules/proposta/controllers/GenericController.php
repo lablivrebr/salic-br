@@ -242,7 +242,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             $limiteCaptacao = 150000; # valor m&aacute;ximo para capta&ccedil;&atilde;o 150.000,00
 
             $arrBusca['idprojeto'] = $idPreProjeto;
-            $arrBusca['stabrangencia'] = 1;
+            $arrBusca['stabrangencia'] = true;
 
             $idUf = 1;
             $idMunicipio = 1;
