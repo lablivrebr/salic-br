@@ -154,7 +154,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
         # RECUPERA AS CIDADES
         if (!empty($arrAbrangencia[0]['idMunicipioIBGE'])) {
             $table = new Agente_Model_DbTable_Municipios();
-            $arrCidades = $table->fetchPairs('idMunicipioIBGE', 'Descricao', array('idufibge' => $arrAbrangencia[0]['idUF']));
+            $arrCidades = $table->fetchPairs('idMunicipioIBGE', 'Descricao', array('idUFIBGE' => $arrAbrangencia[0]['idUF']));
         }
 
         $arrDados = array("paises" => $arrPais,
@@ -294,7 +294,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
         if (!empty($params['cod'])) {
             // buscar municipio e estado desta abrangencia
             $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
-            $abrangencia = $tblAbrangencia->findby(array('idabrangencia' => $params['cod']));
+            $abrangencia = $tblAbrangencia->findby(array('idAbrangencia' => $params['cod']));
 
             // excluir itens orcamentarios desta abrangencia
             if (!empty($abrangencia)) {
@@ -307,7 +307,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
             }
 
             //Exclui registro da tabela abrangencia
-            $excluir = $tblAbrangencia->delete(array('idabrangencia = ?' => $params['cod']));
+            $excluir = $tblAbrangencia->delete(array('idAbrangencia = ?' => $params['cod']));
 
         }
 
@@ -466,7 +466,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
     {
         // buscar municipio e estado desta abrangencia
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
-        $abrangencia = $tblAbrangencia->findby(array('idabrangencia' => $idAbrangencia));
+        $abrangencia = $tblAbrangencia->findby(array('idAbrangencia' => $idAbrangencia));
 
         // atualizar itens orcamentarios desta abrangencia
         if (!empty($abrangencia)) {
