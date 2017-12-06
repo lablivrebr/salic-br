@@ -381,7 +381,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
 
         # RECUPERA AS CIDADES
         $table = new Agente_Model_DbTable_Municipios();
-        $arrCidades = $table->fetchPairs('idMunicipioIBGE', 'Descricao', array('idufibge' => $idEstado));
+        $arrCidades = $table->fetchPairs('idMunicipioIBGE', 'Descricao', array('idUFIBGE' => $idEstado));
         $html = '';
         foreach ($arrCidades as $key => $cidades) {
             $html .= "<option value=\"{$key}\">{$cidades}</option>";
@@ -438,6 +438,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
         $dadosAbrangencia = array(
             "idProjeto" => $this->idPreProjeto,
             "stAbrangencia" => 1,
+            "siAbrangencia" => 0,
             "Usuario" => $this->usuarioLogado,
             "idPais" => $pais,
             "idUF" => ($pais == 31) ? $estados : 0,

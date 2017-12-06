@@ -8,8 +8,8 @@
         JSBloquearAlteracaoFormulario();
         <?php endif; ?>
 
-        $('select').material_select('destroy');
-        $('select').material_select();
+        $3('select').material_select('destroy');
+        $3('select').material_select();
     });
 
     function alerta(ms){
@@ -203,7 +203,7 @@
                                         <div class="input-field col s4">
                                             <select name="uf" id="uf" class=""
                                                     <?php if(($this->idPaisO) && ($this->idPaisO != 31))  echo 'style="display:none"'; ?>
-                                                    onchange="carregar_combo(this.value,'cidade','<?php echo $this->url(array('module'=>'default','controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ');">
+                                                    onchange="carregar_combo(this.value,'cidade','<?php echo $this->url(array('module'=>'default','controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ', null, true);">
                                                 <?php if (!isset($this->uf) || empty($this->uf)) {?>
                                                     <option value="0"> -- </option>
                                                 <?php } ?>
@@ -267,7 +267,7 @@
                                         </div>
                                         <div class="input-field col s4">
                                             <select name="ufD" id="ufD" class=""
-                                                    onchange="carregar_combo(this.value,'cidadeD','<?php echo $this->url(array('module'=>'default', 'controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ');"
+                                                    onchange="carregar_combo(this.value,'cidadeD','<?php echo $this->url(array('module'=>'default', 'controller'=>'cidade', 'action'=>'combo')); ?>',' - Selecione primeiro o UF - ', null, true);"
                                                 <?php if(($this->idPaisD) && ($this->idPaisD != 31))echo 'style="display:none; width:50px;"'; ?> class="" >
                                                 <?php if (!isset($this->uf) || empty($this->uf)) { ?>
                                                     <option value="0"> -- </option>
