@@ -1,99 +1,87 @@
 <?php
 
-/**
- * Class Proposta_Model_TbDocumentosPreProjeto
- *
- * @name Proposta_Model_TbDocumentosPreProjeto
- * @package Modules/Proposta
- * @subpackage Models
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 02/10/2016
- *
- * @link http://salic.cultura.gov.br
- */
 class Proposta_Model_TbDocumentosPreProjeto extends MinC_Db_Model
 {
-    protected $_iddocumentospreprojetos;
-    protected $_codigodocumento;
-    protected $_idprojeto;
-    protected $_idpronac;
-    protected $_data;
-    protected $_noarquivo;
-    protected $_taarquivo;
-    protected $_bidocumento;
-    protected $_dsdocumento;
-    protected $_imdocumento;
+    protected $_idDocumentosPreprojetos;
+    protected $_CodigoDocumento;
+    protected $_idProjeto;
+    protected $_idPRONAC;
+    protected $_Data;
+    protected $_imDocumento;
+    protected $_NoArquivo;
+    protected $_TaArquivo;
+    protected $_biDocumento;
+    protected $_dsDocumento;
 
     /**
      * @return mixed
      */
-    public function getIddocumentospreprojetos()
+    public function getIdDocumentosPreprojetos()
     {
-        return $this->_iddocumentospreprojetos;
+        return $this->_idDocumentosPreprojetos;
     }
 
     /**
-     * @param mixed $iddocumentospreprojetos
+     * @param mixed $idDocumentosPreprojetos
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setIddocumentospreprojetos($iddocumentospreprojetos)
+    public function setIdDocumentosPreprojetos($idDocumentosPreprojetos)
     {
-        $this->_iddocumentospreprojetos = $iddocumentospreprojetos;
+        $this->_idDocumentosPreprojetos = $idDocumentosPreprojetos;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getCodigodocumento()
+    public function getCodigoDocumento()
     {
-        return $this->_codigodocumento;
+        return $this->_CodigoDocumento;
     }
 
     /**
-     * @param mixed $codigodocumento
+     * @param mixed $CodigoDocumento
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setCodigodocumento($codigodocumento)
+    public function setCodigoDocumento($CodigoDocumento)
     {
-        $this->_codigodocumento = $codigodocumento;
+        $this->_CodigoDocumento = $CodigoDocumento;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdprojeto()
+    public function getIdProjeto()
     {
-        return $this->_idprojeto;
+        return $this->_idProjeto;
     }
 
     /**
-     * @param mixed $idprojeto
+     * @param mixed $idProjeto
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setIdprojeto($idprojeto)
+    public function setIdProjeto($idProjeto)
     {
-        $this->_idprojeto = $idprojeto;
+        $this->_idProjeto = $idProjeto;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdpronac()
+    public function getIdPRONAC()
     {
-        return $this->_idpronac;
+        return $this->_idPRONAC;
     }
 
     /**
-     * @param mixed $idpronac
+     * @param mixed $idPRONAC
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setIdpronac($idpronac)
+    public function setIdPRONAC($idPRONAC)
     {
-        $this->_idpronac = $idpronac;
+        $this->_idPRONAC = $idPRONAC;
         return $this;
     }
 
@@ -102,106 +90,106 @@ class Proposta_Model_TbDocumentosPreProjeto extends MinC_Db_Model
      */
     public function getData()
     {
-        return $this->_data;
+        return $this->_Data;
     }
 
     /**
-     * @param mixed $data
+     * @param mixed $Data
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setData($data)
+    public function setData($Data)
     {
-        $this->_data = $data;
+        $this->_Data = $Data;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getNoarquivo()
+    public function getImDocumento()
     {
-        return $this->_noarquivo;
+        return $this->_imDocumento;
     }
 
     /**
-     * @param mixed $noarquivo
+     * @param mixed $imDocumento
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setNoarquivo($noarquivo)
+    public function setImDocumento($imDocumento)
     {
-        $this->_noarquivo = $noarquivo;
+        $this->_imDocumento = $imDocumento;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getTaarquivo()
+    public function getNoArquivo()
     {
-        return $this->_taarquivo;
+        return $this->_NoArquivo;
     }
 
     /**
-     * @param mixed $taarquivo
+     * @param mixed $NoArquivo
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setTaarquivo($taarquivo)
+    public function setNoArquivo($NoArquivo)
     {
-        $this->_taarquivo = $taarquivo;
+        $this->_NoArquivo = $NoArquivo;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getBidocumento()
+    public function getTaArquivo()
     {
-        return $this->_bidocumento;
+        return $this->_TaArquivo;
     }
 
     /**
-     * @param mixed $bidocumento
+     * @param mixed $TaArquivo
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setBidocumento($bidocumento)
+    public function setTaArquivo($TaArquivo)
     {
-        $this->_bidocumento = $bidocumento;
+        $this->_TaArquivo = $TaArquivo;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getDsdocumento()
+    public function getBiDocumento()
     {
-        return $this->_dsdocumento;
+        return $this->_biDocumento;
     }
 
     /**
-     * @param mixed $dsdocumento
+     * @param mixed $biDocumento
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setDsdocumento($dsdocumento)
+    public function setBiDocumento($biDocumento)
     {
-        $this->_dsdocumento = $dsdocumento;
+        $this->_biDocumento = $biDocumento;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getImdocumento()
+    public function getDsDocumento()
     {
-        return $this->_imdocumento;
+        return $this->_dsDocumento;
     }
 
     /**
-     * @param mixed $imdocumento
+     * @param mixed $dsDocumento
      * @return Proposta_Model_TbDocumentosPreProjeto
      */
-    public function setImdocumento($imdocumento)
+    public function setDsDocumento($dsDocumento)
     {
-        $this->_imdocumento = $imdocumento;
+        $this->_dsDocumento = $dsDocumento;
         return $this;
     }
 

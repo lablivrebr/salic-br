@@ -37,31 +37,28 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
 
             $tbPreProjeto = new Proposta_Model_DbTable_PreProjeto();
             $dadosProjeto = $tbPreProjeto->findBy(array('idPreProjeto' => $arrPost['idPreProjeto']));
-
             $where = array();
             $where['CodigoDocumento'] = $arrPost['documento'];
-            $where['idProjeto'] = $arrPost['idPreProjeto'];
-            if ($arrPost['tipoDocumento'] == 1) {
-                $where['idAgente'] = $dadosProjeto['idAgente'];
-            }
-
             $strPath = '/data/proposta/model/tbdocumentoagentes/';
             $strPathFull = APPLICATION_PATH . '/..' . $strPath;
             $dadosArquivo = array(
-                'codigodocumento' => $arrPost['documento'],
-                'idprojeto' => $arrPost['idPreProjeto'],
-                'data' => date('Y-m-d'),
-                'noarquivo' => $arquivoNome,
-                'taarquivo' => $arquivoTamanho,
-                'dsdocumento' => $arrPost['observacao'],
+                'CodigoDocumento' => $arrPost['documento'],
+                'Data' => date('Y-m-d'),
+                'NoArquivo' => $arquivoNome,
+                'TaArquivo' => $arquivoTamanho,
                 'idAgente' => $dadosProjeto['idAgente'],
             );
 
             $table = $this;
             $model = new Proposta_Model_TbDocumentosAgentes();
+            $where['idAgente'] = $dadosProjeto['idAgente'];
             if ($arrPost['tipoDocumento'] != 1) {
                 $table = new Proposta_Model_TbDocumentosPreProjetoMapper();
                 $model = new Proposta_Model_TbDocumentosPreProjeto();
+                $dadosArquivo['idProjeto'] = $arrPost['idPreProjeto'];
+                $dadosArquivo['dsDocumento'] = $arrPost['observacao'];
+                $where['idProjeto'] = $arrPost['idPreProjeto'];
+                unset($where['idAgente']);
             }
 
             $docCadastrado = $table->findBy($where);
@@ -87,7 +84,7 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
             $tblDocumentosPendentesProjeto = new Proposta_Model_DbTable_DocumentosProjeto();
             $tblDocumentosPendentesProponente = new Proposta_Model_DbTable_DocumentosProponente();
             $tblDocumentosPendentesProjeto->delete("idProjeto = {$arrPost['idPreProjeto']} AND CodigoDocumento = {$arrPost['documento']}");
-            $tblDocumentosPendentesProponente->delete("idProjeto = {$arrPost['idPreProjeto']} AND CodigoDocumento = {$arrPost['documento']}");
+            $tblDocumentosPendentesProponente->delete("IdProjeto = {$arrPost['idPreProjeto']} AND CodigoDocumento = {$arrPost['documento']}");
 
             return true;
         } catch (Exception $objException) {

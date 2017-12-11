@@ -1,78 +1,66 @@
 <?php
 
-/**
- * Class Proposta_Model_TbDocumentosAgentes
- *
- * @name Proposta_Model_TbDocumentosAgentes
- * @package Modules/Agente
- * @subpackage Models
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 29/09/2016
- *
- * @link http://salic.cultura.gov.br
- */
 class Proposta_Model_TbDocumentosAgentes extends MinC_Db_Model
 {
-    protected $_iddocumentosagentes;
-    protected $_codigodocumento;
-    protected $_idagente;
-    protected $_data;
-    protected $_noarquivo;
-    protected $_taarquivo;
-    protected $_imdocumento;
+    protected $_idDocumentosAgentes;
+    protected $_CodigoDocumento;
+    protected $_idAgente;
+    protected $_Data;
+    protected $_imDocumento;
+    protected $_NoArquivo;
+    protected $_TaArquivo;
 
     /**
      * @return mixed
      */
-    public function getIddocumentosagentes()
+    public function getIdDocumentosAgentes()
     {
-        return $this->_iddocumentosagentes;
+        return $this->_idDocumentosAgentes;
     }
 
     /**
-     * @param mixed $iddocumentosagentes
+     * @param mixed $idDocumentosAgentes
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setIddocumentosagentes($iddocumentosagentes)
+    public function setIdDocumentosAgentes($idDocumentosAgentes)
     {
-        $this->_iddocumentosagentes = $iddocumentosagentes;
+        $this->_idDocumentosAgentes = $idDocumentosAgentes;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getCodigodocumento()
+    public function getCodigoDocumento()
     {
-        return $this->_codigodocumento;
+        return $this->_CodigoDocumento;
     }
 
     /**
-     * @param mixed $codigodocumento
+     * @param mixed $CodigoDocumento
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setCodigodocumento($codigodocumento)
+    public function setCodigoDocumento($CodigoDocumento)
     {
-        $this->_codigodocumento = $codigodocumento;
+        $this->_CodigoDocumento = $CodigoDocumento;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getIdagente()
+    public function getIdAgente()
     {
-        return $this->_idagente;
+        return $this->_idAgente;
     }
 
     /**
-     * @param mixed $idagente
+     * @param mixed $idAgente
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setIdagente($idagente)
+    public function setIdAgente($idAgente)
     {
-        $this->_idagente = $idagente;
+        $this->_idAgente = $idAgente;
         return $this;
     }
 
@@ -81,70 +69,70 @@ class Proposta_Model_TbDocumentosAgentes extends MinC_Db_Model
      */
     public function getData()
     {
-        return $this->_data;
+        return $this->_Data;
     }
 
     /**
-     * @param mixed $data
+     * @param mixed $Data
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setData($data)
+    public function setData($Data)
     {
-        $this->_data = $data;
+        $this->_Data = $Data;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getNoarquivo()
+    public function getImDocumento()
     {
-        return $this->_noarquivo;
+        return $this->_imDocumento;
     }
 
     /**
-     * @param mixed $noarquivo
+     * @param mixed $imDocumento
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setNoarquivo($noarquivo)
+    public function setImDocumento($imDocumento)
     {
-        $this->_noarquivo = $noarquivo;
+        $this->_imDocumento = $imDocumento;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getTaarquivo()
+    public function getNoArquivo()
     {
-        return $this->_taarquivo;
+        return $this->_NoArquivo;
     }
 
     /**
-     * @param mixed $taarquivo
+     * @param mixed $NoArquivo
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setTaarquivo($taarquivo)
+    public function setNoArquivo($NoArquivo)
     {
-        $this->_taarquivo = $taarquivo;
+        $this->_NoArquivo = $NoArquivo;
         return $this;
     }
 
     /**
      * @return mixed
      */
-    public function getImdocumento()
+    public function getTaArquivo()
     {
-        return $this->_imdocumento;
+        return $this->_TaArquivo;
     }
 
     /**
-     * @param mixed $imdocumento
+     * @param mixed $TaArquivo
      * @return Proposta_Model_TbDocumentosAgentes
      */
-    public function setImdocumento($imdocumento)
+    public function setTaArquivo($TaArquivo)
     {
-        $this->_imdocumento = $imdocumento;
+        $this->_TaArquivo = $TaArquivo;
         return $this;
     }
 }

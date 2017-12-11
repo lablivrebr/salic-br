@@ -1,22 +1,10 @@
 <?php
 
-/**
- * Class Proposta_Model_DbTable_DocumentosProjeto
- *
- * @name Proposta_Model_DbTable_DocumentosProjeto
- * @package Modules/Proposta
- * @subpackage Models/DbTable
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 02/10/2016
- *
- * @link http://salic.cultura.gov.br
- */
 class Proposta_Model_DbTable_DocumentosProjeto extends MinC_Db_Table_Abstract
 {
-    protected $_banco = "sac";
     protected $_schema = "sac";
-    protected $_name = 'documentosprojeto';
+    protected $_name = 'DocumentosProjeto';
+    protected $_primary = 'Contador';
 
     public function documentosAnexados($idPronac)
     {

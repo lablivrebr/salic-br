@@ -225,7 +225,14 @@ $edital = '';
 
     // funcao para excluir os anexos
     function excluirAnexos(idArquivo, idPreProjeto, tipoDocumento) {
-        url = '<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterpropostaedital', 'action' => 'excluiranexo')) ?>?idArquivo=' + idArquivo + '&idPreProjeto=' + idPreProjeto + '&tipoDocumento=' + tipoDocumento;
+        url = '<?php echo $this->url(
+            array(
+                'module' => 'proposta',
+                'controller' => 'manterpropostaedital',
+                'action' => 'excluiranexo'
+            )
+        )
+            ?>?idArquivo=' + idArquivo + '&idPreProjeto=' + idPreProjeto + '&tipoDocumento=' + tipoDocumento;
         confirmModal('CONFIRMA&Ccedil;&Atilde;O', 'msgExclusaoArq', 320, 200, null, url);
     }
 </script>

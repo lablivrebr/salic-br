@@ -1156,12 +1156,6 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         }
     }
 
-    /**
-     * validarAgenciaBancariaAction
-     *
-     * @access public
-     * @return void
-     */
     public function validarAgenciaBancariaAction()
     {
         $this->_helper->layout->disableLayout(); // desabilita o Zend_Layout
@@ -1175,37 +1169,33 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $this->_helper->viewRenderer->setNoRender(TRUE);
     }
 
-    /**
-     * excluiranexoAction
-     * Metodo para efetuar a exclusao do arquivo
-     *
-     * @access public
-     * @return void
-     */
     public function excluiranexoAction()
     {
-        if (isset($_GET['idArquivo']) && !empty($_GET['idArquivo']) && isset($_GET['idPreProjeto']) && !empty($_GET['idPreProjeto']) && isset($_GET['tipoDocumento']) && !empty($_GET['tipoDocumento'])) :
-            if ($_GET['tipoDocumento'] == 'proposta') {
+        $get = Zend_Registry::get("get");
+        if (isset($get->idArquivo) && !empty($get->idArquivo) && isset($get->idPreProjeto) && !empty($get->idPreProjeto) && isset($get->tipoDocumento) && !empty($get->tipoDocumento)) {
+            if ($get->tipoDocumento == 'proposta') {
                 $tbDocumentosPreProjeto = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
-                $file = $tbDocumentosPreProjeto->findBy(array('iddocumentospreprojetos' => $_GET['idArquivo']));
-                $tbDocumentosPreProjeto->apagar(array('iddocumentospreprojetos = ?' => $_GET['idArquivo']));
+                $file = $tbDocumentosPreProjeto->findBy(
+                    array('idDocumentosPreprojetos' => $get->idArquivo)
+                );
+                $tbDocumentosPreProjeto->apagar(array('idDocumentosPreprojetos = ?' => $get->idArquivo));
             } else {
                 $tbDocumentosAgentes = new Proposta_Model_DbTable_TbDocumentosAgentes();
-                $file = $tbDocumentosAgentes->findBy(array('iddocumentosagentes' => $_GET['idArquivo']));
-                $tbDocumentosAgentes->apagar(array('iddocumentosagentes = ?' => $_GET['idArquivo']));
+                $file = $tbDocumentosAgentes->findBy(array('idDocumentosAgentes' => $get->idArquivo));
+                $tbDocumentosAgentes->apagar(array('idDocumentosAgentes = ?' => $get->idArquivo));
             }
+
             $filePath = APPLICATION_PATH . '/..' . $file['imdocumento'];
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
 
-            if (isset($_GET['request'])) {
-                $request = $_GET['request'];
-            } else {
-                $request = 'proposta/manterpropostaedital/enviararquivoedital?idPreProjeto=' . $_GET['idPreProjeto'];
+            $request = 'proposta/manterpropostaedital/enviararquivoedital?idPreProjeto=' . $get->idPreProjeto;
+            if (isset($get->request)) {
+                $request = $get->request;
             }
 
             parent::message('Exclus&atilde;o efetuada com sucesso!', $request, 'CONFIRM');
-        endif;
+        }
     }
 }
