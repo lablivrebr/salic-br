@@ -457,10 +457,14 @@ class Admissibilidade_AdmissibilidadeController extends MinC_Controller_Action_A
         $htmlOptions = "<option value=''> - Selecione - </option>";
         foreach ($options as $option) {
             $selected = "";
-            if ($option['codigo'] == $idDocumento) {
+            if (
+                !is_null($idDocumento)
+                && !empty($idDocumento)
+                && $option['Codigo'] == $idDocumento
+            ) {
                 $selected = "selected='selected' ";
             }
-            $htmlOptions .= "<option value='{$option['codigo']}' {$selected}>" . ucfirst(((($option['Descricao'])))) . " </option>";
+            $htmlOptions .= "<option value='{$option['Codigo']}' {$selected}>" . ucfirst(((($option['Descricao'])))) . " </option>";
         }
         echo $htmlOptions;
     }

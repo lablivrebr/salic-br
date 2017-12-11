@@ -34,7 +34,7 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
 
         // Busca na SGCAcesso
         $modelSgcAcesso = new Autenticacao_Model_Sgcacesso();
-        $arrAcesso = $modelSgcAcesso->findBy(array('cpf' => $cpf));
+        $arrAcesso = $modelSgcAcesso->findBy(array('Cpf' => $cpf));
 
         // Busca na Usuarios
         //Excluir ProposteExcluir Proposto
@@ -372,14 +372,14 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
 
         $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
-        $rs = $tbl->buscarDocumentos(array("idprojeto = ?" => $idPreProjeto));
+        $rs = $tbl->buscarDocumentos(array("idProjeto = ?" => $idPreProjeto));
         $this->view->arquivosProposta = $rs;
 
         $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
         $dadosProjeto = $tblPreProjeto->findBy(array('idPreProjeto' => $idPreProjeto));
 
         $tbA = new Proposta_Model_DbTable_TbDocumentosAgentes();
-        $rsA = $tbA->buscarDadosDocumentos(array("idagente = ?" => $dadosProjeto['idAgente']));
+        $rsA = $tbA->buscarDadosDocumentos(array("idAgente = ?" => $dadosProjeto['idAgente']));
         $this->view->arquivosProponente = $rsA;
 
 //        $tblDocumentos = new DocumentosExigidos();

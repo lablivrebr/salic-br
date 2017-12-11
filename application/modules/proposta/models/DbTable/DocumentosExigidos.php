@@ -1,107 +1,92 @@
 <?php
 
-/**
- * Class Proposta_Model_DbTable_DocumentosExigidos
- *
- * @name Proposta_Model_DbTable_DocumentosExigidos
- * @package Modules/Agente
- * @subpackage Models/DbTable
- * @version $Id$
- *
- * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
- * @since 01/09/2016
- *
- * @copyright © 2012 - Ministerio da Cultura - Todos os direitos reservados.
- * @link http://salic.cultura.gov.br
- *
-    Codigo
-    Descricao
-    Area
-    Opcao
-    stEstadostUpload
- */
 class Proposta_Model_DbTable_DocumentosExigidos extends MinC_Db_Table_Abstract
 {
-    /**
-     * _name
-     *
-     * @var bool
-     * @access protected
-     */
-    protected $_name = 'documentosexigidos';
-
-    /**
-     * _schema
-     *
-     * @var string
-     * @access protected
-     */
+    protected $_name = 'DocumentosExigidos';
     protected $_schema = 'sac';
-
-    /**
-     * _primary
-     *
-     * @var bool
-     * @access protected
-     */
     protected $_primary = 'Codigo';
 
     /**
      * Realizando a busca na view: vwdocumentosexigidosapresentacaoproposta
      * Futuramente deletar este metodo junto com a view, pois nao tem nessecidade desta view por ser muito simples.
      *
-     * @name buscarDocumentoOpcao
-     * @param $idOpcao
      * @return array
-     *
-     * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
-     * @since  28/09/2016
      */
     public function buscarDocumentoOpcao($idOpcao)
     {
         $select = $this->select()
             ->setIntegrityCheck(false)
-            ->from($this->getName('vwdocumentosexigidosapresentacaoproposta'),
-                array('codigo', 'Descricao'),
+            ->from($this->getName('vwDocumentosExigidosApresentacaoProposta'),
+                array('Codigo', 'Descricao'),
                 $this->_schema)
-            ->where('opcao = ?', $idOpcao)
+            ->where('Opcao = ?', $idOpcao)
             ->order('Descricao');
         $result = $this->fetchAll($select);
-        return ($result)? $result->toArray() : array();
+        return ($result) ? $result->toArray() : array();
     }
 
-    public function buscarDocumentoPendente($idPreProjeto){
+    public function buscarDocumentoPendente($idPreProjeto)
+    {
         $selectProponente = $this->select()
             ->setIntegrityCheck(false)
-//            ->from(['dp' => 'documentosproponente'], ['idprojeto', 'contador', 'codigodocumento', 'opcao'], $this->_schema)
-            ->from(array('dp' => 'documentosproponente'), array('contador', 'codigodocumento'), $this->_schema)
-            ->joinInner(array('d' => 'documentosexigidos'), 'dp.codigodocumento = d.codigo', array('opcao'), $this->_schema)
-            ->joinInner(array('p' => 'PreProjeto'), 'dp.idprojeto = p.idPreProjeto', null, $this->_schema)
-            ->joinInner(array('m' => 'tbmovimentacao'), 'm.idprojeto = p.idPreProjeto', array('idprojeto'), $this->_schema)
-            ->where('movimentacao in (?)', array(97, 95))
-            ->where('m.stestado = ?', 0)
-            ->where('m.idprojeto = ?', (int)$idPreProjeto)
-        ;
+            ->from(
+                array('dp' => 'DocumentosProponente'),
+                array('Contador', 'CodigoDocumento'),
+                $this->_schema
+            )
+            ->joinInner(
+                array('d' => 'DocumentosExigidos'),
+                'dp.CodigoDocumento = d.Codigo',
+                array('Opcao'),
+                $this->_schema
+            )
+            ->joinInner(
+                array('p' => 'PreProjeto'),
+                'dp.IdProjeto = p.idPreProjeto',
+                null,
+                $this->_schema
+            )
+            ->joinInner(
+                array('m' => 'tbMovimentacao'),
+                'm.idProjeto = p.idPreProjeto',
+                array('idProjeto'),
+                $this->_schema
+            )
+            ->where('Movimentacao in (?)', array(97, 95))
+            ->where('m.stEstado = ?', 'f')
+            ->where('m.idProjeto = ?', (int)$idPreProjeto);
 
         $selectProjeto = $this->select()
             ->setIntegrityCheck(false)
-//            ->from(['dpr' => 'documentosprojeto'], ['idprojeto', 'contador', 'codigodocumento', 'opcao'], $this->_schema)
-            ->from(array('dpr' => 'documentosprojeto'), array('contador', 'codigodocumento'), $this->_schema)
-            ->joinInner(array('d' => 'documentosexigidos'), 'dpr.codigodocumento = d.codigo', array('opcao'), $this->_schema)
-            ->joinInner(array('p' => 'PreProjeto'), 'dpr.idprojeto = p.idPreProjeto', null, $this->_schema)
-            ->joinInner(array('m' => 'tbmovimentacao'), 'm.idprojeto = p.idPreProjeto', array('idprojeto'), $this->_schema)
-            ->where('movimentacao in (?)', array(97, 95))
-            ->where('m.stestado = ?', 0)
-            ->where('m.idprojeto = ?', (int)$idPreProjeto)
-        ;
+            ->from(
+                array('dpr' => 'DocumentosProjeto'),
+                array('Contador', 'CodigoDocumento'),
+                $this->_schema
+            )
+            ->joinInner(
+                array('d' => 'DocumentosExigidos'),
+                'dpr.CodigoDocumento = d.Codigo',
+                array('Opcao'),
+                $this->_schema
+            )
+            ->joinInner(
+                array('p' => 'PreProjeto'),
+                'dpr.idProjeto = p.idPreProjeto',
+                null,
+                $this->_schema
+            )
+            ->joinInner(
+                array('m' => 'tbMovimentacao'),
+                'm.idProjeto = p.idPreProjeto',
+                array('idProjeto'),
+                $this->_schema
+            )
+            ->where('Movimentacao in (?)', array(97, 95))
+            ->where('m.stEstado = ?', 'f')
+            ->where('m.idProjeto = ?', (int)$idPreProjeto);
 
         $select = $this->select()
-            //->distinct()
-            ->union(array($selectProponente, $selectProjeto))
-//            ->joinLeft(['doc' => 'documentosexigidos'], 'vdoc.codigodocumento = doc.codigo', '*', $this->_schema)
-
-//                        left join sac.dbo.DocumentosExigidos doc on vdoc.CodigoDocumento = doc.Codigo
-        ;
+            ->union(array($selectProponente, $selectProjeto));
 
         $resultado = $this->fetchAll($select);
         return $resultado;

@@ -1,6 +1,12 @@
 <?php
-$buscarDocumento = $this->url(array('module' => 'admissibilidade', 'controller' => 'admissibilidade', 'action' => 'buscardocumento'));
-$edital='';
+$buscarDocumento = $this->url(
+    array(
+        'module' => 'admissibilidade',
+        'controller' => 'admissibilidade',
+        'action' => 'buscardocumento'
+    )
+);
+$edital = '';
 
 //if(isset($_GET['edital']) && $_GET['edital']=="s"){
 //    echo $this->partial('manterpropostaedital/inc/menu.inc.php', $this);
@@ -17,25 +23,36 @@ $edital='';
             <div id="msgExclusaoArq" class="sumir">Deseja realmente efetuar a exclus&atilde;o?</div>
             <h4>Anexar Documentos</h4>
             <div id="">
-                <?php if( !$this->isEditarProjeto) : ?>
-                    <form method="post" action="<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterpropostaedital', 'action' => 'incluir-anexo')) ?>" id="formulario"  enctype="multipart/form-data">
-                        <input type="hidden" name="idPreProjeto" value="<?php echo $_GET['idPreProjeto'] ?>" >
-                        <input type="hidden" name="edital" value="<?php echo $edital ?>" />
-                         <fieldset>
+                <?php if (!$this->isEditarProjeto) : ?>
+                    <form method="post" action="<?php echo $this->url(
+                        array(
+                            'module' => 'proposta',
+                            'controller' => 'manterpropostaedital',
+                            'action' => 'incluir-anexo'
+                        )
+                    )
+                    ?>" id="formulario" enctype="multipart/form-data">
+                        <input type="hidden" name="idPreProjeto" value="<?php echo $_GET['idPreProjeto'] ?>">
+                        <input type="hidden" name="edital" value="<?php echo $edital ?>"/>
+                        <fieldset>
                             <legend>Novo Arquivo</legend>
                             <div class="row">
-                            <div class="input-field col s12">
-                                <label class="active">Arquivo <span class="red-text">*</span></label>
-                                <input type="file" name="arquivo" id="arquivo" class="input_simples">
-                                <span style="color:#f00" id="arquivoinvalido"></span>
-                            </div>
+                                <div class="input-field col s12">
+                                    <label class="active">Arquivo <span class="red-text">*</span></label>
+                                    <input type="file" name="arquivo" id="arquivo" class="input_simples">
+                                    <span style="color:#f00" id="arquivoinvalido"></span>
+                                </div>
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
                                     <label class="active">Tipo do documento<span class="red-text">*</span></label>
                                     <p>
-                                        <input type="radio"  name="tipoDocumento" class="tipoDocumento" id="tipoDocumento1" value="1" /><label for="tipoDocumento1">Proponente</label>
-                                        <input type="radio"  name="tipoDocumento" class="tipoDocumento" id="tipoDocumento2" value="2" /><label for="tipoDocumento2">Proposta</label>
+                                        <input type="radio" name="tipoDocumento" class="tipoDocumento"
+                                               id="tipoDocumento1" value="1"/><label
+                                                for="tipoDocumento1">Proponente</label>
+                                        <input type="radio" name="tipoDocumento" class="tipoDocumento"
+                                               id="tipoDocumento2" value="2"/><label
+                                                for="tipoDocumento2">Proposta</label>
                                         <span style="color:#f00" id="tipodocumentoinvalido"></span>
                                     </p>
                                 </div>
@@ -43,7 +60,7 @@ $edital='';
                             <div class="row">
                                 <div class="input-field col s12">
                                     <label class="active">Documento <span class="red-text">*</span></label>
-                                    <select id="documento" name="documento" class="select_simples">
+                                    <select id="documento" name="documento" class="">
                                         <option value=""> - Selecione um Tipo de Documento - &nbsp;</option>
                                     </select>
                                     <span style="color:#f00" id="documentoinvalido"></span>
@@ -51,134 +68,141 @@ $edital='';
                             </div>
                             <div class="row">
                                 <div class="input-field col s12">
-                                    <textarea name="observacao" class="materialize-textarea" cols="60" rows="5"></textarea>
+                                    <textarea name="observacao" class="materialize-textarea" cols="60"
+                                              rows="5"></textarea>
                                     <label class="active">Observa&ccedil;&atilde;o</label>
                                 </div>
                             </div>
                         </fieldset>
                         <div class="row">
                             <div class="col s12 center">
-                                <button class="btn" id="enviar" type="button" onclick="enviaform()" value="">Enviar</button>
+                                <button class="btn" id="enviar" type="button" onclick="enviaform()" value="">Enviar
+                                </button>
                             </div>
                         </div>
                     </form>
                 <?php endif; ?>
-                <?php if(count($this->arquivosProposta)>0){ ?>
-                <table class="tabela">
-                    <tr>
-                        <th colspan="4">Documentos da Proposta</th>
-                    </tr>
-                    <tr class="destacar">
-                        <td align="center"><b>Documento</b></td>
-                        <td align="center"><b>Data envio</b></td>
-                        <td align="center"><b>Arquivo</b></td>
-                        <?php if( !$this->isEditarProjeto) : ?>
-                        <td align="center" width="150"><b>A&ccedil;&atilde;o</b></td>
-                        <?php endif; ?>
-                    </tr>
-                    <?php foreach ($this->arquivosProposta as $arquivosProposta) { ?>
-                    <tr>
-                        <td><?php echo $arquivosProposta['Descricao']; ?></td>
-                        <td align="center"><?php echo Data::tratarDataZend($arquivosProposta['data'], 'Brasileira'); ?></td>
-                        <td>
-                            <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'upload', 'action' => 'abrir-documentos-pre-projeto')); ?>?id=<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>">
-                                <?php echo $arquivosProposta['noarquivo']; ?>
-                            </a>
-                        </td>
-                        <?php if( !$this->isEditarProjeto) : ?>
-                            <td align="center">
-                                <button type="button" class="btn red white-text"
-                                    onclick="excluirAnexos(<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proposta');" >
-                                    Excluir
-                                </button>
+                <?php if (count($this->arquivosProposta) > 0) { ?>
+                    <table class="tabela">
+                        <tr>
+                            <th colspan="4">Documentos da Proposta</th>
+                        </tr>
+                        <tr class="destacar">
+                            <td align="center"><b>Documento</b></td>
+                            <td align="center"><b>Data envio</b></td>
+                            <td align="center"><b>Arquivo</b></td>
+                            <?php if (!$this->isEditarProjeto) : ?>
+                                <td align="center" width="150"><b>A&ccedil;&atilde;o</b></td>
+                            <?php endif; ?>
+                        </tr>
+                        <?php foreach ($this->arquivosProposta as $arquivosProposta) { ?>
+                        <tr>
+                            <td><?php echo $arquivosProposta['Descricao']; ?></td>
+                            <td align="center"><?php echo Data::tratarDataZend($arquivosProposta['data'], 'Brasileira'); ?></td>
+                            <td>
+                                <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'upload', 'action' => 'abrir-documentos-pre-projeto')); ?>?id=<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>">
+                                    <?php echo $arquivosProposta['noarquivo']; ?>
+                                </a>
                             </td>
-                        <?php endif; ?>
-                    <?php } ?>
-                </table>
+                            <?php if (!$this->isEditarProjeto) : ?>
+                                <td align="center">
+                                    <button type="button" class="btn red white-text"
+                                            onclick="excluirAnexos(<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proposta');">
+                                        Excluir
+                                    </button>
+                                </td>
+                            <?php endif; ?>
+                            <?php } ?>
+                    </table>
                 <?php } ?>
-                <?php if(count($this->arquivosProponente)>0){ ?>
-                <br clear="all" />
-                <table class="bordered">
-                    <tr>
-                        <th colspan="4">Documentos do Proponente</th>
-                    </tr>
-                    <tr class="destacar">
-                        <td align="center"><b>Documento</b></td>
-                        <td align="center"><b>Data envio</b></td>
-                        <td align="center"><b>Arquivo</b></td>
-                        <?php if( !$this->isEditarProjeto) : ?>
-                            <td align="center" width="150"><b>A&ccedil;&atilde;o</b></td>
-                        <?php endif; ?>
-                    </tr>
-                    <?php foreach ($this->arquivosProponente as $arquivosProponente) { ?>
-                    <tr>
-                        <td><?php echo $arquivosProponente['Descricao']; ?></td>
-                        <td align="center"><?php echo Data::tratarDataZend($arquivosProponente['Data'], 'Brasileira'); ?></td>
-                        <td><a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'upload', 'action' => 'abrir-documentos-agentes')); ?>?id=<?php echo $arquivosProponente['idDocumentosAgentes']; ?>"><?php echo $arquivosProponente['NoArquivo']; ?></a></td>
-                        <?php if( !$this->isEditarProjeto) : ?>
-                            <td align="center">
-                                <button type="button"
-                                    class="btn red white-text"
-                                    onclick="excluirAnexos(<?php echo $arquivosProponente['idDocumentosAgentes']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proponente');" />
-                                excluir</button>
+                <?php if (count($this->arquivosProponente) > 0) { ?>
+                    <br clear="all"/>
+                    <table class="bordered">
+                        <tr>
+                            <th colspan="4">Documentos do Proponente</th>
+                        </tr>
+                        <tr class="destacar">
+                            <td align="center"><b>Documento</b></td>
+                            <td align="center"><b>Data envio</b></td>
+                            <td align="center"><b>Arquivo</b></td>
+                            <?php if (!$this->isEditarProjeto) : ?>
+                                <td align="center" width="150"><b>A&ccedil;&atilde;o</b></td>
+                            <?php endif; ?>
+                        </tr>
+                        <?php foreach ($this->arquivosProponente as $arquivosProponente) { ?>
+                        <tr>
+                            <td><?php echo $arquivosProponente['Descricao']; ?></td>
+                            <td align="center"><?php echo Data::tratarDataZend($arquivosProponente['Data'], 'Brasileira'); ?></td>
+                            <td>
+                                <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'upload', 'action' => 'abrir-documentos-agentes')); ?>?id=<?php echo $arquivosProponente['idDocumentosAgentes']; ?>"><?php echo $arquivosProponente['NoArquivo']; ?></a>
                             </td>
-                        <?php endif; ?>
+                            <?php if (!$this->isEditarProjeto) : ?>
+                                <td align="center">
+                                    <button type="button"
+                                            class="btn red white-text"
+                                            onclick="excluirAnexos(<?php echo $arquivosProponente['idDocumentosAgentes']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proponente');"/>
+                                    excluir</button>
+                                </td>
+                            <?php endif; ?>
 
-                    <?php } ?>
-                </table>
+                            <?php } ?>
+                    </table>
                 <?php } ?>
             </div>
             <div id="rodapeConteudo"><span></span></div>
-            <br clear="all" />
+            <br clear="all"/>
         </div>
     </div>
 </div>
 
 <script>
-    $(document).ready( function() {
+    $(document).ready(function () {
 
         <?php if (!$this->isEditavel) : ?>
         //DESABILITA ALTERACOES NOS DADOS DO FORMULARIO (INCLUIR/ALTERAR/EXCLUIR)
         JSBloquearAlteracaoFormulario();
         <?php endif; ?>
 
-        $('#Opcao').change( function(){
-            jqAjaxLinkSemLoading('<?php echo $this->url(array('module'=>'proposta', 'controller' => 'manterpropostaedital', 'action' => 'listararquivos'))."?classificao="; ?>'+$(this).val(), '', "tipodocumento");
+        $('#Opcao').change(function () {
+            jqAjaxLinkSemLoading('<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterpropostaedital', 'action' => 'listararquivos')) . "?classificao="; ?>' + $(this).val(), '', "tipodocumento");
         });
 
-        $('#arquivo').change( function(){
+        $('#arquivo').change(function () {
             arquivo = $('#arquivo').val();
-            arquivo = arquivo.substr((arquivo.length-3), 3)
-            if (arquivo == "PDF" || arquivo == "pdf"){
+            arquivo = arquivo.substr((arquivo.length - 3), 3)
+            if (arquivo == "PDF" || arquivo == "pdf") {
                 $('#arquivoinvalido').html('');
                 //$('#enviar').attr('class','btn_enviar');
-            }else{
+            } else {
                 $('#arquivoinvalido').html('<br />Somente documentos em formato PDF podem ser subidos!');
-                $('#enviar').attr('class','btn_enviar-off');
+                $('#enviar').attr('class', 'btn_enviar-off');
             }
         });
 
-        $('.tipoDocumento').click(function(){
+        $('.tipoDocumento').click(function () {
+            $3('select').material_select('destroy');
             //alert("<?php //echo $buscarDocumento; ?>?idOpcao='+$(this).val()");
-            jqAjaxLinkSemLoading('<?php echo $buscarDocumento; ?>?idOpcao='+$(this).val(), "", "documento");
+            jqAjaxLinkSemLoading('<?php echo $buscarDocumento; ?>?idOpcao=' + $(this).val(), "", "documento", false);
+
+//            $3('select').material_select();
         });
 
     });
 
-    function enviaform(){
+    function enviaform() {
         arquivo = $('#arquivo').val();
         var erro = true;
         var erroarquivo = true;
-        arquivo = arquivo.substr((arquivo.length-3), 3);
+        arquivo = arquivo.substr((arquivo.length - 3), 3);
 
-        if (arquivo == "PDF" || arquivo == "pdf"){
+        if (arquivo == "PDF" || arquivo == "pdf") {
             erroarquivo = false;
-        }else{
+        } else {
             $('#arquivoinvalido').html('<br>Somente documentos em formato PDF podem ser subidos!');
             erroarquivo = true;
         }
 
-        if ( document.getElementById('tipoDocumento1').checked == false && document.getElementById('tipoDocumento2').checked == false ) {
+        if (document.getElementById('tipoDocumento1').checked == false && document.getElementById('tipoDocumento2').checked == false) {
             $('#tipodocumentoinvalido').html('<br />Selecione um tipo de documento!');
             erro = true;
         } else {
@@ -186,7 +210,7 @@ $edital='';
             erro = false;
         }
 
-        if ( $("#documento").val() == "" || $("#documento").val() == "" ) {
+        if ($("#documento").val() == "" || $("#documento").val() == "") {
             $('#documentoinvalido').html('<br />Selecione um documento!');
             erro = true;
         } else {
@@ -200,8 +224,7 @@ $edital='';
     }
 
     // funcao para excluir os anexos
-    function excluirAnexos(idArquivo, idPreProjeto, tipoDocumento)
-    {
+    function excluirAnexos(idArquivo, idPreProjeto, tipoDocumento) {
         url = '<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterpropostaedital', 'action' => 'excluiranexo')) ?>?idArquivo=' + idArquivo + '&idPreProjeto=' + idPreProjeto + '&tipoDocumento=' + tipoDocumento;
         confirmModal('CONFIRMA&Ccedil;&Atilde;O', 'msgExclusaoArq', 320, 200, null, url);
     }

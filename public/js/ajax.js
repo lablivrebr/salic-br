@@ -2004,8 +2004,11 @@ function jqAjaxLink(fUrlDestino, fDados, fLocalExibir) {
     }); //fecha $.ajax(
 }
 
-function jqAjaxLinkSemLoading(fUrlDestino, fDados, fLocalExibir) {
+function jqAjaxLinkSemLoading(fUrlDestino, fDados, fLocalExibir, assincrono) {
 
+    if(typeof assincrono == undefined || assincrono == null) {
+        assincrono = true;
+    }
     var num_interno = jqAjaxNum;
     jqAjaxNum++;
     $.ajax({
@@ -2013,6 +2016,7 @@ function jqAjaxLinkSemLoading(fUrlDestino, fDados, fLocalExibir) {
         url: fUrlDestino,
         data: fDados,
         dataType: "html",
+        async: assincrono,
         //timeout: 10000,
         beforeSend: function () {
             //$("#"+fLocalExibir).append('<div class="bg_loading"></div><div id="loading'+num_interno+'" class="loading">Aguarde carregando dados...</div>');
