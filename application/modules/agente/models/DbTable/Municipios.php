@@ -2,7 +2,7 @@
 
 class Agente_Model_DbTable_Municipios extends MinC_Db_Table_Abstract
 {
-    protected $_name = 'municipios';
+    protected $_name = 'Municipios';
     protected $_schema = 'agentes';
     protected $_primary = 'idMunicipioIBGE';
 

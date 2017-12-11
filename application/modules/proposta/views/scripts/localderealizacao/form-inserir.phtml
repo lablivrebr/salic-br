@@ -30,7 +30,7 @@
                             </tr>
                             <tr id="linha_locais">
                                 <td class="centro">
-                                    <select id="pais" name="pais" class="select_simples w240">
+                                    <select id="pais" name="pais" class=" ">
                                         <option value="">- Selecione -</option>
                                         <?php foreach ($this->paises as $key => $paises) { ?>
                                             <option <?php if ($key == 31) {
@@ -40,7 +40,7 @@
                                     </select>
                                 </td>
                                 <td class="centro">
-                                    <select id="estados" name="estados" class="select_simples w240">
+                                    <select id="estados" name="estados" class=" ">
                                         <option value="">- Selecione -</option>
                                         <?php foreach ($this->estados as $key => $estados) { ?>
                                             <option value="<?php echo $key; ?>"><?php echo $estados; ?></option>
@@ -48,7 +48,7 @@
                                     </select>
                                 </td>
                                 <td class="centro">
-                                    <select id="cidades" name="cidades" class="select_simples w240">
+                                    <select id="cidades" name="cidades" class=" ">
                                         <option value="">- Selecione -</option>
                                     </select>
                                 </td>
@@ -89,8 +89,9 @@
         });
 
         $('#estados').change(function () {
+
             $("#cidades").html("<option value=''>- Carregando - </option>");
-            var idEstado = $(this).val()
+            var idEstado = $(this).val();
             $.ajax({
                 url: '<?php echo $this->url(array('module' => 'proposta', 'controller' => 'localderealizacao', 'action' => 'cidades')); ?>?idPreProjeto=<?php if ($_GET['idPreProjeto']) echo $_GET['idPreProjeto'];?>',
                 async: true,
@@ -130,6 +131,7 @@
             }
             $('#formulario').submit();
         });
-
+        $3('select').material_select('destroy');
+//        $3('select').material_select();
     });
 </script>
