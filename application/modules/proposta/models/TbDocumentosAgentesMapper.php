@@ -21,16 +21,9 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
             }
 
             $arquivoNome = $files['arquivo']['name'];
-            $arquivoTemp = $files['arquivo']['tmp_name'];
-            $arquivoTipo = $files['arquivo']['type'];
             $arquivoTamanho = $files['arquivo']['size'];
-            if (!empty($arquivoNome) && !empty($arquivoTemp)) {
-                $arquivoExtensao = Upload::getExtensao($arquivoNome);
-                $arquivoBinario = Upload::setBinario($arquivoTemp);
-                $arquivoHash = Upload::setHash($arquivoTemp);
-            }
-
             $tamanhoMaximoUploadArquivo = $config['upload']['maxUploadFileSize'];
+
             if ($arquivoTamanho > $tamanhoMaximoUploadArquivo) {
                 throw new Exception('O arquivo n&atilde;o pode ser maior do que 10MB!');
             }
@@ -39,8 +32,13 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
             $dadosProjeto = $tbPreProjeto->findBy(array('idPreProjeto' => $arrPost['idPreProjeto']));
             $where = array();
             $where['CodigoDocumento'] = $arrPost['documento'];
-            $strPath = '/data/proposta/model/tbdocumentoagentes/';
-            $strPathFull = APPLICATION_PATH . '/..' . $strPath;
+            $diretorioUpload = (object)$config['upload']['diretorio']['proposta']['agente'];
+
+            $this->tratarExistenciaDiretorio($diretorioUpload->absoluto);
+
+            $mapper = $this;
+            $model = new Proposta_Model_TbDocumentosAgentes();
+            $where['idAgente'] = $dadosProjeto['idAgente'];
             $dadosArquivo = array(
                 'CodigoDocumento' => $arrPost['documento'],
                 'Data' => date('Y-m-d'),
@@ -49,11 +47,8 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
                 'idAgente' => $dadosProjeto['idAgente'],
             );
 
-            $table = $this;
-            $model = new Proposta_Model_TbDocumentosAgentes();
-            $where['idAgente'] = $dadosProjeto['idAgente'];
             if ($arrPost['tipoDocumento'] != 1) {
-                $table = new Proposta_Model_TbDocumentosPreProjetoMapper();
+                $mapper = new Proposta_Model_TbDocumentosPreProjetoMapper();
                 $model = new Proposta_Model_TbDocumentosPreProjeto();
                 $dadosArquivo['idProjeto'] = $arrPost['idPreProjeto'];
                 $dadosArquivo['dsDocumento'] = $arrPost['observacao'];
@@ -61,35 +56,40 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
                 unset($where['idAgente']);
             }
 
-            $docCadastrado = $table->findBy($where);
-            if ($docCadastrado) {
+            $documentoCadastrado = $mapper->findBy($where);
+            if ($documentoCadastrado) {
                 throw new Exception('Tipo de documento j&aacute; cadastrado!');
             }
 
-            if ($this->getDbTable()->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-                $dadosArquivo['imDocumento'] = new Zend_Db_Expr("CONVERT(varbinary(MAX), {$arquivoBinario})");
-                $model->setOptions($dadosArquivo);
-                $table->save($model);
-            } else {
-                $strId = md5(uniqid(rand(), true));
-                $fileName = $strId . '.' . array_pop(explode('.', $file->getFileName()));
-                $dadosArquivo['imDocumento'] = $strPath . $fileName;
-                $model->setOptions($dadosArquivo);
-                $table->save($model);
-                $file->receive();
-                copy($file->getFileName(), $strPathFull . $fileName);
-            }
+            $strId = md5(uniqid(rand(), true));
+            $fileName = $strId . '.' . array_pop(explode('.', $file->getFileName()));
+            $dadosArquivo['imDocumento'] = $diretorioUpload->relativo . $fileName;
+            $model->setOptions($dadosArquivo);
+            $mapper->save($model);
+            $file->receive();
+            copy($file->getFileName(), $diretorioUpload->absoluto . $fileName);
 
-            # REMOVER AS PENDENCIAS DE DOCUMENTO
-            $tblDocumentosPendentesProjeto = new Proposta_Model_DbTable_DocumentosProjeto();
-            $tblDocumentosPendentesProponente = new Proposta_Model_DbTable_DocumentosProponente();
-            $tblDocumentosPendentesProjeto->delete("idProjeto = {$arrPost['idPreProjeto']} AND CodigoDocumento = {$arrPost['documento']}");
-            $tblDocumentosPendentesProponente->delete("IdProjeto = {$arrPost['idPreProjeto']} AND CodigoDocumento = {$arrPost['documento']}");
+            $this->removerPendenciasDocumento($arrPost['idPreProjeto'], $arrPost['documento']);
 
             return true;
         } catch (Exception $objException) {
             $this->setMessage($objException->getMessage());
         }
+    }
+
+    private function tratarExistenciaDiretorio($diretorio)
+    {
+        if (!is_dir($diretorio)) {
+            mkdir($diretorio, 0744, true);
+        }
+    }
+
+    private function removerPendenciasDocumento($idPreProjeto, $documento)
+    {
+        $tblDocumentosPendentesProjeto = new Proposta_Model_DbTable_DocumentosProjeto();
+        $tblDocumentosPendentesProponente = new Proposta_Model_DbTable_DocumentosProponente();
+        $tblDocumentosPendentesProjeto->delete("idProjeto = {$idPreProjeto} AND CodigoDocumento = {$documento}");
+        $tblDocumentosPendentesProponente->delete("IdProjeto = {$idPreProjeto} AND CodigoDocumento = {$documento}");
     }
 
     public function save(Proposta_Model_TbDocumentosAgentes $model)
