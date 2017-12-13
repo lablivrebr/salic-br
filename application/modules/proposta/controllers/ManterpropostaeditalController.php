@@ -967,12 +967,6 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         return $arrResultado;
     }
 
-    /**
-     * confirmarEnvioPropostaAoMincAction
-     *
-     * @access public
-     * @return void
-     */
     public function confirmarEnvioPropostaAoMincAction()
     {
 
@@ -989,10 +983,9 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $rsTecnicos = array();
         $idOrgaoSuperior = null;
 
+        $edital = "";
         if (isset($_REQUEST['edital'])) {
             $edital = "&edital=s";
-        } else {
-            $edital = "";
         }
 
         if (!empty($idPreProjeto) && $valida == "s") {
@@ -1080,17 +1073,15 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
                     //Pegando ultima movimentacao
                     $rsMov = $tblMovimentacao->buscar(array("idProjeto = ?" => $idPreProjeto), array("idMovimentacao DESC"), 1, 0)->current();
 
+                    $movimentacaoDestino = 96;
                     if (count($rsMov) > 0) {
                         $ultimaMovimentacao = $rsMov->Movimentacao;
                         //Pegando penultima movimentacao
                         $rsMov = $tblMovimentacao->buscar(array("idProjeto = ?" => $idPreProjeto, "Movimentacao <> ?" => $ultimaMovimentacao), array("idMovimentacao DESC"), 1, 0)->current();
 
-                        $movimentacaoDestino = 96;
                         if (count($rsMov) > 0) {
                             $movimentacaoDestino = $rsMov->Movimentacao;
                         }
-                    } else {
-                        $movimentacaoDestino = 96;
                     }
 
                     //PERSISTE DADOS DA MOVIMENTACAO

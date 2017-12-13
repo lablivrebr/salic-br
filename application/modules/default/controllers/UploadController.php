@@ -1,15 +1,5 @@
 <?php
 
-/**
- * UploadController
- * @author Equipe RUP - Politec
- * @since 28/04/2010
- * @version 1.0
- * @package application
- * @subpackage application.controller
- * @link http://www.cultura.gov.br
- * @copyright 2010 - Ministerio da Cultura - Todos os direitos reservados.
- */
 class UploadController extends MinC_Controller_Action_Abstract {
 
     private $idPreProjeto = null;
@@ -24,22 +14,18 @@ class UploadController extends MinC_Controller_Action_Abstract {
     private $idResponsavel = 0;
     private $idAgente = 0;
 
-    /**
-     * Reescreve o m?todo init()
-     * @access public
-     * @param void
-     * @return void
-     */
     public function init() {
 
-        $this->limiteTamanhoArq = 1024 * 1024 * 10;
+        $config = Zend_Registry::get("config")->toArray();
+        $this->limiteTamanhoArq = $config['upload']['maxUploadFileSize'];
+        if(empty($this->limiteTamanhoArq) || is_null($this->limiteTamanhoArq)) {
+            $this->limiteTamanhoArq = 1024 * 1024 * 10;
+        }
 
-        $auth = Zend_Auth::getInstance(); // instancia da autenticacao
+        $auth = Zend_Auth::getInstance();
         $PermissoesGrupo = array();
 
-        //Da permissao de acesso a todos os grupos do usuario logado afim de atender o UC75
         if (isset($auth->getIdentity()->usu_codigo)) {
-            //Recupera todos os grupos do Usuario
             $Usuario = new Autenticacao_Model_Usuario(); // objeto usuario
             $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
             foreach ($grupos as $grupo) {
@@ -48,42 +34,23 @@ class UploadController extends MinC_Controller_Action_Abstract {
         }
         isset($auth->getIdentity()->usu_codigo) ? parent::perfil(1, $PermissoesGrupo) : $this->blnProponente = true;
         parent::perfil(4, $PermissoesGrupo);
-
-
-        // verifica as permiss?es
-        /* $PermissoesGrupo = array();
-          $PermissoesGrupo[] = 97;  // Gestor do SALIC
-          $PermissoesGrupo[] = 103; // Coordenador de Analise
-          $PermissoesGrupo[] = 124;
-          $PermissoesGrupo[] = 125;
-          $PermissoesGrupo[] = 126;
-          $PermissoesGrupo[] = 125;
-          $PermissoesGrupo[] = 94;
-          $PermissoesGrupo[] = 93;
-          $PermissoesGrupo[] = 82;
-          $PermissoesGrupo[] = 132;
-          $PermissoesGrupo[] = 100; */
-        //$PermissoesGrupo[] = 1111; //Proponente
-        //parent::perfil(3, $PermissoesGrupo);
-
         parent::init();
 
-        //recupera ID do pre projeto (proposta)
         if (!empty($_REQUEST['idPreProjeto'])) {
             $this->idPreProjeto = $_REQUEST['idPreProjeto'];
-            $this->cod = "?idPreProjeto=" . $this->idPreProjeto;
+            $this->cod = "?idPreProjeto={$this->idPreProjeto}";
         }
 
         if (!empty($_REQUEST['idPronac'])) {
             $this->idPronac = $_REQUEST['idPronac'];
-            $this->cod = "?idPronac=" . $this->idPronac;
+            $this->cod = "?idPronac={$this->idPronac}";
             $idPronac = $_REQUEST['idPronac'];
 
             //DEFINE FASE DO PROJETO
             $this->faseDoProjeto($idPronac);
             $this->view->intFaseProjeto = $this->intFaseProjeto;
 
-            /*             * * Validacao do Proponente Inabilitado *********************************** */
+            # Validacao do Proponente Inabilitado
             $cpf = isset($auth->getIdentity()->usu_codigo) ? $auth->getIdentity()->usu_identificacao : $auth->getIdentity()->Cpf;
             $this->cpfLogado = $cpf;
 
@@ -106,22 +73,17 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $tbdados = $geral->buscarDadosProponente($idPronac);
             $this->view->dados = $tbdados;
 
-            // Busca na SGCAcesso
-            $sgcAcesso = new Autenticacao_Model_Sgcacesso();
-            $buscaAcesso = $sgcAcesso->buscar(array('Cpf = ?' => $cpf));
-
-            // Busca na Agentes
             $agentesDAO = new Agente_Model_DbTable_Agentes();
             $buscaAgente = $agentesDAO->BuscaAgente($cpf);
 
+            $sgcAcesso = new Autenticacao_Model_Sgcacesso();
+            $buscaAcesso = $sgcAcesso->buscar(array('Cpf = ?' => $cpf));
             if (count($buscaAcesso) > 0) {
                 $this->idResponsavel = $buscaAcesso[0]->IdUsuario;
-            }
-            if (count($buscaAgente) > 0) {
                 $this->idAgente = $buscaAgente[0]->idAgente;
             }
 
-            $Usuario = new Autenticacao_Model_Usuario(); // objeto usuario
+            $Usuario = new Autenticacao_Model_Usuario();
             $idagente = $Usuario->getIdUsuario('', $cpf);
             $this->idAgente = (isset($idagente['idAgente']) && !empty($idagente['idAgente'])) ? $idagente['idAgente'] : 0;
             $ag = new Agente_Model_DbTable_Agentes();
@@ -169,8 +131,6 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $this->view->procuracaoValida = $procuracaoValida;
             $this->view->respProponente = $respProponente;
             $this->view->inabilitado = $inabilitado;
-
-            /*             * ************************************************************************* */
         }
         $this->view->blnProponente = $this->blnProponente;
 
@@ -229,15 +189,12 @@ class UploadController extends MinC_Controller_Action_Abstract {
 
     /**
      * Metodo para abrir um arquivo binario da tabela tbDocumentosPreProjeto
-     *
-     * @name abrirDocumentosPreProjetoAction
-     *
-     * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
-     * @since 02/10/2016
      */
     public function abrirDocumentosPreProjetoAction() {
         $get = Zend_Registry::get('get');
         $id = (int) isset($get->id) ? $get->id : $this->_request->getParam('id');
+
+xd('PAREI AQUI');
 
         # Configuracao o php.ini para 10MB
         @ini_set("mssql.textsize", 10485760);
