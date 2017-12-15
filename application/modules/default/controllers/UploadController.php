@@ -154,23 +154,10 @@ class UploadController extends MinC_Controller_Action_Abstract
 
         $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
         if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-            $this->abrirDocumentoSqlServer($id);
+            @ini_set("mssql.textsize", $this->limiteTamanhoArq);
+            @ini_set("mssql.textlimit", $this->limiteTamanhoArq);
+            @ini_set("upload_max_filesize", "10M");
         }
-        if ($tbl->getAdapter() instanceof MinC_Db_Adapter_Pdo_Pgsql) {
-            $this->abrirDocumentoPostgres($id);
-        }
-    }
-
-    private function abrirDocumentoPostgres($id)
-    {
-
-    }
-
-    private function abrirDocumentoSqlServer($id)
-    {
-        @ini_set("mssql.textsize", $this->limiteTamanhoArq);
-        @ini_set("mssql.textlimit", $this->limiteTamanhoArq);
-        @ini_set("upload_max_filesize", "10M");
 
         $resultado = UploadDAO::abrir($id);
         if (!$resultado) {
@@ -180,7 +167,6 @@ class UploadController extends MinC_Controller_Action_Abstract
         }
 
         $arquivo = $resultado[0];
-
         $this->_helper->layout->disableLayout();
         $this->_helper->viewRenderer->setNoRender();
         Zend_Layout::getMvcInstance()->disableLayout();
@@ -189,9 +175,19 @@ class UploadController extends MinC_Controller_Action_Abstract
 
         $this->getResponse()
             ->setHeader('Content-Type', $arquivo->dsTipoPadronizado)
-            ->setHeader('Content-Disposition', 'attachment; filename="' . $arquivo->nmArquivo . '"')
-            ->setBody($arquivo->biArquivo);
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $arquivo->nmArquivo . '"');
+        if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $this->getResponse()->setBody($arquivo->biArquivo);
+        }
+
+        ob_clean();
+        flush();
+        readfile($arquivo->biArquivo);
+//        readfile($arquivo->biArquivo);
+        readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
+        exit;
     }
+
 
     /**
      * Metodo para abrir um arquivo binario da tabela tbDocumentosPreProjeto
@@ -199,96 +195,67 @@ class UploadController extends MinC_Controller_Action_Abstract
     public function abrirDocumentosPreProjetoAction()
     {
         $get = Zend_Registry::get('get');
-        $id = (int)isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $id = (int)isset($get->id) ? $get->id : $this->_lrequest->getParam('id');
 
-        # Configuracao o php.ini para 10MB
         @ini_set("mssql.textsize", 10485760);
         @ini_set("mssql.textlimit", 10485760);
         @ini_set("upload_max_filesize", "10M");
 
-        # busca o arquivo
-        $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
-        $resultado = $tbl->abrir($id)->current();
-
-        $this->_helper->layout->disableLayout();        # Desabilita o Zend Layout
-        $this->_helper->viewRenderer->setNoRender();    # Desabilita o Zend Render
+        $documentosPreProjeto = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
+        $resultado = $documentosPreProjeto->abrir($id)->current();
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
         if (!$resultado) {
             throw new Exception('N&atilde;o foi poss&iacute;vel abrir o arquivo!');
-            $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
-            $this->view->message_type = 'ERROR';
         }
 
-        Zend_Layout::getMvcInstance()->disableLayout(); # Desabilita o Zend MVC
-        $this->_response->clearBody();                  # Limpa o corpo html
-        $this->_response->clearHeaders();               # Limpa os headers do Zend
-        $up = new Upload();
-        $tipoArquivo = method_exists($up, $up->getMimeType($resultado->noarquivo)) ? $up->getMimeType("jpg") : "application/pdf";
-        if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-            $this->getResponse()
-                ->setHeader('Content-Type', $tipoArquivo)
-                ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"')
-                ->setBody($resultado->imdocumento);
+        Zend_Layout::getMvcInstance()->disableLayout();
+        $this->_response->clearBody();
+        $this->_response->clearHeaders();
+        $upload = new Upload();
+        $tipoArquivo = method_exists($upload, $upload->getMimeType($resultado->NoArquivo)) ? $upload->getMimeType("jpg") : "application/pdf";
+
+        $this->getResponse()
+            ->setHeader('Content-Type', $tipoArquivo)
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->NoArquivo . '"');
+        if ($documentosPreProjeto->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $this->getResponse()->setBody($resultado->imDocumento);
         } else {
-            $this->getResponse()
-                ->setHeader('Content-Type', $tipoArquivo)
-                ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"');
-            readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
+            readfile($resultado->imDocumento);
         }
-
     }
 
     public function abrirDocumentosAgentesAction()
     {
-        // recebe o id do arquivo via get
         $get = Zend_Registry::get('get');
         $id = (int)isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $tableDocumentosAgentes = new Proposta_Model_DbTable_TbDocumentosAgentes();
+        $documentosAgentes = $tableDocumentosAgentes->abrir($id)->current();
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        Zend_Layout::getMvcInstance()->disableLayout();
+        if (!$documentosAgentes) {
+            throw new Exception('N&atilde;o foi poss&iacute;vel abrir o arquivo!');
+        }
 
-        // Configuracao o php.ini para 10MB
-        @ini_set("mssql.textsize", 10485760);
-        @ini_set("mssql.textlimit", 10485760);
-        @ini_set("upload_max_filesize", "10M");
+        $this->_response->clearBody();
+        $this->_response->clearHeaders();
 
-        $response = new Zend_Controller_Response_Http;
+        $up = new Upload();
+        $tipoArquivo = method_exists($up, $up->getMimeType($documentosAgentes->NoArquivo)) ? $up->getMimeType("jpg") : "application/pdf";
 
-        // busca o arquivo
-        $tbl = new Proposta_Model_DbTable_TbDocumentosAgentes();
-        $resultado = $tbl->abrir($id)->current();
-
-        // erro ao abrir o arquivo
-        if (!$resultado) {
-            $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-            $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-            die("N&atilde;o existe o arquivo especificado");
-            $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
-            $this->view->message_type = 'ERROR';
+        $this->getResponse()
+             ->setHeader('Content-Type', $tipoArquivo)
+             ->setHeader('Content-Disposition', 'attachment; filename="' . $documentosAgentes->NoArquivo . '"');
+        if ($tableDocumentosAgentes->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            @ini_set("mssql.textsize", 10485760);
+            @ini_set("mssql.textlimit", 10485760);
+            @ini_set("upload_max_filesize", "10M");
+            $this->getResponse()->setBody($documentosAgentes->imDocumento);
         } else {
-            $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-            $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-            Zend_Layout::getMvcInstance()->disableLayout(); // Desabilita o Zend MVC
-            $this->_response->clearBody();                  // Limpa o corpo html
-            $this->_response->clearHeaders();               // Limpa os headers do Zend
-
-            $up = new Upload();
-            $tipoArquivo = method_exists($up, $up->getMimeType($resultado->noarquivo)) ? $up->getMimeType("jpg") : "application/pdf";
-
-            if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"')
-                    //->setHeader("Connection", "close")
-                    //->setHeader("Content-transfer-encoding", "binary")
-                    //->setHeader("Cache-control", "private")
-                    ->setBody($resultado->imdocumento);
-            } else {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"');
-                readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
-            }
-        } // fecha else
+            readfile($documentosAgentes->imDocumento);
+        }
     }
-
-// fecha abrirAction()
 
     /**
      * Metodo para abrir documentos anexados
