@@ -63,7 +63,7 @@ class Proposta_Model_TbDocumentosAgentesMapper extends MinC_Db_Mapper
 
             $strId = md5(uniqid(rand(), true));
             $fileName = $strId . '.' . array_pop(explode('.', $file->getFileName()));
-            $dadosArquivo['imDocumento'] = $diretorioUpload->relativo . $fileName;
+            $dadosArquivo['imDocumento'] = $diretorioUpload->absoluto . $fileName;
             $model->setOptions($dadosArquivo);
             $mapper->save($model);
             $file->receive();

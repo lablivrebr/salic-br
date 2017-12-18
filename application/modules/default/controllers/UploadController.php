@@ -1,16 +1,7 @@
 <?php
 
-/**
- * UploadController
- * @author Equipe RUP - Politec
- * @since 28/04/2010
- * @version 1.0
- * @package application
- * @subpackage application.controller
- * @link http://www.cultura.gov.br
- * @copyright 2010 - Ministerio da Cultura - Todos os direitos reservados.
- */
-class UploadController extends MinC_Controller_Action_Abstract {
+class UploadController extends MinC_Controller_Action_Abstract
+{
 
     private $idPreProjeto = null;
     private $idPronac = null;
@@ -24,22 +15,19 @@ class UploadController extends MinC_Controller_Action_Abstract {
     private $idResponsavel = 0;
     private $idAgente = 0;
 
-    /**
-     * Reescreve o m?todo init()
-     * @access public
-     * @param void
-     * @return void
-     */
-    public function init() {
+    public function init()
+    {
 
-        $this->limiteTamanhoArq = 1024 * 1024 * 10;
+        $config = Zend_Registry::get("config")->toArray();
+        $this->limiteTamanhoArq = $config['upload']['maxUploadFileSize'];
+        if (empty($this->limiteTamanhoArq) || is_null($this->limiteTamanhoArq)) {
+            $this->limiteTamanhoArq = 1024 * 1024 * 10;
+        }
 
-        $auth = Zend_Auth::getInstance(); // instancia da autenticacao
+        $auth = Zend_Auth::getInstance();
         $PermissoesGrupo = array();
 
-        //Da permissao de acesso a todos os grupos do usuario logado afim de atender o UC75
         if (isset($auth->getIdentity()->usu_codigo)) {
-            //Recupera todos os grupos do Usuario
             $Usuario = new Autenticacao_Model_Usuario(); // objeto usuario
             $grupos = $Usuario->buscarUnidades($auth->getIdentity()->usu_codigo, 21);
             foreach ($grupos as $grupo) {
@@ -48,42 +36,23 @@ class UploadController extends MinC_Controller_Action_Abstract {
         }
         isset($auth->getIdentity()->usu_codigo) ? parent::perfil(1, $PermissoesGrupo) : $this->blnProponente = true;
         parent::perfil(4, $PermissoesGrupo);
-
-
-        // verifica as permiss?es
-        /* $PermissoesGrupo = array();
-          $PermissoesGrupo[] = 97;  // Gestor do SALIC
-          $PermissoesGrupo[] = 103; // Coordenador de Analise
-          $PermissoesGrupo[] = 124;
-          $PermissoesGrupo[] = 125;
-          $PermissoesGrupo[] = 126;
-          $PermissoesGrupo[] = 125;
-          $PermissoesGrupo[] = 94;
-          $PermissoesGrupo[] = 93;
-          $PermissoesGrupo[] = 82;
-          $PermissoesGrupo[] = 132;
-          $PermissoesGrupo[] = 100; */
-        //$PermissoesGrupo[] = 1111; //Proponente
-        //parent::perfil(3, $PermissoesGrupo);
-
         parent::init();
 
-        //recupera ID do pre projeto (proposta)
         if (!empty($_REQUEST['idPreProjeto'])) {
             $this->idPreProjeto = $_REQUEST['idPreProjeto'];
-            $this->cod = "?idPreProjeto=" . $this->idPreProjeto;
+            $this->cod = "?idPreProjeto={$this->idPreProjeto}";
         }
 
         if (!empty($_REQUEST['idPronac'])) {
             $this->idPronac = $_REQUEST['idPronac'];
-            $this->cod = "?idPronac=" . $this->idPronac;
+            $this->cod = "?idPronac={$this->idPronac}";
             $idPronac = $_REQUEST['idPronac'];
 
             //DEFINE FASE DO PROJETO
             $this->faseDoProjeto($idPronac);
             $this->view->intFaseProjeto = $this->intFaseProjeto;
 
-            /*             * * Validacao do Proponente Inabilitado *********************************** */
+            # Validacao do Proponente Inabilitado
             $cpf = isset($auth->getIdentity()->usu_codigo) ? $auth->getIdentity()->usu_identificacao : $auth->getIdentity()->Cpf;
             $this->cpfLogado = $cpf;
 
@@ -106,22 +75,17 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $tbdados = $geral->buscarDadosProponente($idPronac);
             $this->view->dados = $tbdados;
 
-            // Busca na SGCAcesso
-            $sgcAcesso = new Autenticacao_Model_Sgcacesso();
-            $buscaAcesso = $sgcAcesso->buscar(array('Cpf = ?' => $cpf));
-
-            // Busca na Agentes
             $agentesDAO = new Agente_Model_DbTable_Agentes();
             $buscaAgente = $agentesDAO->BuscaAgente($cpf);
 
+            $sgcAcesso = new Autenticacao_Model_Sgcacesso();
+            $buscaAcesso = $sgcAcesso->buscar(array('Cpf = ?' => $cpf));
             if (count($buscaAcesso) > 0) {
                 $this->idResponsavel = $buscaAcesso[0]->IdUsuario;
-            }
-            if (count($buscaAgente) > 0) {
                 $this->idAgente = $buscaAgente[0]->idAgente;
             }
 
-            $Usuario = new Autenticacao_Model_Usuario(); // objeto usuario
+            $Usuario = new Autenticacao_Model_Usuario();
             $idagente = $Usuario->getIdUsuario('', $cpf);
             $this->idAgente = (isset($idagente['idAgente']) && !empty($idagente['idAgente'])) ? $idagente['idAgente'] : 0;
             $ag = new Agente_Model_DbTable_Agentes();
@@ -169,8 +133,6 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $this->view->procuracaoValida = $procuracaoValida;
             $this->view->respProponente = $respProponente;
             $this->view->inabilitado = $inabilitado;
-
-            /*             * ************************************************************************* */
         }
         $this->view->blnProponente = $this->blnProponente;
 
@@ -185,155 +147,115 @@ class UploadController extends MinC_Controller_Action_Abstract {
      * @param void
      * @return void
      */
-    public function abrirAction() {
-        // recebe o id do arquivo via get
+    public function abrirAction()
+    {
         $get = Zend_Registry::get('get');
-        $id = (int) isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $id = (int)isset($get->id) ? $get->id : $this->_request->getParam('id');
 
-        // Configuracao o php.ini para 10MB
-        @ini_set("mssql.textsize", 10485760);
-        @ini_set("mssql.textlimit", 10485760);
-        @ini_set("upload_max_filesize", "10M");
+        $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
+        if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            @ini_set("mssql.textsize", $this->limiteTamanhoArq);
+            @ini_set("mssql.textlimit", $this->limiteTamanhoArq);
+            @ini_set("upload_max_filesize", "10M");
+        }
 
-        $response = new Zend_Controller_Response_Http;
-
-        // busca o arquivo
         $resultado = UploadDAO::abrir($id);
-
-        // erro ao abrir o arquivo
         if (!$resultado) {
-            $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-            $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-            die("N&atilde;o existe o arquivo especificado");
-            $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
-            $this->view->message_type = 'ERROR';
-        } else {
-            // l� os cabe�alhos formatado
-            foreach ($resultado as $r) {
-                $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-                $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-                Zend_Layout::getMvcInstance()->disableLayout(); // Desabilita o Zend MVC
-                $this->_response->clearBody();                  // Limpa o corpo html
-                $this->_response->clearHeaders();               // Limpa os headers do Zend
+            $this->_helper->layout->disableLayout();
+            $this->_helper->viewRenderer->setNoRender();
+            throw new Exception ('N&atilde;o foi poss&iacute;vel abrir o arquivo!');
+        }
 
-                $this->getResponse()
-                        ->setHeader('Content-Type', $r->dsTipoPadronizado)
-                        ->setHeader('Content-Disposition', 'attachment; filename="' . $r->nmArquivo . '"')
-                        //->setHeader("Connection", "close")
-                        //->setHeader("Content-transfer-encoding", "binary")
-                        //->setHeader("Cache-control", "private")
-                        ->setBody($r->biArquivo);
-            } // fecha foreach
-        } // fecha else
+        $arquivo = $resultado[0];
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        Zend_Layout::getMvcInstance()->disableLayout();
+        $this->_response->clearBody();
+        $this->_response->clearHeaders();
+
+        $this->getResponse()
+            ->setHeader('Content-Type', $arquivo->dsTipoPadronizado)
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $arquivo->nmArquivo . '"');
+        if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $this->getResponse()->setBody($arquivo->biArquivo);
+        }
+
+        ob_clean();
+        flush();
+        readfile($arquivo->biArquivo);
+//        readfile($arquivo->biArquivo);
+        readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
+        exit;
     }
+
 
     /**
      * Metodo para abrir um arquivo binario da tabela tbDocumentosPreProjeto
-     *
-     * @name abrirDocumentosPreProjetoAction
-     *
-     * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
-     * @since 02/10/2016
      */
-    public function abrirDocumentosPreProjetoAction() {
+    public function abrirDocumentosPreProjetoAction()
+    {
         $get = Zend_Registry::get('get');
-        $id = (int) isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $id = (int)isset($get->id) ? $get->id : $this->_lrequest->getParam('id');
 
-        # Configuracao o php.ini para 10MB
         @ini_set("mssql.textsize", 10485760);
         @ini_set("mssql.textlimit", 10485760);
         @ini_set("upload_max_filesize", "10M");
 
-        # busca o arquivo
-        $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
-        $resultado = $tbl->abrir($id)->current();
-
-        # erro ao abrir o arquivo
-        $this->_helper->layout->disableLayout();        # Desabilita o Zend Layout
-        $this->_helper->viewRenderer->setNoRender();    # Desabilita o Zend Render
+        $documentosPreProjeto = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
+        $resultado = $documentosPreProjeto->abrir($id)->current();
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
         if (!$resultado) {
-            die("N&atilde;o existe o arquivo especificado");
-            $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
-            $this->view->message_type = 'ERROR';
+            throw new Exception('N&atilde;o foi poss&iacute;vel abrir o arquivo!');
+        }
+
+        Zend_Layout::getMvcInstance()->disableLayout();
+        $this->_response->clearBody();
+        $this->_response->clearHeaders();
+        $upload = new Upload();
+        $tipoArquivo = method_exists($upload, $upload->getMimeType($resultado->NoArquivo)) ? $upload->getMimeType("jpg") : "application/pdf";
+
+        $this->getResponse()
+            ->setHeader('Content-Type', $tipoArquivo)
+            ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->NoArquivo . '"');
+        if ($documentosPreProjeto->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $this->getResponse()->setBody($resultado->imDocumento);
         } else {
-            Zend_Layout::getMvcInstance()->disableLayout(); # Desabilita o Zend MVC
-            $this->_response->clearBody();                  # Limpa o corpo html
-            $this->_response->clearHeaders();               # Limpa os headers do Zend
-            $up = new Upload();
-            $tipoArquivo = method_exists($up, $up->getMimeType($resultado->noarquivo)) ? $up->getMimeType("jpg") : "application/pdf";
-            if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"')
-                    ->setBody($resultado->imdocumento);
-            } else {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"');
-                readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
-            }
+            readfile($resultado->imDocumento);
         }
     }
 
-    /**
-     * Metodo para abrir um arquivo binario da tabela tbDocumentosPreProjeto
-     *
-     * @name abrirDocumentosAgentesAction
-     *
-     * @author Ruy Junior Ferreira Silva <ruyjfs@gmail.com>
-     * @since 07/10/2016
-     */
-    public function abrirDocumentosAgentesAction() {
-        // recebe o id do arquivo via get
+    public function abrirDocumentosAgentesAction()
+    {
         $get = Zend_Registry::get('get');
-        $id = (int) isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $id = (int)isset($get->id) ? $get->id : $this->_request->getParam('id');
+        $tableDocumentosAgentes = new Proposta_Model_DbTable_TbDocumentosAgentes();
+        $documentosAgentes = $tableDocumentosAgentes->abrir($id)->current();
+        $this->_helper->layout->disableLayout();
+        $this->_helper->viewRenderer->setNoRender();
+        Zend_Layout::getMvcInstance()->disableLayout();
+        if (!$documentosAgentes) {
+            throw new Exception('N&atilde;o foi poss&iacute;vel abrir o arquivo!');
+        }
 
-        // Configuracao o php.ini para 10MB
-        @ini_set("mssql.textsize", 10485760);
-        @ini_set("mssql.textlimit", 10485760);
-        @ini_set("upload_max_filesize", "10M");
+        $this->_response->clearBody();
+        $this->_response->clearHeaders();
 
-        $response = new Zend_Controller_Response_Http;
+        $up = new Upload();
+        $tipoArquivo = method_exists($up, $up->getMimeType($documentosAgentes->NoArquivo)) ? $up->getMimeType("jpg") : "application/pdf";
 
-        // busca o arquivo
-        $tbl = new Proposta_Model_DbTable_TbDocumentosAgentes();
-        $resultado = $tbl->abrir($id)->current();
-
-        // erro ao abrir o arquivo
-        if (!$resultado) {
-            $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-            $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-            die("N&atilde;o existe o arquivo especificado");
-            $this->view->message = 'N&atilde;o foi poss&iacute;vel abrir o arquivo!';
-            $this->view->message_type = 'ERROR';
+        $this->getResponse()
+             ->setHeader('Content-Type', $tipoArquivo)
+             ->setHeader('Content-Disposition', 'attachment; filename="' . $documentosAgentes->NoArquivo . '"');
+        if ($tableDocumentosAgentes->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            @ini_set("mssql.textsize", 10485760);
+            @ini_set("mssql.textlimit", 10485760);
+            @ini_set("upload_max_filesize", "10M");
+            $this->getResponse()->setBody($documentosAgentes->imDocumento);
         } else {
-            $this->_helper->layout->disableLayout();        // Desabilita o Zend Layout
-            $this->_helper->viewRenderer->setNoRender();    // Desabilita o Zend Render
-            Zend_Layout::getMvcInstance()->disableLayout(); // Desabilita o Zend MVC
-            $this->_response->clearBody();                  // Limpa o corpo html
-            $this->_response->clearHeaders();               // Limpa os headers do Zend
-
-            $up = new Upload();
-            $tipoArquivo = method_exists($up, $up->getMimeType($resultado->noarquivo)) ? $up->getMimeType("jpg") : "application/pdf";
-
-            if ($tbl->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"')
-                    //->setHeader("Connection", "close")
-                    //->setHeader("Content-transfer-encoding", "binary")
-                    //->setHeader("Cache-control", "private")
-                    ->setBody($resultado->imdocumento);
-            } else {
-                $this->getResponse()
-                    ->setHeader('Content-Type', $tipoArquivo)
-                    ->setHeader('Content-Disposition', 'attachment; filename="' . $resultado->noarquivo . '"');
-                readfile(APPLICATION_PATH . '/..' . $resultado->imdocumento);
-            }
-        } // fecha else
+            readfile($documentosAgentes->imDocumento);
+        }
     }
-
-// fecha abrirAction()
 
     /**
      * Metodo para abrir documentos anexados
@@ -341,10 +263,11 @@ class UploadController extends MinC_Controller_Action_Abstract {
      * @param void
      * @return void
      */
-    public function abrirdocumentosanexadosAction() {
+    public function abrirdocumentosanexadosAction()
+    {
         // recebe o id do arquivo via get
         $get = Zend_Registry::get('get');
-        $id = (int) $get->id;
+        $id = (int)$get->id;
         $busca = $this->_request->getParam('busca'); //$get->busca;
         // Configuracao o php.ini para 10MB
         @ini_set("mssql.textsize", 10485760);
@@ -382,11 +305,11 @@ class UploadController extends MinC_Controller_Action_Abstract {
                 $hashArquivo = ($r->biArquivo) ? $r->biArquivo : $r->biArquivo2;
 
                 $this->getResponse()
-                        ->setHeader('Content-Type', 'application/pdf')
-                        ->setHeader('Content-Disposition', 'attachment; filename="' . $r->nmArquivo . '"')
-                        ->setHeader("Connection", "close")
-                        ->setHeader("Content-transfer-encoding", "binary")
-                        ->setHeader("Cache-control", "private");
+                    ->setHeader('Content-Type', 'application/pdf')
+                    ->setHeader('Content-Disposition', 'attachment; filename="' . $r->nmArquivo . '"')
+                    ->setHeader("Connection", "close")
+                    ->setHeader("Content-transfer-encoding", "binary")
+                    ->setHeader("Cache-control", "private");
 
                 if ($r->biArquivo2 == 1) {
                     if (strtolower(substr($r->biArquivo, 0, 4)) == '%pdf') {
@@ -408,10 +331,11 @@ class UploadController extends MinC_Controller_Action_Abstract {
 
 // fecha abrirdocumentosanexadosAction()
 
-    public function abrirdocumentosanexadosbinarioAction() {
+    public function abrirdocumentosanexadosbinarioAction()
+    {
         // recebe o id do arquivo via get
         $get = Zend_Registry::get('get');
-        $id = (int) $get->id;
+        $id = (int)$get->id;
         $busca = $this->_request->getParam('busca'); //$get->busca;
         // Configuracao o php.ini para 10MB
         @ini_set("mssql.textsize", 10485760);
@@ -449,11 +373,11 @@ class UploadController extends MinC_Controller_Action_Abstract {
                 $hashArquivo = ($r->biArquivo) ? $r->biArquivo : $r->biArquivo2;
 
                 $this->getResponse()
-                        ->setHeader('Content-Type', 'application/pdf')
-                        ->setHeader('Content-Disposition', 'attachment; filename="' . $r->nmArquivo . '"')
-                        ->setHeader("Connection", "close")
-                        ->setHeader("Content-transfer-encoding", "binary")
-                        ->setHeader("Cache-control", "private");
+                    ->setHeader('Content-Type', 'application/pdf')
+                    ->setHeader('Content-Disposition', 'attachment; filename="' . $r->nmArquivo . '"')
+                    ->setHeader("Connection", "close")
+                    ->setHeader("Content-transfer-encoding", "binary")
+                    ->setHeader("Cache-control", "private");
 
                 if ($r->biArquivo2 == 1) {
                     if (strtolower(substr($r->biArquivo, 0, 4)) == '%pdf') {
@@ -472,19 +396,21 @@ class UploadController extends MinC_Controller_Action_Abstract {
 
 // fecha abrirdocumentosanexadosAction()
 
-    public function formEnviarArquivoMarcaAction() {
+    public function formEnviarArquivoMarcaAction()
+    {
         $Projetos = new Projetos();
         $dadosProjeto = $Projetos->buscar(array('IdPRONAC=?' => $this->idPronac))->current();
 
         //METODO QUE MONTA TELA DO USUARIO ENVIANDO TODOS OS PARAMENTROS NECESSARIO DENTRO DO ARRAY DADOS
         $this->montaTela("upload/formenviararquivomarca.phtml", array("idPronac" => $this->idPronac,
-            "orgao" => $this->orgaoLogado,
-            "orgaoAutorizado" => $this->orgaoAutorizado,
-            "projeto" => $dadosProjeto)
+                "orgao" => $this->orgaoLogado,
+                "orgaoAutorizado" => $this->orgaoAutorizado,
+                "projeto" => $dadosProjeto)
         );
     }
 
-    public function listarArquivoMarcaAction() {
+    public function listarArquivoMarcaAction()
+    {
         $this->_helper->layout->disableLayout();
 
         $rsArquivos = array();
@@ -504,12 +430,13 @@ class UploadController extends MinC_Controller_Action_Abstract {
 
         //METODO QUE MONTA TELA DO USUARIO ENVIANDO TODOS OS PARAMENTROS NECESSARIO DENTRO DO ARRAY DADOS
         $this->montaTela("upload/listaarquivomarca.phtml", array("arquivos" => $rsArquivos,
-            "orgao" => $this->orgaoLogado,
-            "orgaoAutorizado" => $this->orgaoAutorizado)
+                "orgao" => $this->orgaoLogado,
+                "orgaoAutorizado" => $this->orgaoAutorizado)
         );
     }
 
-    public function gravarArquivoMarcaAction() {
+    public function gravarArquivoMarcaAction()
+    {
         $this->_helper->viewRenderer->setNoRender(true);
         $this->_helper->layout->disableLayout();
 
@@ -529,8 +456,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
                 $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
                 $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                    "tipoMensagem" => "ERROR",
-                    "script" => $script)
+                        "tipoMensagem" => "ERROR",
+                        "script" => $script)
                 );
                 return;
             }
@@ -553,8 +480,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
                     $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
                     $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                        "tipoMensagem" => "ERROR",
-                        "script" => $script)
+                            "tipoMensagem" => "ERROR",
+                            "script" => $script)
                     );
                     return;
                 }
@@ -565,8 +492,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
                     $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
                     $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                        "tipoMensagem" => "ERROR",
-                        "script" => $script)
+                            "tipoMensagem" => "ERROR",
+                            "script" => $script)
                     );
                     return;
                 }
@@ -645,8 +572,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
                     $script .= "\$('#observacao', parent.document.body).val(''); \n \$('#arquivo', parent.document.body).val('');";
 
                     $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                        "tipoMensagem" => "CONFIRM",
-                        "script" => $script)
+                            "tipoMensagem" => "CONFIRM",
+                            "script" => $script)
                     );
                     return;
                     //echo $script;
@@ -659,9 +586,9 @@ class UploadController extends MinC_Controller_Action_Abstract {
                     $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
                     $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                        "tipoMensagem" => "ERROR",
-                        "script" => $script
-                            )
+                            "tipoMensagem" => "ERROR",
+                            "script" => $script
+                        )
                     );
                     return;
                 }
@@ -671,8 +598,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
                 $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
                 $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                    "tipoMensagem" => "ERROR",
-                    "script" => $script)
+                        "tipoMensagem" => "ERROR",
+                        "script" => $script)
                 );
                 return;
             }
@@ -682,14 +609,15 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
             $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                "tipoMensagem" => "ERROR",
-                "script" => $script)
+                    "tipoMensagem" => "ERROR",
+                    "script" => $script)
             );
             return;
         }
     }
 
-    public function aprovarArquivoAction() {
+    public function aprovarArquivoAction()
+    {
         $this->_helper->viewRenderer->setNoRender(true);
         $this->_helper->layout->disableLayout();
 
@@ -707,8 +635,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
             $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                "tipoMensagem" => "CONFIRM",
-                "script" => $script)
+                    "tipoMensagem" => "CONFIRM",
+                    "script" => $script)
             );
             return;
         } catch (Exception $e) {
@@ -718,14 +646,15 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
             $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                "script" => $script,
-                "tipoMensagem" => "ERROR")
+                    "script" => $script,
+                    "tipoMensagem" => "ERROR")
             );
             return;
         }
     }
 
-    public function excluirArquivoAction() {
+    public function excluirArquivoAction()
+    {
         $this->_helper->viewRenderer->setNoRender(true);
         $this->_helper->layout->disableLayout();
 
@@ -768,8 +697,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
 
             $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                "tipoMensagem" => "CONFIRM",
-                "script" => $script)
+                    "tipoMensagem" => "CONFIRM",
+                    "script" => $script)
             );
             return;
         } catch (Exception $e) {
@@ -780,14 +709,15 @@ class UploadController extends MinC_Controller_Action_Abstract {
             $mensagem = "N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o.";
             $script = "window.parent.jqAjaxLinkSemLoading('" . $this->view->baseUrl() . "/upload/listar-arquivo-marca$this->cod', '', 'listaDeArquivos');\n";
             $this->montaTela("upload/mensagem.phtml", array("mensagem" => $mensagem,
-                "script" => $script,
-                "tipoMensagem" => "ERROR")
+                    "script" => $script,
+                    "tipoMensagem" => "ERROR")
             );
             return;
         }
     }
 
-    public function faseDoProjeto($idPronac) {
+    public function faseDoProjeto($idPronac)
+    {
 
         if (!empty($idPronac)) {
             $tblProjeto = new Projetos();
@@ -838,15 +768,15 @@ class UploadController extends MinC_Controller_Action_Abstract {
                 $this->intFaseProjeto = 1;
 
                 //FASE EXECUCAO
-            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (!is_object($rsF3) || $rsF3->count() == 0 )) {
+            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (!is_object($rsF3) || $rsF3->count() == 0)) {
                 $this->intFaseProjeto = 2;
 
                 //FASE FINAL
-            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (is_object($rsF3) && $rsF3->count() >= 1 ) /* && $diffDias > 30 */ && $rsF4->count() == 0) { //retirei a comparacao com os trinta dias para que entrem nessa fase projetoa que atendam a todas as condicoes mas ainda nao tiveram 30 dias passados da data fim de execucao
+            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (is_object($rsF3) && $rsF3->count() >= 1) /* && $diffDias > 30 */ && $rsF4->count() == 0) { //retirei a comparacao com os trinta dias para que entrem nessa fase projetoa que atendam a todas as condicoes mas ainda nao tiveram 30 dias passados da data fim de execucao
                 $this->intFaseProjeto = 3;
 
                 //FASE PROJETO ENCERRADO
-            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (is_object($rsF3) && $rsF3->count() >= 1 ) && $diffDias > 30 && (in_array($rsProjeto->Situacao, $arrSituacoes) && $rsF4->count() >= 1)) {
+            } else if ($rsF1->count() >= 1 && $rsF2->count() >= 1 && (is_object($rsF3) && $rsF3->count() >= 1) && $diffDias > 30 && (in_array($rsProjeto->Situacao, $arrSituacoes) && $rsF4->count() >= 1)) {
                 $this->intFaseProjeto = 4;
             }
 
@@ -879,7 +809,8 @@ class UploadController extends MinC_Controller_Action_Abstract {
         }
     }
 
-    public function arquivoMarcaProjetoAction() {
+    public function arquivoMarcaProjetoAction()
+    {
         $post = Zend_Registry::get('post');
 
         $observacao = $post->observacao;

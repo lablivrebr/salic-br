@@ -7,34 +7,34 @@ class Proposta_Model_DbTable_TbDocumentosPreProjeto  extends MinC_Db_Table_Abstr
 
 
     public function buscarDocumentos($where=array(), $order=array(), $tamanho=-1, $inicio=-1) {
-        $slct = $this->select();
-        $slct->setIntegrityCheck(false);
-        $slct->from(
+        $query = $this->select();
+        $query->setIntegrityCheck(false);
+        $query->from(
             array("a"=>$this->_name),
             array("CodigoDocumento", new Zend_Db_Expr('(2) as tpdoc'), 'idProjeto as codigo',
                 'Data', 'imDocumento', 'NoArquivo', 'TaArquivo', 'idDocumentosPreprojetos'),
             $this->_schema
         );
-        $slct->joinInner(
+        $query->joinInner(
             array("b"=> "DocumentosExigidos"), "a.CodigoDocumento = b.Codigo",
             array("Descricao"), $this->getSchema('sac')
         );
 
         foreach ($where as $coluna => $valor) {
-            $slct->where($coluna, $valor);
+            $query->where($coluna, $valor);
         }
 
-        $slct->order($order);
+        $query->order($order);
 
         if ($tamanho > -1) {
             $tmpInicio = 0;
             if ($inicio > -1) {
                 $tmpInicio = $inicio;
             }
-            $slct->limit($tamanho, $tmpInicio);
+            $query->limit($tamanho, $tmpInicio);
         }
 
-        $result = $this->fetchAll($slct);
+        $result = $this->fetchAll($query);
         return $result ? $result->toArray() : array();
     }
 
@@ -44,13 +44,12 @@ class Proposta_Model_DbTable_TbDocumentosPreProjeto  extends MinC_Db_Table_Abstr
 
         $slct->from(
                 array("a"=> $this->_name),
-                array("noarquivo", "imdocumento"),
+                array("NoArquivo", "imDocumento"),
             $this->_schema
         );
 
-        $slct->where("iddocumentospreprojetos = ?", $id);
+        $slct->where("idDocumentosPreprojetos = ?", $id);
 
-        //$this->fetchAll("SET TEXTSIZE 10485760;");
         $db = $this->getDefaultAdapter();
         if ($this->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
             $db->fetchAll("SET TEXTSIZE 10485760;");
