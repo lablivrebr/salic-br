@@ -1978,7 +1978,6 @@ class Agente_AgentesController extends MinC_Controller_Action_Abstract
                 $agente[$key] = utf8_encode($value);
             }
         });
-        die();
         $this->salvarAgenteRedirect($agente, $idpronac, $projetofnc, $movimentacacaobancaria, $acao);
     }
 
