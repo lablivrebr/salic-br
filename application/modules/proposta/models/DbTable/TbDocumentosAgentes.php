@@ -311,25 +311,19 @@ class Proposta_Model_DbTable_TbDocumentosAgentes extends MinC_Db_Table_Abstract
 
     public function abrir($id)
     {
-        $slct = $this->select();
-        $slct->setIntegrityCheck(false);
-
-        $slct->from(
+        $query = $this->select();
+        $query->setIntegrityCheck(false);
+        $query->from(
             array("a" => $this->_name),
-            array("noarquivo", "imdocumento"),
+            array("NoArquivo", "imDocumento"),
             $this->_schema
         );
 
-        $slct->where("iddocumentosagentes = ?", $id);
-
-
-        //$this->fetchAll("SET TEXTSIZE 10485760;");
+        $query->where("idDocumentosAgentes = ?", $id);
         $db = $this->getDefaultAdapter();
-        $db->fetchAll("SET TEXTSIZE 10485760;");
-        return $this->fetchAll($slct);
+        if ($this->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $db->fetchAll("SET TEXTSIZE 10485760;");
+        }
+        return $this->fetchAll($query);
     }
-
-
 }
-
-

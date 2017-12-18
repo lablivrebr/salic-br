@@ -7,14 +7,6 @@ $buscarDocumento = $this->url(
     )
 );
 $edital = '';
-
-//if(isset($_GET['edital']) && $_GET['edital']=="s"){
-//    echo $this->partial('manterpropostaedital/inc/menu.inc.php', $this);
-//    $edital='s';
-//}else{
-//    echo $this->partial('manterpropostaincentivofiscal/inc/menu.inc.php', $this);
-//}
-
 ?>
 <div class="container-fluid">
     <div class="row">
@@ -32,7 +24,7 @@ $edital = '';
                         )
                     )
                     ?>" id="formulario" enctype="multipart/form-data">
-                        <input type="hidden" name="idPreProjeto" value="<?php echo $_GET['idPreProjeto'] ?>">
+                        <input type="hidden" name="idPreProjeto" value="<?php echo $this->idPreProjeto ?>">
                         <input type="hidden" name="edital" value="<?php echo $edital ?>"/>
                         <fieldset>
                             <legend>Novo Arquivo</legend>
@@ -49,10 +41,10 @@ $edital = '';
                                     <p>
                                         <input type="radio" name="tipoDocumento" class="tipoDocumento"
                                                id="tipoDocumento1" value="1"/><label
-                                                for="tipoDocumento1">Proponente</label>
+                                            for="tipoDocumento1">Proponente</label>
                                         <input type="radio" name="tipoDocumento" class="tipoDocumento"
                                                id="tipoDocumento2" value="2"/><label
-                                                for="tipoDocumento2">Proposta</label>
+                                            for="tipoDocumento2">Proposta</label>
                                         <span style="color:#f00" id="tipodocumentoinvalido"></span>
                                     </p>
                                 </div>
@@ -98,16 +90,22 @@ $edital = '';
                         <?php foreach ($this->arquivosProposta as $arquivosProposta) { ?>
                         <tr>
                             <td><?php echo $arquivosProposta['Descricao']; ?></td>
-                            <td align="center"><?php echo Data::tratarDataZend($arquivosProposta['data'], 'Brasileira'); ?></td>
+                            <td align="center"><?php echo Data::tratarDataZend($arquivosProposta['Data'], 'Brasileira'); ?></td>
                             <td>
-                                <a href="<?php echo $this->url(array('module' => 'default', 'controller' => 'upload', 'action' => 'abrir-documentos-pre-projeto')); ?>?id=<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>">
-                                    <?php echo $arquivosProposta['noarquivo']; ?>
+                                <a href="<?php echo $this->url(
+                                    array(
+                                        'module' => 'default',
+                                        'controller' => 'upload',
+                                        'action' => 'abrir-documentos-pre-projeto'
+                                    )
+                                ); ?>?id=<?php echo $arquivosProposta['idDocumentosPreprojetos']; ?>">
+                                    <?php echo $arquivosProposta['NoArquivo']; ?>
                                 </a>
                             </td>
                             <?php if (!$this->isEditarProjeto) : ?>
                                 <td align="center">
                                     <button type="button" class="btn red white-text"
-                                            onclick="excluirAnexos(<?php echo $arquivosProposta['iddocumentospreprojetos']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proposta');">
+                                            onclick="excluirAnexos(<?php echo $arquivosProposta['idDocumentosPreprojetos']; ?>, <?php echo trim($this->idPreProjeto); ?>, 'proposta');">
                                         Excluir
                                     </button>
                                 </td>
@@ -140,7 +138,7 @@ $edital = '';
                                 <td align="center">
                                     <button type="button"
                                             class="btn red white-text"
-                                            onclick="excluirAnexos(<?php echo $arquivosProponente['idDocumentosAgentes']; ?>, <?php echo trim($_GET['idPreProjeto']); ?>, 'proponente');"/>
+                                            onclick="excluirAnexos(<?php echo $arquivosProponente['idDocumentosAgentes']; ?>, <?php echo trim($this->idPreProjeto); ?>, 'proponente');"/>
                                     excluir</button>
                                 </td>
                             <?php endif; ?>
@@ -225,8 +223,14 @@ $edital = '';
 
     // funcao para excluir os anexos
     function excluirAnexos(idArquivo, idPreProjeto, tipoDocumento) {
-        url = '<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterpropostaedital', 'action' => 'excluiranexo')) ?>?idArquivo=' + idArquivo + '&idPreProjeto=' + idPreProjeto + '&tipoDocumento=' + tipoDocumento;
+        url = '<?php echo $this->url(
+                array(
+                    'module' => 'proposta',
+                    'controller' => 'manterpropostaedital',
+                    'action' => 'excluiranexo'
+                )
+            )
+                ?>?idArquivo=' + idArquivo + '&idPreProjeto=' + idPreProjeto + '&tipoDocumento=' + tipoDocumento;
         confirmModal('CONFIRMA&Ccedil;&Atilde;O', 'msgExclusaoArq', 320, 200, null, url);
     }
 </script>
-

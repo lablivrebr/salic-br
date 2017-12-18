@@ -373,6 +373,8 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
 
         $tbl = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
         $rs = $tbl->buscarDocumentos(array("idProjeto = ?" => $idPreProjeto));
+
+        $this->view->idPreProjeto = $idPreProjeto;
         $this->view->arquivosProposta = $rs;
 
         $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
@@ -381,27 +383,6 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $tbA = new Proposta_Model_DbTable_TbDocumentosAgentes();
         $rsA = $tbA->buscarDadosDocumentos(array("idAgente = ?" => $dadosProjeto['idAgente']));
         $this->view->arquivosProponente = $rsA;
-
-//        $tblDocumentos = new DocumentosExigidos();
-//
-//        $where = array(
-//            'stUpload = ?' => true,
-//            'Area = ?' => '4'
-//        );
-//
-//        $listaDeArquivos = $tblDocumentos->buscar($where, 'Descricao desc');
-//
-//        foreach ($listaDeArquivos  as $item) {
-//            $novoItem = $item->toArray();
-//
-//            if(in_array($item->Codigo, array_column($rs, 'codigodocumento')))
-//                $novoItem['Anexado'] = true;
-//            else
-//                $novoItem['Anexado'] = false;
-//            $novaLista[] = $novoItem;
-//        }
-//        $this->view->documentosObrigatorios = $novaLista;
-
     }
 
     public function listararquivosAction()
@@ -986,12 +967,6 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         return $arrResultado;
     }
 
-    /**
-     * confirmarEnvioPropostaAoMincAction
-     *
-     * @access public
-     * @return void
-     */
     public function confirmarEnvioPropostaAoMincAction()
     {
 
@@ -1008,10 +983,9 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $rsTecnicos = array();
         $idOrgaoSuperior = null;
 
+        $edital = "";
         if (isset($_REQUEST['edital'])) {
             $edital = "&edital=s";
-        } else {
-            $edital = "";
         }
 
         if (!empty($idPreProjeto) && $valida == "s") {
@@ -1099,17 +1073,15 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
                     //Pegando ultima movimentacao
                     $rsMov = $tblMovimentacao->buscar(array("idProjeto = ?" => $idPreProjeto), array("idMovimentacao DESC"), 1, 0)->current();
 
+                    $movimentacaoDestino = 96;
                     if (count($rsMov) > 0) {
                         $ultimaMovimentacao = $rsMov->Movimentacao;
                         //Pegando penultima movimentacao
                         $rsMov = $tblMovimentacao->buscar(array("idProjeto = ?" => $idPreProjeto, "Movimentacao <> ?" => $ultimaMovimentacao), array("idMovimentacao DESC"), 1, 0)->current();
 
-                        $movimentacaoDestino = 96;
                         if (count($rsMov) > 0) {
                             $movimentacaoDestino = $rsMov->Movimentacao;
                         }
-                    } else {
-                        $movimentacaoDestino = 96;
                     }
 
                     //PERSISTE DADOS DA MOVIMENTACAO
@@ -1156,12 +1128,6 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         }
     }
 
-    /**
-     * validarAgenciaBancariaAction
-     *
-     * @access public
-     * @return void
-     */
     public function validarAgenciaBancariaAction()
     {
         $this->_helper->layout->disableLayout(); // desabilita o Zend_Layout
@@ -1175,37 +1141,42 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
         $this->_helper->viewRenderer->setNoRender(TRUE);
     }
 
-    /**
-     * excluiranexoAction
-     * Metodo para efetuar a exclusao do arquivo
-     *
-     * @access public
-     * @return void
-     */
     public function excluiranexoAction()
     {
-        if (isset($_GET['idArquivo']) && !empty($_GET['idArquivo']) && isset($_GET['idPreProjeto']) && !empty($_GET['idPreProjeto']) && isset($_GET['tipoDocumento']) && !empty($_GET['tipoDocumento'])) :
-            if ($_GET['tipoDocumento'] == 'proposta') {
+        $get = Zend_Registry::get("get");
+        if (
+            isset($get->idArquivo)
+            && !empty($get->idArquivo)
+            && isset($get->idPreProjeto)
+            && !empty($get->idPreProjeto)
+            && isset($get->tipoDocumento)
+            && !empty($get->tipoDocumento)
+        ) {
+            if ($get->tipoDocumento == 'proposta') {
                 $tbDocumentosPreProjeto = new Proposta_Model_DbTable_TbDocumentosPreProjeto();
-                $file = $tbDocumentosPreProjeto->findBy(array('iddocumentospreprojetos' => $_GET['idArquivo']));
-                $tbDocumentosPreProjeto->apagar(array('iddocumentospreprojetos = ?' => $_GET['idArquivo']));
+                $file = $tbDocumentosPreProjeto->findBy(
+                    array('idDocumentosPreprojetos' => $get->idArquivo)
+                );
+                $tbDocumentosPreProjeto->apagar(array('idDocumentosPreprojetos = ?' => $get->idArquivo));
             } else {
                 $tbDocumentosAgentes = new Proposta_Model_DbTable_TbDocumentosAgentes();
-                $file = $tbDocumentosAgentes->findBy(array('iddocumentosagentes' => $_GET['idArquivo']));
-                $tbDocumentosAgentes->apagar(array('iddocumentosagentes = ?' => $_GET['idArquivo']));
+                $file = $tbDocumentosAgentes->findBy(
+                    array('idDocumentosAgentes' => $get->idArquivo)
+                );
+                $tbDocumentosAgentes->apagar(array('idDocumentosAgentes = ?' => $get->idArquivo));
             }
+
             $filePath = APPLICATION_PATH . '/..' . $file['imdocumento'];
             if (file_exists($filePath)) {
                 unlink($filePath);
             }
 
-            if (isset($_GET['request'])) {
-                $request = $_GET['request'];
-            } else {
-                $request = 'proposta/manterpropostaedital/enviararquivoedital?idPreProjeto=' . $_GET['idPreProjeto'];
+            $request = 'proposta/manterpropostaedital/enviararquivoedital?idPreProjeto=' . $get->idPreProjeto;
+            if (isset($get->request)) {
+                $request = $get->request;
             }
 
             parent::message('Exclus&atilde;o efetuada com sucesso!', $request, 'CONFIRM');
-        endif;
+        }
     }
 }

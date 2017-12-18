@@ -26,7 +26,10 @@ class UploadDAO extends MinC_Db_Table_Abstract {
                 array('biArquivo'),
                 'bdcorporativo.scCorp');
 
-        $resultado = $db->fetchAll('SET TEXTSIZE 2147483647');
+        if($db instanceof Zend_Db_Adapter_Pdo_Mssql) {
+            $resultado = $db->fetchAll('SET TEXTSIZE 2147483647');
+        }
+
         return $db->fetchAll($select);
     }
 
