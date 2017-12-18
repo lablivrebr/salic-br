@@ -1946,6 +1946,7 @@ class Agente_AgentesController extends MinC_Controller_Action_Abstract
             endif;
         }
         //================ FIM VINCULA O RESPONSAVEL COM O PROPONENTE CADASTRADO ========================
+
         if (isset($acao) && $acao != '') {
             // Retorna para o listar propostas
             $tbVinculo = new Agente_Model_DbTable_TbVinculo();
@@ -1953,7 +1954,7 @@ class Agente_AgentesController extends MinC_Controller_Action_Abstract
                 'idAgenteProponente' => $idAgente,
                 'dtVinculo' => $tbVinculo->getExpressionDate(),
                 'siVinculo' => 0,
-                'idUsuarioResponsavel' => $arrAuth->getIdentity()->IdUsuario
+                'idUsuarioResponsavel' => $arrAuth['IdUsuario']
             );
             $tbVinculo->inserir($dadosVinculo);
         }
@@ -1977,7 +1978,6 @@ class Agente_AgentesController extends MinC_Controller_Action_Abstract
                 $agente[$key] = utf8_encode($value);
             }
         });
-
         $this->salvarAgenteRedirect($agente, $idpronac, $projetofnc, $movimentacacaobancaria, $acao);
     }
 
