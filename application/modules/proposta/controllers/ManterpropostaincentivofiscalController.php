@@ -293,7 +293,7 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
             "AreaAbrangencia" => isset($post['areaabrangencia']) ? $post['areaabrangencia'] : false,
             "DtInicioDeExecucao" => isset($post['dtiniciodeexecucao']) ? $post['dtiniciodeexecucao'] : null,
             "DtFinalDeExecucao" => isset($post['dtfinaldeexecucao']) ? $post['dtfinaldeexecucao'] : null,
-            "DtAtoTombamento" => isset($post['dtatotombamento']) ? $post['dtatotombamento'] : null,
+            "DtAtoTombamento" => !empty($post['dtatotombamento']) ? $post['dtatotombamento'] : null,
             "NrAtoTombamento" => isset($post['nratotombamento']) ? $post['nratotombamento'] : null,
             "EsferaTombamento" => isset($post['esferatombamento']) ? $post['esferatombamento'] : '0',
             "ResumoDoProjeto" => isset($post['resumodoprojeto']) ? $post['resumodoprojeto'] : null,

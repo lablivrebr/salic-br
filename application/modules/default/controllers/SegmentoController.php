@@ -38,7 +38,7 @@ class SegmentoController extends Zend_Controller_Action
 
 		// integracao MODELO e VISAO
 		$Segmento = new Segmento();
-		$resultado = $Segmento->combo(array("a.codigo = '?'" => $idArea), array('s.segmento ASC'));
+		$resultado = $Segmento->combo(array("a.Codigo = '?'" => $idArea), array('s.Segmento ASC'));
                 if(count($resultado)>0){
                     $html = '<option value=""> - Selecione - </option>';
                     foreach ($resultado as $value) {

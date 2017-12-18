@@ -2,7 +2,7 @@
 class PlanoDistribuicao extends MinC_Db_Table_Abstract
 {
     protected $_schema = "sac";
-    protected $_name = "planodistribuicaoproduto";
+    protected $_name = "PlanoDistribuicaoProduto";
     protected $_primary = "idPlanoDistribuicao";
     /**
      * Grava registro. Se seja passado um ID ele altera um registro existente
@@ -68,36 +68,36 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
             $slct->setIntegrityCheck(false);
 
             $cols = array_merge($this->_getCols(), array(
-                "FORMAT(a.QtdeProponente, '0,0','pt-br') as QtdeProponente",
-                "FORMAT(a.QtdeProduzida, '0,0','pt-br') as QtdeProduzida",
-                "FORMAT(a.QtdePatrocinador, '0,0','pt-br') as QtdePatrocinador",
-                "FORMAT(a.QtdeOutros, '0,0','pt-br') as QtdeOutros",
-                "FORMAT(a.QtdeVendaPopularPromocional, '0,0','pt-br') as QtdeVendaPopularPromocional",
-                "FORMAT(a.QtdeVendaNormal, '0,0','pt-br') as QtdeVendaNormal",
-                "FORMAT(a.QtdeVendaPromocional, '0,0','pt-br') as QtdeVendaPromocional",
-                "FORMAT(a.QtdeVendaPopularNormal, '0,0','pt-br') as QtdeVendaPopularNormal",
-                "FORMAT(a.vlUnitarioPopularNormal, 'N','pt-br') as vlUnitarioPopularNormal",
-                "FORMAT( a.vlUnitarioNormal, 'N','pt-br') AS vlUnitarioNormal",
-                "FORMAT( a.ReceitaPopularNormal, 'N','pt-br') AS ReceitaPopularNormal",
-                "FORMAT( a.ReceitaPopularPromocional, 'N','pt-br') AS ReceitaPopularPromocional",
-                "FORMAT( a.PrecoUnitarioPromocional, 'N','pt-br') AS PrecoUnitarioPromocional",
-                "FORMAT( a.PrecoUnitarioNormal, 'N', 'pt-br') AS PrecoUnitarioNormal",
-                "FORMAT(( ReceitaPopularPromocional ) + ( ReceitaPopularNormal )+ ( PrecoUnitarioNormal )+ ( PrecoUnitarioPromocional ),'N','pt-br') AS Receita"
+//                "FORMAT(a.QtdeProponente, '0,0','pt-br') as QtdeProponente",
+//                "FORMAT(a.QtdeProduzida, '0,0','pt-br') as QtdeProduzida",
+//                "FORMAT(a.QtdePatrocinador, '0,0','pt-br') as QtdePatrocinador",
+//                "FORMAT(a.QtdeOutros, '0,0','pt-br') as QtdeOutros",
+//                "FORMAT(a.QtdeVendaPopularPromocional, '0,0','pt-br') as QtdeVendaPopularPromocional",
+//                "FORMAT(a.QtdeVendaNormal, '0,0','pt-br') as QtdeVendaNormal",
+//                "FORMAT(a.QtdeVendaPromocional, '0,0','pt-br') as QtdeVendaPromocional",
+//                "FORMAT(a.QtdeVendaPopularNormal, '0,0','pt-br') as QtdeVendaPopularNormal",
+//                "FORMAT(a.vlUnitarioPopularNormal, 'N','pt-br') as vlUnitarioPopularNormal",
+//                "FORMAT( a.vlUnitarioNormal, 'N','pt-br') AS vlUnitarioNormal",
+//                "FORMAT( a.ReceitaPopularNormal, 'N','pt-br') AS ReceitaPopularNormal",
+//                "FORMAT( a.ReceitaPopularPromocional, 'N','pt-br') AS ReceitaPopularPromocional",
+//                "FORMAT( a.PrecoUnitarioPromocional, 'N','pt-br') AS PrecoUnitarioPromocional",
+//                "FORMAT( a.PrecoUnitarioNormal, 'N', 'pt-br') AS PrecoUnitarioNormal",
+                new Zend_Db_Expr('("a"."ReceitaPopularPromocional" + "a"."ReceitaPopularNormal" + "a"."PrecoUnitarioNormal" + "a"."PrecoUnitarioPromocional") as  Receita'),
             ));
 
             $slct->from(array("a"=> $this->_name), $cols, $this->_schema);
-            $slct->joinInner(array("b"=>"produto"),
-                            "a.idproduto = b.codigo",
+            $slct->joinInner(array("b"=>"Produto"),
+                            "a.idProduto = b.Codigo",
                             array("Produto"=>"b.Descricao"),
                             $this->_schema);
             $slct->joinInner(array("ar"=>"Area"),
-                            "a.area = ar.codigo",
+                            "a.Area = ar.Codigo",
                             array("DescricaoArea"=>"ar.Descricao"),  $this->_schema);
-            $slct->joinInner(array("s"=>"segmento"),
-                            "a.segmento = s.codigo",
+            $slct->joinInner(array("s"=>"Segmento"),
+                            "a.Segmento = s.Codigo",
                             array("DescricaoSegmento"=>"s.Descricao"),  $this->_schema);
 
-            $slct->where('a.stplanodistribuicaoproduto = ?', '1');
+            $slct->where('a.stPlanoDistribuicaoProduto = ?', 'true');
 
             // adicionando clausulas where
             foreach ($where as $coluna=>$valor)
@@ -118,7 +118,6 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
                     }
                     $slct->limit($tamanho, $tmpInicio);
             }
-            //echo $slct;die;
 
             //SETANDO A QUANTIDADE DE REGISTROS
             $this->_totalRegistros = $this->pegaTotal($where);
@@ -195,7 +194,7 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
                             "a.idPosicaoDaLogo = c.idVerificacao",
                             array("PosicaoLogomarca"=>"c.Descricao"),  $this->_schema);
 
-			$slct->where('a.stPlanoDistribuicaoProduto = ?', '1');
+			$slct->where('a.stPlanoDistribuicaoProduto = ?', 'true');
 
             // adicionando clausulas where
             foreach ($where as $coluna=>$valor)
@@ -217,10 +216,10 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
                     $slct->limit($tamanho, $tmpInicio);
             }
             try{
-                        $rows = $this->fetchAll($slct);
-                        return $rows->count();
+                $rows = $this->fetchAll($slct);
+                return $rows->count();
             }catch(Exception $e){
-                echo ($slct->assemble());die;
+                xd($e->getMessage(), $slct->assemble());
             }
     }
 
@@ -264,7 +263,7 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
         $slct->joinInner(array('mun' => 'municipios'), 'mun.idMunicipioIBGE = d.idMunicipio','mun.Descricao as DescricaoMunicipio', $this->getSchema('agentes'));
 
         $slct->joinInner(array("b"=>"produto"),
-            "p.idproduto = b.codigo",
+            "p.idProduto = b.codigo",
             array("Produto"=>"b.Descricao"),
             $this->_schema);
 
