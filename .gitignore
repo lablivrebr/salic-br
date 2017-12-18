@@ -27,3 +27,4 @@ composer.phar
 .vscode/
 /log
 npm-debug.log
+application/data/
