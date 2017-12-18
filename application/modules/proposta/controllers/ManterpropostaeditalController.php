@@ -1166,9 +1166,9 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
                 $tbDocumentosAgentes->apagar(array('idDocumentosAgentes = ?' => $get->idArquivo));
             }
 
-            $filePath = APPLICATION_PATH . '/..' . $file['imdocumento'];
-            if (file_exists($filePath)) {
-                unlink($filePath);
+            $localizacaoArquivo = $file['imDocumento'];
+            if (file_exists($localizacaoArquivo)) {
+                unlink($localizacaoArquivo);
             }
 
             $request = 'proposta/manterpropostaedital/enviararquivoedital?idPreProjeto=' . $get->idPreProjeto;
