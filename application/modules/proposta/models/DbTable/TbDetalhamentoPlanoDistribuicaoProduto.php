@@ -1,26 +1,10 @@
 <?php
 
-/**
- *
- *
- */
 class Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto extends MinC_Db_Table_Abstract
 {
-    /**
-     * _schema
-     *
-     * @var string
-     * @access protected
-     */
     protected $_schema = 'sac';
-
-    /**
-     * _name
-     *
-     * @var bool
-     * @access protected
-     */
     protected $_name = 'tbDetalhaPlanoDistribuicao';
+    protected $_primary = 'idDetalhaPlanoDistribuicao';
 
     public function salvar($dados)
     {
@@ -32,31 +16,31 @@ class Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto extends MinC
         $cols = array(
             'idDetalhaPlanoDistribuicao',
             'idPlanoDistribuicao',
-            'idUF' ,
-            'idMunicipio' ,
-            'stDistribuicao' ,
-            'dsProduto' ,
-            'qtExemplares' ,
-            'qtGratuitaDivulgacao' ,
-            'qtGratuitaPatrocinador' ,
-            'qtGratuitaPopulacao' ,
-            'qtPopularIntegral' ,
-            'qtPopularParcial' ,
-            "FORMAT(vlUnitarioPopularIntegral, 'N') as vlUnitarioPopularIntegral",
-            "FORMAT(vlReceitaPopularIntegral, 'N') as vlReceitaPopularIntegral",
-            "FORMAT(vlReceitaPopularParcial, 'N') as vlReceitaPopularParcial",
-            'qtProponenteIntegral' ,
-            'qtProponenteParcial' ,
-            "FORMAT(vlUnitarioProponenteIntegral, 'N') as  vlUnitarioProponenteIntegral",
-            "FORMAT(vlReceitaProponenteIntegral, 'N') as vlReceitaProponenteIntegral",
-            "FORMAT(vlReceitaProponenteParcial, 'N') as vlReceitaProponenteParcial",
-            "FORMAT(vlReceitaPrevista, 'N') as vlReceitaPrevista"
+            'idUF',
+            'idMunicipio',
+            'stDistribuicao',
+            'dsProduto',
+            'qtExemplares',
+            'qtGratuitaDivulgacao',
+            'qtGratuitaPatrocinador',
+            'qtGratuitaPopulacao',
+            'qtPopularIntegral',
+            'qtPopularParcial',
+            "vlUnitarioPopularIntegral",
+            "vlReceitaPopularIntegral",
+            "vlReceitaPopularParcial",
+            'qtProponenteIntegral',
+            'qtProponenteParcial',
+            "vlUnitarioProponenteIntegral",
+            "vlReceitaProponenteIntegral",
+            "vlReceitaProponenteParcial",
+            "vlReceitaPrevista"
         );
 
         $sql = $this->select()
             ->from($this->_name, $cols, $this->_schema)
-            ->where(' idUF= ?', $dados['idUF'])
-            ->where(' idMunicipio= ?', $dados['idMunicipio'])
+            ->where('idUF = ?', $dados['idUF'])
+            ->where('idMunicipio = ?', $dados['idMunicipio'])
             ->where('idPlanoDistribuicao = ?', $dados['idPlanoDistribuicao']);
 
         return $this->fetchAll($sql);
@@ -64,7 +48,7 @@ class Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto extends MinC
 
     public function excluir($id)
     {
-        return $this->delete("idDetalhaPlanoDistribuicao =  $id");
+        return $this->delete("idDetalhaPlanoDistribuicao = $id");
     }
 
     public function excluirByIdPreProjeto($idPreProjeto, $where = array(), $order = null)
@@ -73,7 +57,7 @@ class Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto extends MinC
         $slct->setIntegrityCheck(false);
         $slct->from(array("d" => $this->_name) , array('d.idDetalhaPlanoDistribuicao'), $this->_schema);
 
-        $slct->joinInner(array("p" => 'planodistribuicaoproduto'),
+        $slct->joinInner(array("p" => 'PlanoDistribuicaoProduto'),
             "p.idPlanoDistribuicao = d.idPlanoDistribuicao",
             array(), $this->_schema);
 

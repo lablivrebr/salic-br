@@ -28,7 +28,51 @@
 }));
 
 // switch between locales
-//numeral.locale('pt-br');
+numeral.locale('pt-br');
+numeral.defaultFormat('0,0.00');
+
+// register
+Vue.component('select-percent', {
+    template: '<select @change="valorSelecionado($event.target.value)" ref="combo" tabindex="-1"><option v-for="item in items">{{ item }}%</option></select>',
+    props: {
+        disabled: {
+            type: Boolean,
+            default: false
+        },
+        maximoCombo: {}
+    },
+    data:function(){
+        return {
+            retorno: 1
+        }
+    },
+    computed: {
+        items: function() {
+            var total = [];
+            for ( var i = this.maximoCombo ; i >= 0; i--){
+                total.push(parseInt(i));
+            }
+            return total;
+        }
+    },
+    watch: {
+        disabled: function (){
+            this.$refs.combo.disabled = this.disabled;
+            if (this.disabled){
+                this.value= 0;
+            }
+        }
+    },
+    methods: {
+        valorSelecionado: function(value) {
+            this.retorno = value;
+            this.$emit('evento', parseInt(this.retorno))
+        }
+    },
+    mounted: function () {
+        this.$refs.combo.disabled = this.disabled;
+    }
+});
 
 // register
 Vue.component('input-money', {
@@ -39,55 +83,60 @@ Vue.component('input-money', {
                     v-bind:value="value"\
                     ref="input"\
                     v-on:input="updateMoney($event.target.value)"\
-                    v-on:blur="formatValue"\
-                >\
+                    v-on:blur="formatValue">\
                 </div>',
     props: {
         value: {
-          type: Number,
-          default: 0
+            default: 0
         },
         disabled: {
-          type: Boolean,
-          default: false
+            type: Boolean,
+            default: false
         }
     },
     data:function(){
         return {
-           val:1
+            val:1
         }
     },
     mounted: function () {
-        this.formatValue()
-        console.log(this.disabled);
+        this.formatValue();
         this.$refs.input.disabled = this.disabled;
     },
     methods:{
         formatValue: function () {
-          this.$refs.input.value = numeral(this.$refs.input.value).format('0,0.00');
+            this.$refs.input.value = numeral(this.$refs.input.value).format();
         },
         updateMoney: function(value) {
-            console.log(value);
+            // console.log(value);
             this.val = value;
             this.$emit('ev', this.val)
         }
     },
     watch: {
         disabled: function (){
-            console.log(this.disabled)
             this.$refs.input.disabled = this.disabled;
             if (this.disabled){
                 this.value= 0;
             }
         }
     }
-})
+});
 
 // register
 Vue.component('my-component', {
-  template: '#app-6',
+    template: '#app-6',
     data: function() {
-       return {
+        return {
+            produto:{ }, // produto sendo manipulado
+            produtos:  [], // lista de produtos
+            active : false,
+            visualizarFormulario: false,
+            icon : 'add',
+            "tpVenda" : 'i',
+            "distribuicaoGratuita" : 'n',
+            "tpLocal" : 'a',
+            "tpEspaco" : 'n',
             "dsProduto": '', // Categoria
             "qtExemplares": 0, // Quantidade de exemplar / Ingresso
             "qtGratuitaDivulgacao" : 0,
@@ -99,62 +148,148 @@ Vue.component('my-component', {
             "vlUnitarioProponenteIntegral": 0,
             "qtPopularIntegral": 0,
             "qtPopularParcial": 0,
-            produto:{ }, // produto sendo manipulado
-            produtos:  [], // lista de produtos
-            active : false,
-            icon : 'add',
-            radio : 'n'
+            "percentualGratuitoPadrao" : 0.3,
+            "percentualGratuito" : 0.3,
+            "percentualPrecoPopularPadrao" : 0.2,
+            "percentualPrecoPopular" : 0.2,
+            "percentualProponentePadrao" : 0.5,
+            "percentualProponente" : 0.5,
+            "labelInteira" : 'Inteira',
+            activeForm : false
         }
     },
     props:['idpreprojeto','idplanodistribuicao', 'idmunicipioibge', 'iduf', 'disabled'],
     computed:{
         // Limite: preço popular: Quantidade de Inteira
         qtPrecoPopularValorIntegralLimite: function() {
-            return ((this.qtExemplares * 0.5)  - (parseInt(this.qtGratuitaDivulgacao) + parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaPopulacao))) * 0.6 ;
+
+            var percentualPopularIntegral = 0.6;
+
+            if(this.tpVenda == 'e') {
+                percentualPopularIntegral = 1;
+            }
+
+            return parseInt((this.qtExemplares * this.percentualPrecoPopular) * percentualPopularIntegral);
         },
-        // Limite: preço popular: Quantidade de meia entrada
+        // Limite: preço popular: Quantidade de meia entrada 40% de 50%
         qtPrecoPopularValorParcialLimite: function () {
-            return  ( ((this.qtExemplares * 0.5) - (parseInt(this.qtGratuitaDivulgacao) + parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaPopulacao))) *0.4 );
+
+            var percentualPopularParcial = 0.4;
+
+            if(this.tpVenda == "e") {
+                percentualPopularParcial = 0
+            }
+            return parseInt((this.qtExemplares * this.percentualPrecoPopular) * percentualPopularParcial);
         },
-        //Preço Popular: Valor da inteira
-        vlReceitaPopularIntegral: function() {
-            if (this.radio == 'n') {
-                return parseInt(this.qtPopularIntegral) * parseFloat(this.vlUnitarioPopularIntegral);
+        qtGratuitaPopulacaoMinimo : function() {
+            return  parseInt(( parseInt(this.qtExemplares)  * this.percentualGratuito - (parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaDivulgacao))));
+        },
+        quantidadePopularIntegral: function() {
+            if (this.distribuicaoGratuita == 'n') {
+
+                var percentualPopularIntegral = 0.6;
+
+                if(this.tpVenda == "e") {
+                    percentualPopularIntegral = 1;
+                }
+
+                return parseInt((this.qtExemplares * this.percentualPrecoPopular) * percentualPopularIntegral) ;
+
             }
             return 0;
         },
-        vlReceitaPopularParcial: function() {
-            return this.qtPopularParcial * ( this.vlUnitarioPopularIntegral * 0.5);
+        quantidadePopularParcial: function() {
+            if (this.distribuicaoGratuita == 'n') {
+
+                var percentualPopularParcial = 0.4;
+
+                if(this.tpVenda == "e") {
+                    percentualPopularParcial = 0;
+                }
+
+                return parseInt((this.qtExemplares * this.percentualPrecoPopular) * percentualPopularParcial) ;
+
+            }
+            return 0;
         },
         /*verificar esse calculo com mais cuidado*/
         qtProponenteIntegral: function() {
-            if (this.radio == 'n') {
-                return (this.qtExemplares * 0.5) * 0.5 ;
+            if (this.distribuicaoGratuita == 'n') {
+
+                this.percentualPrecoPopular = this.percentualMaximoPrecoPopular;
+
+                var percentualProponenteIntegral = 0.5;
+
+                if(this.tpVenda == 'e') {
+                    percentualProponenteIntegral = 1
+                }
+
+                return parseInt((this.qtExemplares * this.percentualProponente) * percentualProponenteIntegral) ;
             }
             return 0;
         },
         qtProponenteParcial: function() {
-            if (this.radio == 'n') {
-                return (this.qtExemplares * 0.5) * 0.5 ;
+            if (this.distribuicaoGratuita == 'n') {
+
+                var percentualProponenteParcial = 0.5;
+
+                if(this.tpVenda == 'e') {
+                    percentualProponenteParcial = 0
+                }
+
+                return parseInt((this.qtExemplares * this.percentualProponente) * percentualProponenteParcial) ;
             }
             return 0;
         },
+        percentualMaximoDistribuicaoGratuita: function() {
+            return this.percentualGratuitoPadrao + (this.percentualMaximoPrecoPopular - this.percentualPrecoPopular);
+        },
+        percentualMaximoPrecoPopular: function() {
+            if (this.distribuicaoGratuita == 'n') {
+                return this.percentualPrecoPopularPadrao + (this.percentualProponentePadrao - this.percentualProponente);
+            }
+            return 0;
+        },
+        percentualPrecoPopularSoma: function(val)  {
+            this.qtPopularIntegral = this.quantidadePopularIntegral;
+            this.qtPopularParcial = this.quantidadePopularParcial;
+            this.percentualGratuito = this.percentualGratuitoPadrao + (this.percentualPrecoPopularPadrao - this.percentualPrecoPopular);
+
+            return this.percentualPrecoPopular;
+        },
+        //Preço Popular: Valor da inteira
+        vlReceitaPopularIntegral: function() {
+            if (this.distribuicaoGratuita == 'n') {
+                return numeral(parseInt(this.qtPopularIntegral) * this.converterParaMoedaAmericana(this.vlUnitarioPopularIntegral)).format();
+            }
+            return 0;
+
+        },
+        vlReceitaPopularParcial: function() {
+            return numeral(this.qtPopularParcial * this.converterParaMoedaAmericana(this.vlUnitarioPopularIntegral) * 0.5).format();
+        },
         vlReceitaProponenteIntegral: function() {
-            if (this.radio == 'n') {
-                return parseFloat( this.vlUnitarioProponenteIntegral * this.qtProponenteIntegral ).toFixed(2);
+            if (this.distribuicaoGratuita == 'n') {
+                return numeral(this.converterParaMoedaAmericana(this.vlUnitarioProponenteIntegral) * parseInt(this.qtProponenteIntegral)).format();
             }
             return 0;
         },
         vlReceitaProponenteParcial: function(){
-            if (this.radio == 'n'){
-                return parseFloat( ( this.vlUnitarioProponenteIntegral * 0.5 ) * this.qtProponenteParcial).toFixed(2);
+            if (this.distribuicaoGratuita == 'n'){
+                return numeral( ( this.converterParaMoedaAmericana(this.vlUnitarioProponenteIntegral) * 0.5 ) * this.qtProponenteParcial).format();
             }
             return 0;
         },
         vlReceitaPrevista: function() {
-            var total =  (parseFloat(this.vlReceitaPopularIntegral) + parseFloat(this.vlReceitaPopularParcial)
-                + parseFloat(this.vlReceitaProponenteIntegral) + parseFloat(this.vlReceitaProponenteParcial)).toFixed(2);
-            return numeral(total).format('0,0.00');
+
+            var soma = numeral();
+
+            soma.add(this.converterParaMoedaAmericana(this.vlReceitaPopularIntegral));
+            soma.add(this.converterParaMoedaAmericana(this.vlReceitaPopularParcial));
+            soma.add(this.converterParaMoedaAmericana(this.vlReceitaProponenteIntegral));
+            soma.add(this.converterParaMoedaAmericana(this.vlReceitaProponenteParcial));
+
+            return numeral(soma).format();
         },
         // Total de exemplares
         qtExemplaresTotal: function() {
@@ -196,7 +331,7 @@ Vue.component('my-component', {
             }
             return total;
         },
-        //Preço Popular: Quantidade de mei entrada
+        //Preço Popular: Quantidade de meia entrada
         qtPopularParcialTotal:function() {
             total = 0 ;
             for ( var i = 0 ; i < this.produtos.length ; i++){
@@ -210,7 +345,7 @@ Vue.component('my-component', {
                 var vl = (this.produtos[i]['vlReceitaPopularIntegral']);
                 total += numeral(vl).value();
             }
-            return numeral(total).format('0,0.00');
+            return numeral(total).format();
         },
         vlReceitaPopularParcialTotal: function() {
             total = 0 ;
@@ -218,7 +353,7 @@ Vue.component('my-component', {
                 var vl = (this.produtos[i]['vlReceitaPopularParcial']);
                 total += numeral(vl).value();
             }
-            return numeral(total).format('0,0.00');
+            return numeral(total).format();
         },
         qtProponenteIntegralTotal:function(){
             total = 0 ;
@@ -238,59 +373,78 @@ Vue.component('my-component', {
             total = 0 ;
             for ( var i = 0 ; i < this.produtos.length ; i++){
                 vl = (this.produtos[i]['vlReceitaProponenteIntegral']);
-                total += numeral(vl).value();
+                total += this.converterParaMoedaAmericana(vl);
             }
-            return numeral(total).format('0,0.00');
+            return numeral(total).format();
         },
         vlReceitaProponenteParcialTotal: function() {
             total = 0 ;
             for ( var i = 0 ; i < this.produtos.length ; i++){
                 var vl = (this.produtos[i]['vlReceitaProponenteParcial']);
-                total += numeral(vl).value();
+                total += this.converterParaMoedaAmericana(vl);
             }
-            return numeral(total).format('0,0.00');
+            return numeral(total).format();
         },
         receitaPrevistaTotal: function() {
-            var total = 0 ;
+            var total = numeral();
+
             for ( var i = 0 ; i < this.produtos.length ; i++){
                 var vl = this.produtos[i]['vlReceitaPrevista'];
-                total += numeral(vl).value();
+                total.add(parseFloat(vl));
             }
-            return numeral(total).format('0,0.00');
-        },
+            return total.format();
+        }
     },
     watch:{
         //Quantidade de exemplar / Ingresso
         qtExemplares: function(val)  {
-            if (this.radio == 'n'){
-                this.qtGratuitaDivulgacao = this.qtExemplares * 0.1;
-                this.qtGratuitaPatrocinador = this.qtExemplares * 0.1;
-                this.qtGratuitaPopulacao = parseInt(this.qtExemplares * 0.1);
-                this.qtPopularIntegral = ((this.qtExemplares * 0.5)  - (parseInt(this.qtGratuitaDivulgacao) + parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaPopulacao))) * 0.6 ;
-                this.qtPopularParcial =  ( ((this.qtExemplares * 0.5) - (parseInt(this.qtGratuitaDivulgacao) + parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaPopulacao))) *0.4 );
+            if (this.distribuicaoGratuita == 'n'){
+                this.qtGratuitaDivulgacao = parseInt(this.qtExemplares * 0.1);
+                this.qtGratuitaPatrocinador = parseInt(this.qtExemplares * 0.1);
+                this.percentualGratuito = this.percentualMaximoDistribuicaoGratuita;
+                this.qtGratuitaPopulacao = this.qtGratuitaPopulacaoMinimo;
+                this.percentualPrecoPopular = this.percentualMaximoPrecoPopular;
+                this.qtPopularIntegral = this.quantidadePopularIntegral;
+                this.qtPopularParcial = this.quantidadePopularParcial;
             } else {
                 this.qtGratuitaPopulacao = this.qtExemplares;
             }
         },
+        percentualPrecoPopular: function(val) {
+            this.percentualGratuito = this.percentualMaximoDistribuicaoGratuita;
+            this.qtGratuitaPopulacao = this.qtGratuitaPopulacaoMinimo;
+            this.qtPopularIntegral = this.quantidadePopularIntegral;
+            this.qtPopularParcial = this.quantidadePopularParcial;
+        },
         //Distribuição Gratuita: Divulgação
         qtGratuitaDivulgacao: function(val)  {
-            if (this.radio == 'n'){
+            if (this.distribuicaoGratuita == 'n'){
                 quantidade = this.qtExemplares * 0.1;
                 if(val > quantidade) {
-                    alert("Valor não pode passar de: "+quantidade);
+                    alert("Valor n\xE3o pode passar de: "+quantidade);
                     this.qtGratuitaDivulgacao = this.qtExemplares * 0.1;
                 }
                 return;
             }
             this.qtGratuitaDivulgacao = 0;
         },
+        tpVenda: function() {
+            this.qtPopularParcial = this.quantidadePopularParcial;
+            this.qtPopularIntegral = this.quantidadePopularIntegral;
+
+            if( this.tpVenda == 'e') {
+                this.labelInteira = '';
+            }else {
+                this.labelInteira = 'Inteira';
+            }
+        },
         //Distribuição Gratuita: Patrocinador
         patrocinador: function(val)  {
             quantidade = this.qtExemplares * 0.1;
 
-            if (this.radio == 'n') {
+            if (this.distribuicaoGratuita == 'n') {
                 if(val > quantidade) {
-                    alert("Valor não pode passar de: "+quantidade);
+                    alert("Valor n\xE3o pode passar de: "+quantidade);
                     this.qtGratuitaPatrocinador = this.qtExemplares * 0.1;
                 }
                 return;
@@ -298,44 +452,50 @@ Vue.component('my-component', {
             this.qtGratuitaPatrocinador = 0;
         },
         vlUnitarioPopularIntegral: function() {
-            if (this.radio == 'n') {
-                if (this.vlUnitarioPopularIntegral > 50.00) {
-                    alert('O valor não pode ser maior que 50.00');
-                    this.vlUnitarioPopularIntegral = 50.00;
+
+            if (this.distribuicaoGratuita == 'n') {
+                if (this.converterParaMoedaAmericana(this.vlUnitarioPopularIntegral) > 50.00) {
+                    this.vlUnitarioPopularIntegral = numeral(50.00).format();
+                    alert('O valor n\xE3o pode ser maior que 50.00');
                 }
                 return;
             }
             this.vlUnitarioPopularIntegral = 0;
         },
         qtPrecoPopularValorIntegral: function(val){
-            if (this.radio == 'n') {
+            if (this.distribuicaoGratuita == 'n') {
                 if (this.qtPrecoPopularValorIntegral > this.qtPrecoPopularValorIntegralLimite) {
-                    alert('O valor não pode ser maior que ' + this.qtPrecoPopularValorIntegralLimite);
+                    alert('O valor n\xE3o pode ser maior que ' + this.qtPrecoPopularValorIntegralLimite);
                 }
                 return ;
             }
             this.qtPrecoPopularValorIntegral = 0;
         },
         qtPrecoPopularValorParcial: function(val){
-            if (this.radio == 'n') {
+            if (this.distribuicaoGratuita == 'n') {
                 if (this.qtPrecoPopularValorParcial > this.qtPrecoPopularValorParcialLimite) {
-                    alert('O valor não pode ser maior que ' + this.qtPrecoPopularValorParcialLimite);
+                    alert('O valor n\xE3o pode ser maior que ' + this.qtPrecoPopularValorParcialLimite);
                 }
                 return;
             }
             this.qtPrecoPopularValorParcial = 0;
         },
-        radio : function(val){
-            if (this.radio == 's') {
+        distribuicaoGratuita : function(val){
+            if (this.distribuicaoGratuita == 's') {
 
-                console.log(this.radio);
                 this.qtGratuitaPopulacao = this.qtExemplares;
+                this.qtGratuitaPopulacaoMinimo = this.qtExemplares;
+                this.percentualProponente = 0;
+                this.percentualPrecoPopular = 0;
 
                 this.$refs.populacao.disabled = true;
                 this.$refs.divulgacao.disabled = true;
                 this.$refs.patrocinador.disabled = true;
                 this.$refs.qtPopularIntegral.disabled = true;
-                this.$refs.qtPopularParcial.disabled = true;
+
+                if(typeof this.$refs.qtPopularParcial !== 'undefined') {
+                    this.$refs.qtPopularParcial.disabled = true;
+                }
 
                 this.qtGratuitaDivulgacao = 0;
                 this.qtGratuitaPatrocinador = 0;
@@ -343,22 +503,28 @@ Vue.component('my-component', {
                 this.qtPrecoPopularValorIntegral = 0; //Preço Popular: Quantidade de Inteira
                 this.qtPrecoPopularValorParcial =  0;//Preço Popular: Quantidade de meia entrada
                 this.vlUnitarioProponenteIntegral =  0;
-                this.qtPopularIntegral = 0,
+                this.qtPopularIntegral = 0;
                 this.qtPopularParcial = 0;
                 this.vlReceitaPopularIntegral = 0;
+
+
 
             } else {
                 this.$refs.populacao.disabled = false;
                 this.$refs.divulgacao.disabled = false;
                 this.$refs.patrocinador.disabled = false;
-                this.$refs.qtPopularIntegral.disabled = false;
-                this.$refs.qtPopularParcial.disabled = false;
+                // this.$refs.qtPopularIntegral.disabled = false;
+                // this.$refs.qtPopularParcial.disabled = false;
+
+                this.percentualGratuito  = this.percentualGratuitoPadrao;
+                this.percentualProponente = this.percentualProponentePadrao;
+                this.percentualPrecoPopular = this.percentualPrecoPopularPadrao;
             }
         }
     },
     mounted: function() {
         this.t();
-        console.log(this.disabled);
+        // console.log(this.disabled);
         this.$refs.add.disabled = !this.disabled;
     },
     methods: {
@@ -368,22 +534,54 @@ Vue.component('my-component', {
             this.$data.produtos = [];
             url = "/proposta/plano-distribuicao/detalhar-mostrar/idPreProjeto/"+this.idpreprojeto+"?idPlanoDistribuicao=" + this.idplanodistribuicao + "&idMunicipio=" + this.idmunicipioibge +"&idUF=" + this.iduf
             $3.ajax({
-              type: "GET",
-              url:url
+                type: "GET",
+                url:url
             })
-            .done(function(data) {
-                vue.$data.produtos = data.data;
-            })
-            .fail(function(){ alert('error'); });
+                .done(function(data) {
+                    vue.$data.produtos = data.data;
+                })
+                .fail(function(){ vue.mensagemErro('Erro ao buscar detalhamento'); });
 
         },
         salvar: function (event) {
+
+            if( this.dsProduto == '' && this.tpVenda == 'i' ) {
+                this.mensagemAlerta("\xC9 obrigat\xF3rio informar a categoria");
+                this.$refs.dsProduto.focus();
+                return;
+            }
+
+            if( this.qtExemplares == 0) {
+                this.mensagemAlerta("Quantidade \xE9 obrigat\xF3rio!");
+                this.$refs.qtExemplares.focus();
+                return;
+            }
+
+            if (this.distribuicaoGratuita == 'n'){
+
+                if(this.vlUnitarioProponenteIntegral == 0 && this.percentualProponente > 0) {
+                    this.mensagemAlerta("Pre\xE7o unit\xE1rio no Proponente \xE9 obrigat\xF3rio!");
+                    return;
+                }
+
+                if(this.vlUnitarioPopularIntegral == 0 && this.percentualPrecoPopular > 0) {
+                    this.mensagemAlerta("Pre\xE7o unit\xE1rio no Pre\xE7o Popular \xE9 obrigat\xF3rio!");
+                    return;
+                }
+            }
+            if(this.qtGratuitaPopulacao < this.qtGratuitaPopulacaoMinimo) {
+                this.mensagemAlerta("Quantidade para popula\xE7\xE3o n\xE3o pode ser menor que "+ this.qtGratuitaPopulacaoMinimo);
+                this.qtGratuitaPopulacao = this.qtGratuitaPopulacaoMinimo;
+                this.$refs.populacao.focus();
+                return;
+            }
+
+            this.visualizarFormulario = false;
 
             p = {
                 idPlanoDistribuicao: this.idplanodistribuicao,
                 idUF: this.iduf,
                 idMunicipio: this.idmunicipioibge,
-
                 dsProduto: this.dsProduto,
                 qtExemplares : this.qtExemplares,
                 qtGratuitaDivulgacao :this.qtGratuitaDivulgacao,
@@ -391,28 +589,32 @@ Vue.component('my-component', {
                 qtGratuitaPopulacao : this.qtGratuitaPopulacao,
                 qtPopularIntegral :this.qtPopularIntegral,
                 qtPopularParcial : this.qtPopularParcial,
-                vlUnitarioPopularIntegral : this.vlUnitarioPopularIntegral,
-                vlReceitaPopularIntegral : this.vlReceitaPopularIntegral,
-                vlReceitaPopularParcial : this.vlReceitaPopularParcial,
+                vlUnitarioPopularIntegral : this.converterParaMoedaAmericana(this.vlUnitarioPopularIntegral),
+                vlReceitaPopularIntegral : this.converterParaMoedaAmericana(this.vlReceitaPopularIntegral),
+                vlReceitaPopularParcial : this.converterParaMoedaAmericana(this.vlReceitaPopularParcial),
                 qtProponenteIntegral : this.qtProponenteIntegral,
                 qtProponenteParcial : this.qtProponenteParcial,
-                vlUnitarioProponenteIntegral : this.vlUnitarioProponenteIntegral,
-                vlReceitaProponenteIntegral : this.vlReceitaProponenteIntegral,
-                vlReceitaProponenteParcial : this.vlReceitaProponenteParcial,
-                vlReceitaPrevista : numeral(this.vlReceitaPrevista).format('0.00'),
-            }
-
+                vlUnitarioProponenteIntegral : this.converterParaMoedaAmericana(this.vlUnitarioProponenteIntegral),
+                vlReceitaProponenteIntegral : this.converterParaMoedaAmericana(this.vlReceitaProponenteIntegral),
+                vlReceitaProponenteParcial : this.converterParaMoedaAmericana(this.vlReceitaProponenteParcial),
+                vlReceitaPrevista : this.converterParaMoedaAmericana(this.vlReceitaPrevista),
+                tpVenda: this.tpVenda,
+                tpLocal: this.tpLocal,
+                tpEspaco: this.tpEspaco
+            };
             var vue = this;
             $3.ajax({
-              type: "POST",
-              url: "/proposta/plano-distribuicao/detalhar-salvar/idPreProjeto/" + this.idpreprojeto,
-              data: p,
+                type: "POST",
+                url: "/proposta/plano-distribuicao/detalhar-salvar/idPreProjeto/" + this.idpreprojeto,
+                data: p
             })
-            .done(function() {
-                vue.t();
-                alert('Salvo com sucesso');
-            })
-            .fail(function(){ alert('error'); });
+                .done(function() {
+                    vue.t();
+                    vue.limparFormulario();
+                    vue.mensagemSucesso('Salvo com sucesso');
+                })
+                .fail(function(){ vue.mensagemErro('Erro ao salvar!'); });
+
         },
         excluir: function(index){
             //this.produtos.splice(index, 1)
@@ -423,35 +625,98 @@ Vue.component('my-component', {
                 url: "/proposta/plano-distribuicao/detalhar-excluir/idPreProjeto/" + this.idpreprojeto,
                 data: {idDetalhaPlanoDistribuicao: index, idPlanoDistribuicao: this.idplanodistribuicao},
             })
-            .done(function() {
-                vue.t();
-                alert("Excluido com sucesso");
-            });
+                .done(function() {
+                    vue.t();
+                    vue.mensagemSucesso("Excluido com sucesso");
+                });
         },
         populacaoValidate: function(val){
-            if (this.radio == 'n'){
-                quantidade = this.qtExemplares * 0.1;
-                if(val < quantidade) {
-                    alert("Valor não pode ser menor que: "+quantidade);
-                    this.qtGratuitaPopulacao = this.qtExemplares * 0.1;
+            if (this.distribuicaoGratuita == 'n'){
+
+                var quantidadeMinima = this.qtGratuitaPopulacaoMinimo;
+
+                if(val < quantidadeMinima) {
+                    vue.mensagemAlerta("Quantidade para popula\xE7\xE3o n\xE3o pode ser menor que "+ quantidadeMinima);
+                    this.qtGratuitaPopulacao = quantidadeMinima;
                 }
 
-                if((parseInt( this.qtGratuitaDivulgacao ) + parseInt(this.qtGratuitaPatrocinador) + parseInt(this.qtGratuitaPopulacao)) > (this.qtExemplares * 0.3)) {
-                    alert("A soma dos valores de divulgação, patrocinador e população não pode passar de 30%");
-                    this.$refs.patrocinador.focus();
-                }
             } else {
 
                 this.qtGratuitaPopulacao = this.qtExemplares;
             }
         },
+        converterParaMoedaAmericana: function(valor) {
+            if( !valor )
+                valor = '0';
+
+            valor = valor.replace( /\./g, '' );
+            valor = valor.replace( /\,/g, '.' );
+            valor = parseFloat( valor );
+            valor = valor.toFixed( 2 );
+
+            if( isNaN( valor ) )
+                valor = 0;
+
+            return valor;
+        },
         mostrar: function() {
             this.active = this.active == true ? false: true ;
             this.icon = this.icon == 'visibility_off' ? 'add': 'visibility_off';
+        },
+        mostrarFormulario: function(el) {
+            this.visualizarFormulario = this.visualizarFormulario == true ? false: true;
+
+            if( this.visualizarFormulario == true ) {
+                var element = $('#' + el).offset().top - 60;
+                $('body').animate({
+                    scrollTop: element
+                }, 500);
+            }
+        },
+        formatarValor: function (valor) {
+            valor = parseFloat(valor);
+            return numeral(valor).format();
+        },
+        limparFormulario: function() {
+            this.qtExemplares = 0;
+            this.qtGratuitaDivulgacao = 0;
+            this.qtGratuitaPatrocinador = 0;
+            this.vlUnitarioPopularIntegral = 0; // Preço popular: Preço Unitario do Ingresso
+            this.qtPrecoPopularValorIntegral = 0; //Preço Popular: Quantidade de Inteira
+            this.qtPrecoPopularValorParcial =  0;//Preço Popular: Quantidade de meia entrada
+            this.vlUnitarioProponenteIntegral =  0;
+            this.qtPopularIntegral = 0;
+            this.qtPopularParcial = 0;
+            this.vlReceitaPopularIntegral = 0;
+            this.dsProduto = '';
+            this.tpVenda = 'i';
+            this.distribuicaoGratuita = 'n';
+        },
+        mensagemSucesso: function(msg) {
+            Materialize.toast(msg, 8000, 'green white-text');
+        },
+        mensagemErro: function(msg) {
+            Materialize.toast(msg, 8000, 'red darken-1 white-text');
+        },
+        mensagemAlerta: function(msg) {
+            Materialize.toast(msg, 8000, 'mensagem1 orange darken-3 white-text');
         }
     }
-})
+});
 
 var app6 = new Vue({
-        el: '#example',
-    })
+    el: '#example'
+});
+
+
+$3(document).ready(function () {
+    $3('#modal-pre-loader').show();
+});
+
+$3(document).ajaxStart(function() {
+    $3('#modal-pre-loader').show();
+});
+
+$3(document).ajaxComplete(function () {
+    $3('#modal-pre-loader').hide();
+});

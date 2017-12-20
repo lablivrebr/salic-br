@@ -7,6 +7,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
     public function init()
     {
+
         $idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
         $auth = Zend_Auth::getInstance(); // instancia da autentica��o
         $PermissoesGrupo = array();
@@ -276,23 +277,28 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
     public function apagarAction()
     {
-        if (empty($this->_idPreProjeto))
-            parent::message("Informe o numero da proposta", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+        try {
 
-        $get = Zend_Registry::get("get");
+            if (empty($this->_idPreProjeto))
+                throw new Exception("Informe o numero da proposta");
 
-        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
-        $rsPlanoDistribuicao = $tblPlanoDistribuicao->findBy(array("idplanodistribuicao = ?" => $get->idPlanoDistribuicao));
+            $get = Zend_Registry::get("get");
 
-        if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1))
-            parent::message("Em alterar projeto, n&atilde;o pode excluir o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
+            $rsPlanoDistribuicao = $tblPlanoDistribuicao->findBy(array("idPlanoDistribuicao = ?" => $get->idPlanoDistribuicao));
 
-        $retorno = $tblPlanoDistribuicao->apagar($get->idPlanoDistribuicao);
+            if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1))
+                throw new Exception("Em alterar projeto, n&atilde;o pode excluir o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.");
 
-        if ($retorno > 0) {
-            parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
-        } else {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+            $retorno = $tblPlanoDistribuicao->apagar($get->idPlanoDistribuicao);
+
+            if ($retorno > 0) {
+                parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
+            } else {
+                throw new Exception("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!!");
+            }
+        } catch (Exception $e) {
+            parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
         }
     }
 
@@ -347,13 +353,17 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
 
         try {
-            $detalhamento->salvar($dados);
-            $tblPlanoDistribuicao->updateConsolidacaoPlanoDeDistribuicao($dados['idPlanoDistribuicao']);
+            $dados['stDistribuicao'] = isset($dados['stDistribuicao']) ? $dados['stDistribuicao'] : true;
+
+            if ($detalhamento->salvar($dados))
+                $tblPlanoDistribuicao->updateConsolidacaoPlanoDeDistribuicao($dados['idPlanoDistribuicao']);
+
+            $this->_helper->json(array('data' => $dados, 'success' => 'true'));
+
         } catch (Exception $e) {
             $this->_helper->json(array('data' => $dados, 'success' => 'false', 'error' => $e));
         }
 
-        $this->_helper->json(array('data' => $dados, 'success' => 'true'));
     }
 
     public function detalharMostrarAction()
