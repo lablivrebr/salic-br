@@ -233,8 +233,8 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
      */
     public function salvarAction()
     {
-        $post = array_change_key_case($this->getRequest()->getPost());
 
+        $post = array_change_key_case($this->getRequest()->getPost());
         if (empty($post['idagente'])) {
             throw new Zend_Exception("Informe o idagente");
         }
@@ -293,7 +293,7 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
             "AreaAbrangencia" => isset($post['areaabrangencia']) ? $post['areaabrangencia'] : false,
             "DtInicioDeExecucao" => isset($post['dtiniciodeexecucao']) ? $post['dtiniciodeexecucao'] : null,
             "DtFinalDeExecucao" => isset($post['dtfinaldeexecucao']) ? $post['dtfinaldeexecucao'] : null,
-            "DtAtoTombamento" => isset($post['dtatotombamento']) ? $post['dtatotombamento'] : null,
+            "DtAtoTombamento" => !empty($post['dtatotombamento']) ? $post['dtatotombamento'] : null,
             "NrAtoTombamento" => isset($post['nratotombamento']) ? $post['nratotombamento'] : null,
             "EsferaTombamento" => isset($post['esferatombamento']) ? $post['esferatombamento'] : '0',
             "ResumoDoProjeto" => isset($post['resumodoprojeto']) ? $post['resumodoprojeto'] : null,
@@ -327,6 +327,7 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
         //instancia classe modelo
         $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
         try {
+
             //persiste os dados do Pre Projeto
             $idPreProjeto = $tblPreProjeto->salvar($dados);
             $this->view->idPreProjeto = $idPreProjeto;
@@ -548,6 +549,7 @@ xd($ex->getMessage());
             $arrBusca['a.idAgente = ?'] = $post->idAgente;
             $tblAgente = new Agente_Model_DbTable_Agentes();
             $rsProponente = $tblAgente->buscarAgenteENome($arrBusca)->current();
+
             if ($rsProponente) {
                 $rsProponente = array_change_key_case($rsProponente->toArray());
 
@@ -567,7 +569,7 @@ xd($ex->getMessage());
                 $idDocumento = 162;
             }
             if (!empty($idDocumento))
-                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idProjeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
+                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idprojeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
 
             $this->view->arquivoExecucaoImediata = $arquivoExecucaoImediata;
         }
@@ -1131,10 +1133,10 @@ xd($ex->getMessage());
 
         if ((empty($cnpjcpf)) && (empty($nome))) {
             echo "<table class='tabela'>
-					<tr>
-					    <td class='red' align='center'>Voc&eacute; deve preencher pelo menos um campo!</td>
-					</tr>
-				</table>";
+                    <tr>
+                        <td class='red' align='center'>Voc&eacute; deve preencher pelo menos um campo!</td>
+                    </tr>
+                </table>";
             $this->_helper->viewRenderer->setNoRender(TRUE);
         } elseif (!empty($cnpjcpf)) {
             $where['SGA.Cpf = ?'] = $cnpjcpf;
