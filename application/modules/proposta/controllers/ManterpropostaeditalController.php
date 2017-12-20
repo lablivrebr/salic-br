@@ -561,25 +561,24 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
     public function exluirpropostaAction()
     {
 
-        /* =============================================================================== */
-        /* ==== VERIFICA PERMISSAO DE ACESSO DO PROPONENTE A PROPOSTA OU AO PROJETO ====== */
-        /* =============================================================================== */
-        $this->verificarPermissaoAcesso(true, false, false);
+        $this->verificarPermissaoDeAcessoProponenteAPropostaOuProjeto();
 
         $get = Zend_Registry::get("get");
         $idPreProjeto = $get->idPreProjeto;
-
-        //BUSCANDO REGISTRO A SER ALTERADO
         $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
-        $rsPreProjeto = $tblPreProjeto->find($idPreProjeto)->current();
-        //altera Estado da proposta
-        $rsPreProjeto->stEstado = 0;
+        $rsPreProjeto = $tblPreProjeto->buscar(['idPreProjeto = ?' => $idPreProjeto])->current()->toArray();
+        $preProjetoModel = new Proposta_Model_PreProjeto($rsPreProjeto);
+        $preProjetoModel->stEstado = 0;
+        $preProjetoMapper = new Proposta_Model_PreProjetoMapper();
 
-        if ($rsPreProjeto->save()) {
+        if ($preProjetoMapper->save($preProjetoModel)) {
             parent::message("Exclus&atilde;o realizada com sucesso!", "/proposta/manterpropostaincentivofiscal/listarproposta", "CONFIRM");
-        } else {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
         }
+        parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
+    }
+
+    private function verificarPermissaoDeAcessoProponenteAPropostaOuProjeto() {
+        $this->verificarPermissaoAcesso(true, false, false);
     }
 
     public function editallocalizarAction()
