@@ -22,7 +22,7 @@ class Proposta_VisualizarPlanoDistribuicaoController extends Proposta_GenericCon
         $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
         $this->view->abrangencias = $rsAbrangencia;
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
 
         $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(
             array("a.idprojeto = ?" => $this->_idPreProjeto, "a.stplanodistribuicaoproduto = ?" => 1),

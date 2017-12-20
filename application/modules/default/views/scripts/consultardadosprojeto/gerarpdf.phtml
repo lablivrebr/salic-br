@@ -212,7 +212,7 @@ th{
                                             $totalExemplares=0;
                                             $idPreProjeto = $this->projeto->idProjeto;
 
-                                        $tblPlanoDistribuicao = new PlanoDistribuicao();
+                                        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                                         $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array("idProjeto=?"=>$idPreProjeto), array("idPlanoDistribuicao DESC"), 10);
 
                                             $totalReceita=0;

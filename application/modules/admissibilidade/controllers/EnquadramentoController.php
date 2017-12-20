@@ -137,7 +137,7 @@ class Admissibilidade_EnquadramentoController extends MinC_Controller_Action_Abs
                 }
             }
 
-            $objPlanoDistribuicaoProduto = new PlanoDistribuicao();
+            $objPlanoDistribuicaoProduto = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $objPlanoDistribuicaoProduto->atualizarAreaESegmento($post['areaCultural'], $post['segmentoCultural'], $projeto['idProjeto']);
 
             $objProjeto = new Projetos();

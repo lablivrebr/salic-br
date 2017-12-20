@@ -536,7 +536,7 @@ class Vinculo extends MinC_Db_Table_Abstract
         $tblPlanoDivulgacao = new PlanoDeDivulgacao();
         $dadosPlanoDivulgacao = $tblPlanoDivulgacao->buscar(array("idProjeto =?" => $idPreProjeto))->toArray();
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $dadosPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array("a.idProjeto =?" => $idPreProjeto), array("idProduto ASC"))->toArray();
 
         if (count($rsProponente) > 0) {

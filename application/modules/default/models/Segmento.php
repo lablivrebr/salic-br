@@ -67,14 +67,14 @@ class Segmento extends MinC_Db_Table_Abstract
         $select->setIntegrityCheck(false);
 
         $select->from(
-            array('s' => 'vSegmento'),
-            array('s.codigo AS id', 's.segmento AS descricao', 'tp_enquadramento'),
+            array('s' => 'vSegmento'), #@todo isso é uma view
+            array('s.Codigo AS id', 's.Segmento AS descricao', 'tp_enquadramento'),
             $this->_schema
         );
 
         $select->joinInner(
             array('a' => 'Area'),
-            's.area = a.codigo',
+            's.Area = a.Codigo',
             array(),
             $this->_schema
         );

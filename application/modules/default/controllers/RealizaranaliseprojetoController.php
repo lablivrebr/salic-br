@@ -1384,7 +1384,7 @@ class RealizarAnaliseProjetoController extends MinC_Controller_Action_Abstract
                     $projeto = new Projetos();
                     $planilhaproposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
                     $planilhaprojeto = new PlanilhaProjeto();
-                    $planoDistribuicao = new PlanoDistribuicao();
+                    $planoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                     $analiseaprovacao = new AnaliseAprovacao();
                     $planilhaAprovacao = new PlanilhaAprovacao();
                     $tbPreProjeto = new Proposta_Model_DbTable_PreProjeto();

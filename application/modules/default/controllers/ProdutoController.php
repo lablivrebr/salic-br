@@ -23,7 +23,7 @@ class PlanoDistribuicaoController extends MinC_Controller_Action_Abstract
 	}
 
         public function indexAction(){
-            $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->busca(array("Segmento=?"=>61), array("idPlanoDistribuicao DESC"), 10);
             $arrDados = array(
                             "planosDistribuicao"=>$rsPlanoDistribuicao,
