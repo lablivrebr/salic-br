@@ -68,7 +68,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         if (isset($get->tamPag)) $this->intTamPag = $get->tamPag;
         $inicio = ($pag > 1) ? ($pag - 1) * $this->intTamPag : 0;
         $fim = $inicio + $this->intTamPag;
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $total = $tblPlanoDistribuicao->pegaTotal(
             array(
                 "a.idProjeto = ?" => $this->_idPreProjeto,
@@ -113,7 +113,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         $this->_helper->layout->disableLayout(); // desabilita o layout
 
         if (!empty($idPreProjeto) || $idPreProjeto == '0') {
-            $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array("idProjeto=?" => $idPreProjeto, "stPlanoDistribuicaoProduto=?" => 1), array("idPlanoDistribuicao DESC"), 10);
             $arrDados = array("planosDistribuicao" => $rsPlanoDistribuicao);
             $this->montaTela("planodistribuicao/consultar-componente.phtml", $arrDados);
@@ -132,7 +132,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
         $get = Zend_Registry::get("get");
         if (!empty($get->idPlanoDistribuicao)) {
-            $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscarPlanoDistribuicao(array('idPlanoDistribuicao = ?' => $get->idPlanoDistribuicao));
             $arrDados["planoDistribuicao"] = $rsPlanoDistribuicao;
         }
@@ -142,7 +142,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
 
         //BUSCA POR PRODUTO PRINCIPAL CADASTRADO
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $arrPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array(
             "a.idProjeto = ?" => $this->_idPreProjeto,
             "a.stPrincipal = ?" => 't',
@@ -208,7 +208,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             }
             $dados["stPlanoDistribuicaoProduto"] = true;
 
-            $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
 
             //VERIFICA SE JA EXISTE PRODUTO PRINCIPAL JA CADASTRADO
             $arrBusca = array();
@@ -257,6 +257,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
                     throw new Exception("Produto j&aacute; cadastrado no plano de distribui&ccedil;&atilde;o desta proposta!");
                 }
             }
+
             $mprPlanoDistribuicaoProduto = new Proposta_Model_PlanoDistribuicaoProdutoMapper();
             $mdlPlanoDistribuicaoProduto = new Proposta_Model_PlanoDistribuicaoProduto($dados);
             $id = $mprPlanoDistribuicaoProduto->save($mdlPlanoDistribuicaoProduto);
@@ -268,7 +269,6 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             }
 
         } catch (Exception $e) {
-            xd($e->getMessage());
             parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
         }
 
@@ -281,7 +281,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
         $get = Zend_Registry::get("get");
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $rsPlanoDistribuicao = $tblPlanoDistribuicao->findBy(array("idplanodistribuicao = ?" => $get->idPlanoDistribuicao));
 
         if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1))
@@ -304,7 +304,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         if (isset($get->tamPag)) $this->intTamPag = $get->tamPag;
         $inicio = ($pag > 1) ? ($pag - 1) * $this->intTamPag : 0;
         $fim = $inicio + $this->intTamPag;
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $total = $tblPlanoDistribuicao->pegaTotal(array("a.idProjeto = ?" => $this->_idPreProjeto, "a.stPlanoDistribuicaoProduto = ?" => 'true'));
         $tamanho = (($inicio + $this->intTamPag) <= $total) ? $this->intTamPag : $total - ($inicio);
 
@@ -344,7 +344,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
     {
         $dados = $this->getRequest()->getPost();
         $detalhamento = new Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto();
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
 
         try {
             $detalhamento->salvar($dados);
@@ -374,7 +374,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         $detalhamento = new Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto();
         $dados = $detalhamento->excluir($id);
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $tblPlanoDistribuicao->updateConsolidacaoPlanoDeDistribuicao($idPlanoDistribuicao);
 
         $this->_helper->json(array('data' => $dados, 'success' => 'true'));

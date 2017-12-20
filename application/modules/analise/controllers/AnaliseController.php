@@ -171,7 +171,7 @@ class Analise_AnaliseController extends Analise_GenericController
             $this->view->itensDeslocamento = Proposta_Model_AnalisarPropostaDAO::buscarDeslocamento($idPreProjeto);
 
             # informacoes atuais
-            $TPDC = new PlanoDistribuicao();
+            $TPDC = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $TPP = new Proposta_Model_DbTable_TbPlanilhaProposta();
             $TPA = new Proposta_Model_DbTable_Abrangencia();
             $TPD = new Proposta_Model_DbTable_TbDeslocamento();
@@ -296,7 +296,7 @@ class Analise_AnaliseController extends Analise_GenericController
 
                     $tbAvaliacao->atualizarAvaliacaoPositiva($idPronac, $avaliacao['idTecnico'], $params['observacao']);
 
-                    $tbPlanoDistribuicao = new PlanoDistribuicao();
+                    $tbPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                     $idVinculada = $tbPlanoDistribuicao->buscarIdVinculada($idPreProjeto);
 
                     $tbDistribuirParecer = new tbDistribuirParecer();
