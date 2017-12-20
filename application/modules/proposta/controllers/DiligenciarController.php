@@ -430,7 +430,7 @@ class Proposta_DiligenciarController extends Proposta_GenericController {
             }
         }
         if ($this->view->idPreProjeto) {
-            $this->view->diligenciasProposta        = $PreProjetodao->listarDiligenciasPreProjeto(array('pre.idPreProjeto = ?' => $this->view->idPreProjeto,'aval.ConformidadeOK <> ? '=>9));
+            $this->view->diligenciasProposta        = $PreProjetodao->listarDiligenciasPreProjeto(array('"pre"."idPreProjeto" = ?' => $this->view->idPreProjeto,'"aval"."ConformidadeOK" <> ?'=>9));
             //$this->view->diligenciasProposta = $PreProjetodao->listarDiligenciasPreProjeto(array('pre.idPreProjeto = ?' => $this->view->idPreProjeto));
         }
     }
