@@ -45,7 +45,7 @@ class SegmentoController extends Zend_Controller_Action
                         if($idSegmento > 0 && $idSegmento == $value->id){
                             $html = $html.'<option data-tp_enquadramento="'.$value->tp_enquadramento.'" value="'.$value->id.'" selected="selected">'.($value->descricao).'</option>';
                         } else {
-                            $html = $html.'<option data-tp_enquadramento="'.$value->tp_enquadramento.'" value="'.$value->id.'">'.utf8_encode($value->descricao).'</option>';
+                            $html = $html.'<option data-tp_enquadramento="'.$value->tp_enquadramento.'" value="'.$value->id.'">'. $value->descricao .'</option>';
                         }
                     }
                     echo $html;

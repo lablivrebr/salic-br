@@ -171,7 +171,6 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
     {
 
         $post = Zend_Registry::get("post");
-
         if (($this->isEditarProjeto($this->_idPreProjeto) && $post->prodprincipal == 1))
             parent::message("Em alterar projeto, n&atilde;o pode alterar o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
 
@@ -190,7 +189,8 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             "dsJustificativaPosicaoLogo" => $post->dsJustificativaPosicaoLogo,
             "PrecoUnitarioNormal" => $preconormal,
             "PrecoUnitarioPromocional" => $precopromocional,
-            "stPrincipal" => $post->prodprincipal
+            "stPrincipal" => $post->prodprincipal,
+            "Usuario" => $this->_SGCacesso['IdUsuario']
         );
         if (isset($post->idPlanoDistribuicao)) {
             $dados["idPlanoDistribuicao"] = $post->idPlanoDistribuicao;
@@ -204,17 +204,17 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         if (isset($post->beneficiarios)) {
             $dados["QtdeOutros"] = $post->beneficiarios;
         }
-        $dados["stPlanoDistribuicaoProduto"] = 1;
+        $dados["stPlanoDistribuicaoProduto"] = true;
 
         $tblPlanoDistribuicao = new PlanoDistribuicao();
 
         //VERIFICA SE JA EXISTE PRODUTO PRINCIPAL JA CADASTRADO
         $arrBusca = array();
         $arrBusca['a.idProjeto = ?'] = $this->_idPreProjeto;
-        $arrBusca['a.stPrincipal = ?'] = 1;
+        $arrBusca['a.stPrincipal = ?'] = true;
         !empty($post->idPlanoDistribuicao) ? $arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao : '';
         //$arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao;
-        $arrBusca['stPlanoDistribuicaoProduto = ?'] = 1;
+        $arrBusca['stPlanoDistribuicaoProduto = ?'] = true;
         $arrPlanoDistribuicao = $tblPlanoDistribuicao->buscar($arrBusca, array("idPlanoDistribuicao DESC"))->toArray();
 
         if ($post->patrocinador != 0 || $post->divulgacao != 0 || $post->beneficiarios != 0 || $post->qtdenormal != 0 || $post->qtdepromocional != 0) {
