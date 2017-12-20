@@ -271,7 +271,7 @@ class Proposta_ManterpropostaincentivofiscalController extends Proposta_GenericC
         if ($post['resumodoprojeto']) {
             //***NAO TIRAR ESSA QUEBRA DE LINHA - FAZ PARTE DA PROGRAMACAO****
             $post['resumodoprojeto'] = str_replace('
-', ' ', str_replace('   ', '', str_replace('&nbsp;', '', strip_tags(trim($post['resumodoprojeto'])))));
+', ' ', str_replace('	', '', str_replace('&nbsp;', '', strip_tags(trim($post['resumodoprojeto'])))));
             //***NAO TIRAR ESSA QUEBRA DE LINHA - FAZ PARTE DA PROGRAMACAO****
         }
 
