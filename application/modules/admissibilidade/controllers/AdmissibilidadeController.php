@@ -150,7 +150,7 @@ class Admissibilidade_AdmissibilidadeController extends MinC_Controller_Action_A
             $propostaPorEdital = true;
         }
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
 
         $this->view->itensPlanosDistribuicao = $tblPlanoDistribuicao->buscar(
             array("a.idprojeto = ?" => $idPreProjeto, "a.stplanodistribuicaoproduto = ?" => 1),
@@ -607,7 +607,7 @@ class Admissibilidade_AdmissibilidadeController extends MinC_Controller_Action_A
 
         try {
             //Buscando produto principal
-            $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array("idProjeto = ?" => $this->idPreProjeto, "stPrincipal = ?" => 1))->current();
 
             $tblOrgaos = new Orgaos();
@@ -2626,7 +2626,7 @@ class Admissibilidade_AdmissibilidadeController extends MinC_Controller_Action_A
 
             if (!empty($stProposta) && $stProposta != $propostaNormal) {
 
-                $tbPlanoDistribuicao = new PlanoDistribuicao();
+                $tbPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                 $idVinculada = $tbPlanoDistribuicao->buscarIdVinculada($idPreProjeto);
 
                 $tbDistribuirParecer = new tbDistribuirParecer();

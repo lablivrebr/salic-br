@@ -625,7 +625,7 @@ class ManterreadequacaoController extends MinC_Controller_Action_Abstract{
                         );
 
                         //ALTERA OU INSERE O PLANO DE DISTRIBUICAO
-                        $PlanoDistribuicao = new PlanoDistribuicao();
+                        $PlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                         $x = $PlanoDistribuicao->salvar($dadosProduto);
                     }
 
@@ -688,7 +688,7 @@ class ManterreadequacaoController extends MinC_Controller_Action_Abstract{
                                 ,'stPlanoDistribuicaoProduto'   => 1
                         );
                         //ALTERA OU INSERE O PLANO DE DISTRIBUICAO
-                        $PlanoDistribuicao = new PlanoDistribuicao();
+                        $PlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
                         $x = $PlanoDistribuicao->salvar($dadosProduto);
                     }
 

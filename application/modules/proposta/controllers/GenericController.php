@@ -536,7 +536,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         # Plano distribuicao
         $metaPlanoDistribuicao = $PPM->buscarMeta($idPreProjeto, 'alterarprojeto_planodistribuicaoproduto');
         if (!$metaPlanoDistribuicao) {
-            $TPDC = new PlanoDistribuicao();
+            $TPDC = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $planoDistribuicaoCompleto = $TPDC->buscar(array('idProjeto = ?' => $idPreProjeto))->toArray();
             $this->view->PlanoDistribuicaoSalvo = $this->salvarArraySerializado($planoDistribuicaoCompleto, $idPreProjeto, 'alterarprojeto_planodistribuicaoproduto');
         } else {
@@ -546,7 +546,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         # Plano de distribuicao Detalhado
         $metaPlanoDistribuicaoDetalha = $PPM->buscarMeta($idPreProjeto, 'alterarprojeto_tbdetalhaplanodistribuicao');
         if (!$metaPlanoDistribuicaoDetalha) {
-            $TPD = new PlanoDistribuicao();
+            $TPD = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $PlanoDetalhado = $TPD->buscarPlanoDistribuicaoDetalhadoByIdProjeto($idPreProjeto);
 
             $this->view->PlanoDistribuicaoDetalhadoSalvo = $this->salvarArraySerializado($PlanoDetalhado, $idPreProjeto, 'alterarprojeto_tbdetalhaplanodistribuicao');
@@ -627,7 +627,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         if (empty($idPreProjeto))
             return false;
 
-        $TPD = new PlanoDistribuicao();
+        $TPD = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $produtos = $this->unserializarObjeto($TPD, $idPreProjeto, 'alterarprojeto_planodistribuicaoproduto');
 
         $TPDD = new Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto();
