@@ -157,7 +157,7 @@ class PlanoDistribuicao extends MinC_Db_Table_Abstract
                     'a.PrecoUnitarioPromocional',
                     'a.stPrincipal',
                     'a.Usuario',
-                    'CAST(a.dsJustificativaPosicaoLogo AS TEXT) AS dsJustificativaPosicaoLogo',
+                    new Zend_Db_Expr('CAST("a"."dsJustificativaPosicaoLogo" AS TEXT) AS dsJustificativaPosicaoLogo'),
                     'a.Usuario'
                 ),
                 $this->_schema

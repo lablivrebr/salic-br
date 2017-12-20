@@ -171,91 +171,107 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
     {
 
         $post = Zend_Registry::get("post");
-        if (($this->isEditarProjeto($this->_idPreProjeto) && $post->prodprincipal == 1))
-            parent::message("Em alterar projeto, n&atilde;o pode alterar o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
 
-        $precopromocional = str_replace(",", ".", str_replace(".", "", $post->precopromocional));
-        $preconormal = str_replace(",", ".", str_replace(".", "", $post->preconormal));
-        $QtdeProduzida = $post->qtdenormal + $post->qtdepromocional + $post->patrocinador + $post->beneficiarios + $post->divulgacao;
-        $dados = array(
-            "Area" => $post->areaCultural,
-            "idProjeto" => $this->_idPreProjeto,
-            "idProduto" => $post->produto,
+        try {
+            if (($this->isEditarProjeto($this->_idPreProjeto) && $post->prodprincipal == 1))
+                throw new Exception("Em alterar projeto, n&atilde;o pode alterar o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.");
+
+            $precopromocional = str_replace(",", ".", str_replace(".", "", $post->precopromocional));
+            $preconormal = str_replace(",", ".", str_replace(".", "", $post->preconormal));
+            $QtdeProduzida = $post->qtdenormal + $post->qtdepromocional + $post->patrocinador + $post->beneficiarios + $post->divulgacao;
+            $dados = array(
+                "Area" => $post->areaCultural,
+                "idProjeto" => $this->_idPreProjeto,
+                "idProduto" => $post->produto,
 //                 "idPosicaoDaLogo"=>$post->logomarca,
-            "Segmento" => $post->segmentoCultural,
-            "QtdeProduzida" => $QtdeProduzida,
-            "QtdeVendaNormal" => $post->qtdenormal,
-            "QtdeVendaPromocional" => $post->qtdepromocional,
-            "dsJustificativaPosicaoLogo" => $post->dsJustificativaPosicaoLogo,
-            "PrecoUnitarioNormal" => $preconormal,
-            "PrecoUnitarioPromocional" => $precopromocional,
-            "stPrincipal" => $post->prodprincipal,
-            "Usuario" => $this->_SGCacesso['IdUsuario']
-        );
-        if (isset($post->idPlanoDistribuicao)) {
-            $dados["idPlanoDistribuicao"] = $post->idPlanoDistribuicao;
-        }
-        if (isset($post->patrocinador)) {
-            $dados["QtdePatrocinador"] = $post->patrocinador;
-        }
-        if (isset($post->divulgacao)) {
-            $dados["QtdeProponente"] = $post->divulgacao;
-        }
-        if (isset($post->beneficiarios)) {
-            $dados["QtdeOutros"] = $post->beneficiarios;
-        }
-        $dados["stPlanoDistribuicaoProduto"] = true;
+                "Segmento" => $post->segmentoCultural,
+                "QtdeProduzida" => $QtdeProduzida,
+                "QtdeVendaNormal" => $post->qtdenormal,
+                "QtdeVendaPromocional" => $post->qtdepromocional,
+                "dsJustificativaPosicaoLogo" => $post->dsJustificativaPosicaoLogo,
+                "PrecoUnitarioNormal" => $preconormal,
+                "PrecoUnitarioPromocional" => $precopromocional,
+                "stPrincipal" => $post->prodprincipal,
+                "Usuario" => $this->_SGCacesso['IdUsuario']
+            );
+            if (isset($post->idPlanoDistribuicao)) {
+                $dados["idPlanoDistribuicao"] = $post->idPlanoDistribuicao;
+            }
+            if (isset($post->patrocinador)) {
+                $dados["QtdePatrocinador"] = $post->patrocinador;
+            }
+            if (isset($post->divulgacao)) {
+                $dados["QtdeProponente"] = $post->divulgacao;
+            }
+            if (isset($post->beneficiarios)) {
+                $dados["QtdeOutros"] = $post->beneficiarios;
+            }
+            $dados["stPlanoDistribuicaoProduto"] = true;
 
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+            $tblPlanoDistribuicao = new PlanoDistribuicao();
 
-        //VERIFICA SE JA EXISTE PRODUTO PRINCIPAL JA CADASTRADO
-        $arrBusca = array();
-        $arrBusca['a.idProjeto = ?'] = $this->_idPreProjeto;
-        $arrBusca['a.stPrincipal = ?'] = true;
-        !empty($post->idPlanoDistribuicao) ? $arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao : '';
-        //$arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao;
-        $arrBusca['stPlanoDistribuicaoProduto = ?'] = true;
-        $arrPlanoDistribuicao = $tblPlanoDistribuicao->buscar($arrBusca, array("idPlanoDistribuicao DESC"))->toArray();
+            //VERIFICA SE JA EXISTE PRODUTO PRINCIPAL JA CADASTRADO
+            $arrBusca = array();
+            $arrBusca['a.idProjeto = ?'] = $this->_idPreProjeto;
+            $arrBusca['a.stPrincipal = ?'] = true;
+            !empty($post->idPlanoDistribuicao) ? $arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao : '';
+            //$arrBusca['idPlanoDistribuicao <> ?'] = $post->idPlanoDistribuicao;
+            $arrBusca['stPlanoDistribuicaoProduto = ?'] = true;
+            $arrPlanoDistribuicao = $tblPlanoDistribuicao->buscar($arrBusca, array("idPlanoDistribuicao DESC"))->toArray();
 
-        if ($post->patrocinador != 0 || $post->divulgacao != 0 || $post->beneficiarios != 0 || $post->qtdenormal != 0 || $post->qtdepromocional != 0) {
-            if (!empty($arrPlanoDistribuicao) && $post->prodprincipal == "1") {
-                parent::message("J&aacute; existe um Produto Principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+            if ($post->patrocinador != 0
+                || $post->divulgacao != 0
+                || $post->beneficiarios != 0
+                || $post->qtdenormal != 0
+                || $post->qtdepromocional != 0
+            ) {
+                if (!empty($arrPlanoDistribuicao) && $post->prodprincipal == "1") {
+                    throw new Exception("J&aacute; existe um Produto Principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.");
+                }
+                if ($post->patrocinador > ($QtdeProduzida / 10)) {
+                    throw new Exception("A quantidade destinada ao patrocinador n&atilde;o pode ser maior do que 10% do n&uacute;mero Exemplares/Ingressos.");
+                }
+                if ($post->divulgacao > ($QtdeProduzida / 10)) {
+                    throw new Exception("A quantidade destinada &agrave; divulga&ccedil;&atilde;o n&atilde;o pode ser maior do que 10% do n&uacute;mero Exemplares/Ingressos.");
+                }
+                if ($post->beneficiarios < ($QtdeProduzida / 10)) {
+                    throw new Exception("A quantidade destinada &agrave; popula&ccedil;&atilde;o de baixa renda n&atilde;o pode ser menor do que 10% do n&uacute;mero Exemplares/Ingressos.");
+                }
+                if ((int)str_replace(".", "", $precopromocional) > (int)str_replace(".", "", $preconormal)) {
+                    throw new Exception("O valor normal n&atilde;o pode ser menor ou igual ao valor promocional!");
+                }
+                if ($post->qtdenormal == null) {
+                    throw new Exception("Favor preencher o campo Normal(Qntd).");
+                }
+                if ($post->qtdepromocional == null) {
+                    throw new Exception("Favor preencher o campo Promocional(Qntd).");
+                }
             }
-            if ($post->patrocinador > ($QtdeProduzida / 10)) {
-                parent::message("A quantidade destinada ao patrocinador n&atilde;o pode ser maior do que 10% do n&uacute;mero Exemplares/Ingressos.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+
+            if (isset($post->produto)) {
+                //VERIFICA SE PRODUTO JA ESTA CADASTRADO - NAO PODE GRAVAR O MESMO PRODUTO MAIS DE UMA VEZ.
+                $arrBuscaProduto['a.idProjeto = ?'] = $this->_idPreProjeto;
+                $arrBuscaProduto['a.idProduto = ?'] = $post->produto;
+                $objProduto = $tblPlanoDistribuicao->buscar($arrBuscaProduto);
+                if ($objProduto[0]['idPlanoDistribuicao']) {
+                    throw new Exception("Produto j&aacute; cadastrado no plano de distribui&ccedil;&atilde;o desta proposta!");
+                }
             }
-            if ($post->divulgacao > ($QtdeProduzida / 10)) {
-                parent::message("A quantidade destinada &agrave; divulga&ccedil;&atilde;o n&atilde;o pode ser maior do que 10% do n&uacute;mero Exemplares/Ingressos.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
+            $mprPlanoDistribuicaoProduto = new Proposta_Model_PlanoDistribuicaoProdutoMapper();
+            $mdlPlanoDistribuicaoProduto = new Proposta_Model_PlanoDistribuicaoProduto($dados);
+            $id = $mprPlanoDistribuicaoProduto->save($mdlPlanoDistribuicaoProduto);
+
+            if (!empty($id)) {
+                parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
+            } else {
+                throw new Exception("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!");
             }
-            if ($post->beneficiarios < ($QtdeProduzida / 10)) {
-                parent::message("A quantidade destinada &agrave; popula&ccedil;&atilde;o de baixa renda n&atilde;o pode ser menor do que 10% do n&uacute;mero Exemplares/Ingressos.", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-            }
-            if ((int)str_replace(".", "", $precopromocional) > (int)str_replace(".", "", $preconormal)) {
-                parent::message("O valor normal n&atilde;o pode ser menor ou igual ao valor promocional!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-            }
-            if ($post->qtdenormal == null) {
-                parent::message("Favor preencher o campo Normal(Qntd).", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-            }
-            if ($post->qtdepromocional == null) {
-                parent::message("Favor preencher o campo Promocional(Qntd).", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-            }
+
+        } catch (Exception $e) {
+            xd($e->getMessage());
+            parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
         }
 
-        if (isset($post->produto)) {
-            //VERIFICA SE PRODUTO JA ESTA CADASTRADO - NAO PODE GRAVAR O MESMO PRODUTO MAIS DE UMA VEZ.
-            $arrBuscaProduto['a.idProjeto = ?'] = $this->_idPreProjeto;
-            $arrBuscaProduto['a.idProduto = ?'] = $post->produto;
-            $objProduto = $tblPlanoDistribuicao->buscar($arrBuscaProduto);
-            if ($objProduto[0]['idPlanoDistribuicao']) {
-                parent::message("Produto j&aacute; cadastrado no plano de distribui&ccedil;&atilde;o desta proposta!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-            }
-        }
-        $retorno = $tblPlanoDistribuicao->salvar($dados);
-        if ($retorno > 0) {
-            parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
-        } else {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
-        }
     }
 
     public function apagarAction()
