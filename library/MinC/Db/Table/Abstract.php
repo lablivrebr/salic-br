@@ -615,4 +615,86 @@ abstract class MinC_Db_Table_Abstract extends Zend_Db_Table_Abstract
 //        }
 //        return parent::insert($data);
 //    }
+
+
+    /**
+     * Fetches rows by primary key.  The argument specifies one or more primary
+     * key value(s).  To find multiple rows by primary key, the argument must
+     * be an array.
+     *
+     * This method accepts a variable number of arguments.  If the table has a
+     * multi-column primary key, the number of arguments must be the same as
+     * the number of columns in the primary key.  To find multiple rows in a
+     * table with a multi-column primary key, each argument must be an array
+     * with the same number of elements.
+     *
+     * The find() method always returns a Rowset object, even if only one row
+     * was found.
+     *
+     * @param  mixed $key The value(s) of the primary keys.
+     * @return Zend_Db_Table_Rowset_Abstract Row(s) matching the criteria.
+     * @throws Zend_Db_Table_Exception
+     */
+    public function find()
+    {
+       $this->_setupPrimaryKey();
+        $args = func_get_args();
+        $keyNames = array_values((array) $this->_primary);
+
+        if (count($args) < count($keyNames)) {
+            require_once 'Zend/Db/Table/Exception.php';
+            throw new Zend_Db_Table_Exception("Too few columns for the primary key");
+        }
+
+        if (count($args) > count($keyNames)) {
+            require_once 'Zend/Db/Table/Exception.php';
+            throw new Zend_Db_Table_Exception("Too many columns for the primary key");
+        }
+
+        $whereList = array();
+        $numberTerms = 0;
+        foreach ($args as $keyPosition => $keyValues) {
+            $keyValuesCount = count($keyValues);
+            if (!is_array($keyValues)) {
+                $keyValues = array($keyValues);
+            }
+            if ($numberTerms == 0) {
+                $numberTerms = $keyValuesCount;
+            } else if ($keyValuesCount != $numberTerms) {
+                require_once 'Zend/Db/Table/Exception.php';
+                throw new Zend_Db_Table_Exception("Missing value(s) for the primary key");
+            }
+            $keyValues = array_values($keyValues);
+            for ($i = 0; $i < $keyValuesCount; ++$i) {
+                if (!isset($whereList[$i])) {
+                    $whereList[$i] = array();
+                }
+                $whereList[$i][$keyPosition] = $keyValues[$i];
+            }
+        }
+
+        $whereClause = null;
+        if (count($whereList)) {
+            $whereOrTerms = array();
+            $tableName = $this->_db->quoteTableAs($this->_name, null, true);
+            foreach ($whereList as $keyValueSets) {
+                $whereAndTerms = array();
+                foreach ($keyValueSets as $keyPosition => $keyValue) {
+                    $type = $this->_metadata[$keyNames[$keyPosition]]['DATA_TYPE'];
+                    $columnName = $this->_db->quoteIdentifier($keyNames[$keyPosition], true);
+                    $whereAndTerms[] = $this->_db->quoteInto(
+                        $tableName . '.' . $columnName . ' = ?',
+                        $keyValue, $type);
+                }
+                $whereOrTerms[] = implode(' AND ', $whereAndTerms);
+            }
+            $whereClause = implode(' OR ', $whereOrTerms) ;
+        }
+
+        $select = $this->select()
+            ->from($this->_name, $this->_getCols(), $this->_schema);
+        $select->where($whereClause);
+
+        return $this->fetchAll($select);
+    }
 }
