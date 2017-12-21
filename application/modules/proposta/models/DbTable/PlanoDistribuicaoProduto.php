@@ -381,6 +381,11 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
     public function apagar($id){
         $objApagar = $this->find($id)->current();
 
+        if ($objApagar) {
+            $TbDetalhamentoPlanoDistribuicaoProduto = new Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto();
+            $TbDetalhamentoPlanoDistribuicaoProduto->delete(["idPlanoDistribuicao = ? " => $id]);
+        }
+
         return $objApagar->delete();
     }
 
