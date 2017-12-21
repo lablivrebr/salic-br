@@ -35,10 +35,8 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             $Movimentacao = new Proposta_Model_DbTable_TbMovimentacao();
             $rsStatusAtual = $Movimentacao->buscarStatusAtualProposta($idPreProjeto);
             $this->view->movimentacaoAtual = isset($rsStatusAtual['Movimentacao']) ? $rsStatusAtual['Movimentacao'] : '';
-        } else {
-            if ($idPreProjeto != '0') {
+        } elseif ($idPreProjeto != '0') {
                 parent::message("Necess&aacute;rio informar o n&uacute;mero da proposta.", "/manterpropostaincentivofiscal/index", "ERROR");
-            }
         }
 
         parent::init();
@@ -118,8 +116,6 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(array("idProjeto=?" => $idPreProjeto, "stPlanoDistribuicaoProduto=?" => 1), array("idPlanoDistribuicao DESC"), 10);
             $arrDados = array("planosDistribuicao" => $rsPlanoDistribuicao);
             $this->montaTela("planodistribuicao/consultar-componente.phtml", $arrDados);
-        } else {
-            return false;
         }
     }
 
@@ -287,16 +283,17 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $rsPlanoDistribuicao = $tblPlanoDistribuicao->findBy(array("idPlanoDistribuicao = ?" => $get->idPlanoDistribuicao));
 
-            if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1))
+            if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1)) {
                 throw new Exception("Em alterar projeto, n&atilde;o pode excluir o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.");
-
+            }
+            
             $retorno = $tblPlanoDistribuicao->apagar($get->idPlanoDistribuicao);
 
-            if ($retorno > 0) {
-                parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
-            } else {
+            if ($retorno < 1) {
                 throw new Exception("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!!");
             }
+            
+            parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
         } catch (Exception $e) {
             parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
         }
@@ -321,7 +318,9 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             $inicio
         );
 
-        if ($fim > $total) $fim = $total;
+        if ($fim > $total) { 
+            $fim = $total;
+        }
         $totalPag = (int)(($total % $this->intTamPag == 0) ? ($total / $this->intTamPag) : (($total / $this->intTamPag) + 1));
         $arrDados = array(
             "pag" => $pag,
@@ -355,8 +354,9 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
         try {
             $dados['stDistribuicao'] = isset($dados['stDistribuicao']) ? $dados['stDistribuicao'] : true;
 
-            if ($detalhamento->salvar($dados))
+            if ($detalhamento->salvar($dados)) {
                 $tblPlanoDistribuicao->updateConsolidacaoPlanoDeDistribuicao($dados['idPlanoDistribuicao']);
+            }
 
             $this->_helper->json(array('data' => $dados, 'success' => 'true'));
 
