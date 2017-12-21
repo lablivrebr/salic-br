@@ -1,122 +1,164 @@
-<?php $frmplanoHref = $this->url(array('module' => 'proposta' , 'controller' => 'plano-distribuicao', 'action' => 'frm-plano-distribuicao')).'?idPreProjeto='. $this->idPreProjeto; ?>
+<?php $frmplanoHref = $this->url(array('module' => 'proposta', 'controller' => 'plano-distribuicao', 'action' => 'frm-plano-distribuicao')) . '?idPreProjeto=' . $_GET['idPreProjeto']; ?>
 <style>
-    .planoDistribuicao{
-        font-size: 8pt;
+    .planoDistribuicao {
+        font-size: 14px;
+    }
+
+    .gratuito,
+    .proponente {
+        background-color: #e6e6e6;
+        text-align: center
+    }
+
+    .popular {
+        background-color: #dcdcdc;
+        text-align: center
+    }
+
+    .resumo-distribuicao caption {
+        font-size: 15px;
+    }
+
+    .resumo-distribuicao td, th {
+        padding: 8px 5px
     }
 </style>
 <div class="container-fluid">
     <div class="row">
         <?php echo $this->partial("inc/menu.phtml", $this); ?>
         <div class="content col s10 m10 l10 planilha-produtos">
-            <?php if( $this->localRealizacao): ?>
-                <div id="confirm" title="Confirma&ccedil;&atilde;o" style="display: none">Tem certeza que deseja excluir o registro?</div>
-                <?php
-                    gerarBreadCrumb(array(
-                        $this->layout['listagem'],
-                        array('Plano de Distribui&ccedil;&atilde;o' => '')
-                    ));
-                ?>
-                <h3>Plano de Distribui&ccedil;&atilde;o</h3>
-                <div>
-                    <div id="div_form"></div>
-                        <?php if(!empty($this->planosDistribuicao)){ ?>
-                            <?php foreach($this->planosDistribuicao as $planoDistribuicao){ ?>
-                                <table class="bordered responsive-talbe">
-                                    <thead>
-                                        <tr class="titulo_tabela">
-                                            <th>Nome do Evento / Produto</th>
-                                            <th>&Aacute;rea</th>
-                                            <th>Segmento</th>
-                                            <th>Principal</th>
-                                            <th>A&ccedil;&otilde;es</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td><?php echo $planoDistribuicao->Produto; ?></td>
-                                            <td><?php echo $planoDistribuicao->DescricaoArea; ?></td>
-                                            <td><?php echo $planoDistribuicao->DescricaoSegmento; ?></td>
-                                            <td><?php echo ($planoDistribuicao->stPrincipal == 0) ? 'N&atilde;o' : 'Sim'; ?></td>
-                                            <td>
-                                                <?php if ($this->isEditarProposta || ($this->isEditarProjeto && $planoDistribuicao->stPrincipal != 1)) : ?>
-                                                    <button class="btn" id="btn_editar" onclick="editar(<?php echo $planoDistribuicao->idPlanoDistribuicao; ?>)">Editar</button>
-                                                    <button class="btn red white-text" id="btn_excluir" onclick="confirma('<?php echo $this->urlApagar; ?>&idPlanoDistribuicao=<?php echo $planoDistribuicao['idPlanoDistribuicao']; ?>')">Excluir</button>
-                                                <?php endif; ?>
-                                            </td>
-                                        </tr>
-                                        <tr class="fundo">
-                                            <td colspan="5">
-                                                <table class="planoDistribuicao bordered responsive-talbe">
-                                                    <thead class="green">
-                                                        <tr>
-                                                            <th>Quantidade de Exemplar / Ingresso</th>
-                                                            <th>Divulga&ccedil;&atilde;o</th>
-                                                            <th>Patrocinador</th>
-                                                            <th>Popula&ccedil;&atilde;o</th>
-                                                            <th>Quantidade  de Inteira</th>
-                                                            <th>Quantidade de Meia Entrada</th>
-                                                            <th>Pre&ccedil;o Unit&aacute;rio do Ingresso</th>
-                                                            <th>Receita da Inteira</th>
-                                                            <th>Valor da Meia Entrada</th>
-                                                            <th>Quantidade  de Inteira</th>
-                                                            <th>Quantidade de Meia Entrada</th>
-                                                            <th>Pre&ccedil;o em m&eacute;dia simples</th>
-                                                            <th>Receita da Inteira</th>
-                                                            <th>Receita da Meia Entrada</th>
-                                                            <th>Receita Prevista</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td class="centro"><?php echo $planoDistribuicao->QtdeProduzida ; ?></td>
-                                                            <td><?php echo $planoDistribuicao->QtdeProponente	?></td>
-                                                            <td><?php echo $planoDistribuicao->QtdePatrocinador	?></td>
-                                                            <td><?php echo $planoDistribuicao->QtdeOutros ?></td>
-                                                            <td><?php echo $planoDistribuicao->QtdeVendaPopularNormal?></td>
-                                                            <td><?php echo $planoDistribuicao->QtdeVendaPopularPromocional?></td>
-                                                            <td><?php echo $planoDistribuicao->vlUnitarioPopularNormal?>	</td>
-                                                            <td><?php echo $planoDistribuicao->ReceitaPopularNormal	?></td>
-                                                            <td><?php echo $planoDistribuicao->ReceitaPopularPromocional	?></th>
-                                                            <td><?php echo $planoDistribuicao->QtdeVendaNormal	?></th>
-                                                            <td><?php echo $planoDistribuicao->QtdeVendaPromocional	?></td>
-                                                            <td><?php echo $planoDistribuicao->vlUnitarioNormal	?></td>
-                                                            <td><?php echo $planoDistribuicao->PrecoUnitarioNormal	?></td>
-                                                            <td><?php echo $planoDistribuicao->PrecoUnitarioPromocional?></td>
-                                                            <td><?php echo $planoDistribuicao->Receita?></td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </td>
-                                        </tr>
-                                        <?php } ?>
-                                    <?php } ?>
-                                    <tbody>
-                                </table>
-                <div id="miolo"> <!-- ========== INICIO MIOLO IDENTIFICACAO ========== -->
-                    <table class="tabela" style="display:block" border="0" cellpadding="0" cellspacing="0">
-                        <tr>
-                            <td align="center">
-                                <?php if($this->isEditavel): ?>
-                                    <button type="button" class="btn white-text" id="btn_novo">Novo</button>
-                                    <a href="/proposta/plano-distribuicao/detalhar-plano-distribuicao/idPreProjeto/<?php echo $this->idPreProjeto ?>"
-                                        class="btn white-text" id="detalhar">Detalhar</a>
-                                <?php else: ?>
-                                    <button disabled type="button" class="btn white-text" id="btn_novo">Novo</button>
-                                    <button disabled class="btn white-text" >Detalhar</button>
-                                <?php endif ?>
-                            </td>
+            <?php if ($this->localRealizacao) : ?>
+            <div id="confirm" title="Confirma&ccedil;&atilde;o" style="display: none">Tem certeza que deseja excluir o
+                registro?
+            </div>
+            <?php
+            gerarBreadCrumb(array(
+                $this->layout['listagem'],
+                array('Plano de Distribui&ccedil;&atilde;o' => '')
+            ));
+            ?>
+            <h3>Plano de Distribui&ccedil;&atilde;o</h3>
+            <div>
+                <div id="div_form"></div>
+                <?php if (!empty($this->planosDistribuicao)) : ?>
+                    <table class="bordered responsive-talbe">
+                        <thead>
+                        <tr class="titulo_tabela">
+                            <th>Nome do Evento / Produto</th>
+                            <th>&Aacute;rea</th>
+                            <th>Segmento</th>
+                            <th>Principal</th>
+                            <th width="25%" class="center-align">A&ccedil;&otilde;es</th>
                         </tr>
+                        </thead>
+                        <tbody>
+                        <?php foreach ($this->planosDistribuicao as $planoDistribuicao) : ?>
+
+                            <tr id="produto_<?= $planoDistribuicao->idPlanoDistribuicao; ?>" class="produto-header"
+                                produto_id="<?= $planoDistribuicao->idPlanoDistribuicao; ?>">
+                                <td><?php echo $planoDistribuicao->Produto; ?></td>
+                                <td><?php echo $planoDistribuicao->DescricaoArea; ?></td>
+                                <td><?php echo $planoDistribuicao->DescricaoSegmento; ?></td>
+                                <td><?php echo ($planoDistribuicao->stPrincipal == 0) ? 'N&atilde;o' : 'Sim'; ?></td>
+                                <td class="action center-align">
+
+                                    <a class="btn small waves-effect waves-light tooltipped" id="btn_editar"
+                                       onclick="mostrarResumo(<?php echo $planoDistribuicao->idPlanoDistribuicao; ?>)"
+                                       data-position="top" data-delay="50" data-tooltip="Visualizar resumo">
+                                        <i class="material-icons">visibility</i>
+                                    </a>
+                                    <a href="/proposta/plano-distribuicao/detalhar-plano-distribuicao/idPreProjeto/<?= $this->idPreProjeto; ?>/idPlanoDistribuicao/<?= $planoDistribuicao->idPlanoDistribuicao; ?>"
+                                       class="btn small waves-effect waves-light tooltipped" data-position="top"
+                                       data-delay="50" data-tooltip="Detalhar produto">
+                                        <i class="material-icons">zoom_in</i>
+                                    </a>
+
+                                    <?php if ($this->isEditarProposta || ($this->isEditarProjeto && $planoDistribuicao->stPrincipal != 1)) : ?>
+                                        <a class="btn small waves-effect waves-light tooltipped btn-primary"
+                                           id="btn_editar"
+                                           onclick="editar(<?php echo $planoDistribuicao->idPlanoDistribuicao; ?>)"
+                                           data-position="top" data-delay="50" data-tooltip="Editar Produto">
+                                            <i class="material-icons">edit</i>
+                                        </a>
+                                        <a class="btn small waves-effect waves-light tooltipped btn-danger"
+                                           id="btn_excluir"
+                                           onclick="confirma('<?php echo $this->urlApagar; ?>&idPlanoDistribuicao=<?php echo $planoDistribuicao['idPlanoDistribuicao']; ?>')"
+                                           data-position="top" data-tooltip="Excluir Produto e Detalhamentos">
+                                            <i class="material-icons">delete</i>
+                                        </a>
+                                    <?php endif; ?>
+                                </td>
+                            </tr>
+                            <tr style="display: none;">
+                                <td colspan="5">
+                                    <table class="resumo-distribuicao planoDistribuicao bordered responsive-table ">
+                                        <caption>Resumo do detalhamento</caption>
+                                        <thead>
+                                        <tr>
+                                            <th class="center-align" rowspan="2">Quantidade</th>
+                                            <th colspan="3" class="proponente">Proponente</th>
+                                            <th colspan="3" class="popular">Pre&ccedil;o Popular</th>
+                                            <th colspan="3" class="gratuito">Distribui&ccedil;&atilde;o Gratuita</th>
+                                            <th class="right-align" rowspan="2" width="8%">Receita Prevista total</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="proponente">Qtd. de Inteira</th>
+                                            <th class="proponente">Qtd. de Meia</th>
+                                            <th class="proponente">Valor m&eacute;dio</th>
+                                            <th class="popular">Qtd. de Inteira</th>
+                                            <th class="popular">Qtd. de Meia</th>
+                                            <th class="popular">Valor m&eacute;dio</th>
+                                            <th class="gratuito">Divulga&ccedil;&atilde;o</th>
+                                            <th class="gratuito">Patrocinador</th>
+                                            <th class="gratuito">Popula&ccedil;&atilde;o</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        <tr>
+                                            <td class="center-align"><?php echo $planoDistribuicao->QtdeProduzida; ?></td>
+                                            <td class="proponente"><?php echo $planoDistribuicao->QtdeVendaNormal; ?></td>
+                                            <td class="proponente"><?php echo $planoDistribuicao->QtdeVendaPromocional; ?></td>
+                                            <td class="proponente"><?php echo $planoDistribuicao->PrecoUnitarioNormal; ?></td>
+                                            <td class="popular"><?php echo $planoDistribuicao->QtdeVendaPopularNormal; ?></td>
+                                            <td class="popular"><?php echo $planoDistribuicao->QtdeVendaPopularPromocional; ?></td>
+                                            <td class="popular"><?php echo $planoDistribuicao->ReceitaPopularNormal; ?>    </td>
+                                            <td class="gratuito"><?php echo $planoDistribuicao->QtdeProponente; ?></td>
+                                            <td class="gratuito"><?php echo $planoDistribuicao->QtdePatrocinador; ?></td>
+                                            <td class="gratuito"><?php echo $planoDistribuicao->QtdeOutros; ?></td>
+                                            <td class="right-align"><?php echo $planoDistribuicao->Receita; ?></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                        <tbody>
                     </table>
-                </div>
-            <?php else: ?>
+                <?php endif; ?>
+
                 <div class="row">
-                    <div class="col s12">
-                        <p>Preencher primeiro o <a href="<?php echo $this->url(array('module'=>'proposta', 'controller'=>'localderealizacao', 'action'=> 'index')) ?>">
-                            local de realiza&ccedil;&atilde;o</a>
-                         </p>
+                    <div class="col s12 center-align">
+                        <p>
+                            <br>
+                            <?php if ($this->isEditavel): ?>
+                                <button type="button" class="btn white-text" id="btn_novo">Novo Produto</button>
+                            <?php else: ?>
+                                <button disabled type="button" class="btn white-text" id="btn_novo">Novo Produto
+                                </button>
+                            <?php endif ?>
+                        </p>
                     </div>
                 </div>
-            <?php endif; ?>
+                <?php else: ?>
+                    <div class="row">
+                        <div class="col s12">
+                            <p>Preencher primeiro o <a
+                                    href="<?php echo $this->url(array('module' => 'proposta', 'controller' => 'localderealizacao', 'action' => 'index')) ?>">
+                                    local de realiza&ccedil;&atilde;o</a>
+                            </p>
+                        </div>
+                    </div>
+                <?php endif; ?>
             </div>
         </div>
     </div>
@@ -124,116 +166,137 @@
 
 <script language="javascript" type="text/javascript">
 
-    $(document).ready(function(){
+    $(document).ready(function () {
         <?php if (!$this->isEditavel) : ?>
         //DESABILITA ALTERACOES NOS DADOS DO FORMULARIO (INCLUIR/ALTERAR/EXCLUIR)
         JSBloquearAlteracaoFormulario();
         <?php endif; ?>
     });
 
-    function confirma(obj){
+    function confirma(obj) {
         $("#confirm").dialog("destroy");
         $("#confirm").dialog({
-            width:350,
-            height:150,
-            EscClose:false,
-            modal:true,
+            width: 350,
+            height: 150,
+            EscClose: false,
+            modal: true,
             buttons: {
-                'Cancelar':function(){
+                'Cancelar': function () {
                     $(this).dialog('close'); // fecha a modal
                 },
-                'Confirmar':function(){
-                    location.href=obj;
+                'Confirmar': function () {
+                    location.href = obj;
                 }
             }
         });
         $("#confirm").dialog('open');
     }
 
-    function requisicaoAjaxObj(){
-        var ajaxObj={
-            pagina          :   '',
-            parametros      :   {},
-            type            :   'post',
-            dataType        :   '',
-            resposta        :   '#conteudo',
-            async           :   true,
-            funcaoRetorno   :   function (resposta){
+    function requisicaoAjaxObj() {
+        var ajaxObj = {
+            pagina: '',
+            parametros: {},
+            type: 'post',
+            dataType: '',
+            resposta: '#conteudo',
+            async: true,
+            funcaoRetorno: function (resposta) {
                 $(this.resposta).html(resposta);
             },
-            executar        :   function(dados){
+            executar: function (dados) {
                 this.refineParametrosObj(dados);
                 var esteObj = this;
-                if(this.resposta != undefined && this.resposta != '')
+                if (this.resposta != undefined && this.resposta != '')
                     $(this.resposta).html('<img src="<?php echo $this->baseUrl(); ?>/public/img/ajax.gif" alt="carregando"><br/><br/>Carregando...<br>Por Favor, aguarde!!');
                 $.ajax({
-                    type      : esteObj.type,
-                    url       : esteObj.pagina,
-                    data      : esteObj.parametros,
-                    async     : esteObj.async,
-                    success   : function(resp){
+                    type: esteObj.type,
+                    url: esteObj.pagina,
+                    data: esteObj.parametros,
+                    async: esteObj.async,
+                    success: function (resp) {
                         esteObj.funcaoRetorno(resp);
                     }
-                    ,dataType  : esteObj.dataType
+                    , dataType: esteObj.dataType
                 });
             },
-            refineParametrosObj : function(data){
-                if(data!= undefined)
-                    for(var j in data){
+            refineParametrosObj: function (data) {
+                if (data != undefined)
+                    for (var j in data) {
 
-                        this[j]=data[j];
+                        this[j] = data[j];
                     }
             }
         }
         return ajaxObj;
     }
 
-    function janelaObj(dados){
+    function janelaObj(dados) {
         var divConteudo = $('<div></div>')
-            .attr('title',dados.title)
+            .attr('title', dados.title)
             .appendTo('body');
         var novaJanela = {
-            divConteudo : divConteudo,
+            divConteudo: divConteudo,
             removerBtFechar: true,
-            parametros : {autoOpen: false},
-            iniciarJanela : function(dados){
+            parametros: {autoOpen: false},
+            iniciarJanela: function (dados) {
                 this.refineParametrosObj(dados);
                 var esse = this.divConteudo;
-                this.parametros.close = function (){
+                this.parametros.close = function () {
                     esse.html('');
-                }
+                };
                 this.divConteudo.dialog(this.parametros);
             },
-            abrirJanela:function(){
+            abrirJanela: function () {
                 this.divConteudo.dialog('open');
-                if(this.removerBtFechar)
+                if (this.removerBtFechar)
                     $('.ui-dialog-titlebar-close').remove();
             },
-            fecharJanela:function(){
+            fecharJanela: function () {
                 this.divConteudo.dialog('close');
                 this.divConteudo.remove();
             },
-            refineParametrosObj : function(data){
-                if(data!= undefined)
-                    for(var j in data){
-                        this[j]=data[j];
+            refineParametrosObj: function (data) {
+                if (data != undefined)
+                    for (var j in data) {
+                        this[j] = data[j];
                     }
             }
-        }
+        };
         novaJanela.iniciarJanela(dados);
         return novaJanela;
     }
 
-    $(function(){
-        $('#btn_novo').click(function(){
+    $(function () {
+        $('#btn_novo').click(function () {
+            removerForms();
             $("#div_form").html('<br><center><img src="<?php echo $this->baseUrl(); ?>/public/img/ajax.gif" /></center>');
             jqAjaxLinkSemLoading("<?php echo $frmplanoHref; ?>", "", "div_form");
         });
     });
 
-    function editar(idPlanoDistribuicao){
-        var url = '<?php echo $this->url(array('controller' => 'plano-distribuicao', 'action' => 'frm-plano-distribuicao')).'?idPreProjeto='.$_GET['idPreProjeto'].'&idPlanoDistribuicao=';?>'+idPlanoDistribuicao;
-        $("#div_form").html('<br><center><img src="<?php echo $this->baseUrl(); ?>/public/img/ajax.gif" /></center>');
-        jqAjaxLinkSemLoading(url, "", "div_form");
+    function editar(idPlanoDistribuicao) {
+        var url = '<?php echo $this->url(array('controller' => 'plano-distribuicao', 'action' => 'frm-plano-distribuicao')) . '?idPreProjeto=' . $_GET['idPreProjeto'] . '&idPlanoDistribuicao=';?>' + idPlanoDistribuicao;
+        var form_id = "form_" + idPlanoDistribuicao;
+
+        removerForms();
+
+        $('<tr class="form_distribuicao"><td colspan="6" id="' + form_id + '"></td></tr>').insertAfter("#produto_" + idPlanoDistribuicao);
+
+        $("#" + form_id).html('<br><center><img src="<?php echo $this->baseUrl(); ?>/public/img/ajax.gif" /></center>');
+        jqAjaxLinkSemLoading(url, "", form_id);
+    }
+
+    function mostrarResumo(idPlanoDistribuicao) {
+        var form_id = "form_" + idPlanoDistribuicao;
+
+        removerForms();
+
+        $('#produto_' + idPlanoDistribuicao).next().toggle();
+
+    }
+
+    function removerForms() {
+        $("#div_form").html('');
+        $('.form_distribuicao').remove();
     }
 </script>

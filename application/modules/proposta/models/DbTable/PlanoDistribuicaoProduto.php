@@ -478,7 +478,7 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
         $dados = $dados->toArray();
 
         $db = Zend_Db_Table::getDefaultAdapter();
-        $db->update('planodistribuicaoproduto', $dados, "idPlanoDistribuicao = " . $idPlanoDistribuicao);
+        $db->update($this->_name, $dados, "idPlanoDistribuicao = " . $idPlanoDistribuicao);
     }
 
     public function buscarIdVinculada($idPreProjeto) {
