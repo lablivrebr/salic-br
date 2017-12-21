@@ -569,7 +569,7 @@ xd($ex->getMessage());
                 $idDocumento = 162;
             }
             if (!empty($idDocumento))
-                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idprojeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
+                $arquivoExecucaoImediata = $tbl->buscarDocumentos(array("idProjeto = ?" => $this->idPreProjeto, "CodigoDocumento = ?" => $idDocumento));
 
             $this->view->arquivoExecucaoImediata = $arquivoExecucaoImediata;
         }
@@ -578,7 +578,7 @@ xd($ex->getMessage());
         if ($this->isEditarProjeto($this->idPreProjeto)) {
 
             $tblProjetos = new Projetos();
-            $projeto = $tblProjetos->findBy(array('idprojeto = ?' => $this->idPreProjeto));
+            $projeto = $tblProjetos->findBy(array('idProjeto = ?' => $this->idPreProjeto));
 
             if (!empty($projeto['IdPRONAC'])) {
                 $projeto2 = ConsultarDadosProjetoDAO::obterDadosProjeto(array('idPronac' => (int)$projeto['IdPRONAC']));
@@ -710,34 +710,26 @@ xd($ex->getMessage());
         }
     }
 
-
-    /**
-     * Metodo responsavel por inativar uma proposta gravada
-     * @param void
-     * @return objeto
-     */
-    public function excluirAction()
+    public function inativarPropostaAction()
     {
-        /* ==== VERIFICA PERMISSAO DE ACESSO DO PROPONENTE A PROPOSTA OU AO PROJETO ====== */
-        $this->verificarPermissaoAcesso(true, false, false);
+        $this->verificarPermissaoDeAcessoProponenteAPropostaOuProjeto();
 
-        if ($this->isEditarProjeto) {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
-        }
+        $get = Zend_Registry::get("get");
+        $idPreProjeto = $get->idPreProjeto;
+        $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
+        $rsPreProjeto = $tblPreProjeto->buscar(['idPreProjeto = ?' => $idPreProjeto])->current()->toArray();
+        $preProjetoModel = new Proposta_Model_PreProjeto($rsPreProjeto);
+        $preProjetoModel->stEstado = 0;
+        $preProjetoMapper = new Proposta_Model_PreProjetoMapper();
 
-        $idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
-
-        //BUSCANDO REGISTRO A SER ALTERADO
-        $preProjeto = new Proposta_Model_DbTable_PreProjeto();
-        $preProjeto = $preProjeto->find($idPreProjeto)->current();
-        //altera Estado da proposta
-        $preProjeto->stEstado = 0;
-
-        if ($preProjeto->save()) {
+        if ($preProjetoMapper->save($preProjetoModel)) {
             parent::message("Exclus&atilde;o realizada com sucesso!", "/proposta/manterpropostaincentivofiscal/listarproposta", "CONFIRM");
-        } else {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
         }
+        parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
+    }
+
+    private function verificarPermissaoDeAcessoProponenteAPropostaOuProjeto () {
+        $this->verificarPermissaoAcesso(true, false, false);
     }
 
     /**
