@@ -560,21 +560,7 @@ class Proposta_ManterpropostaeditalController extends Proposta_GenericController
 
     public function exluirpropostaAction()
     {
-
-        $this->verificarPermissaoDeAcessoProponenteAPropostaOuProjeto();
-
-        $get = Zend_Registry::get("get");
-        $idPreProjeto = $get->idPreProjeto;
-        $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
-        $rsPreProjeto = $tblPreProjeto->buscar(['idPreProjeto = ?' => $idPreProjeto])->current()->toArray();
-        $preProjetoModel = new Proposta_Model_PreProjeto($rsPreProjeto);
-        $preProjetoModel->stEstado = 0;
-        $preProjetoMapper = new Proposta_Model_PreProjetoMapper();
-
-        if ($preProjetoMapper->save($preProjetoModel)) {
-            parent::message("Exclus&atilde;o realizada com sucesso!", "/proposta/manterpropostaincentivofiscal/listarproposta", "CONFIRM");
-        }
-        parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
+        throw new Exception("Método descontinuado. Utilizar o método 'excluirAction' da classe 'Proposta_ManterpropostaincentivofiscalController'");
     }
 
     private function verificarPermissaoDeAcessoProponenteAPropostaOuProjeto() {
