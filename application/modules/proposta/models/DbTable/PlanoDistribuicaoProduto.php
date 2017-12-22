@@ -110,17 +110,17 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
 
         $select->from(
             array('pd'=>$this->getName('PlanoDistribuicaoProduto')),
-            array('CodigoProduto'=>'pd.idproduto',
-                'idProposta'=> 'pd.idprojeto'
+            array('CodigoProduto'=>'pd.idProduto',
+                'idProposta'=> 'pd.idProjeto'
             ),
             $this->_schema
         );
 
-        $select->where('idproduto = ?',$idProduto);
+        $select->where('idProduto = ?',$idProduto);
 
-        $select->where('idprojeto = ?',$idPreProjeto);
+        $select->where('idProjeto = ?',$idPreProjeto);
 
-        $select->where('pd.stplanodistribuicaoproduto = ?', 1);
+        $select->where('pd.stPlanoDistribuicaoProduto = ?', 't');
 
         $db = Zend_Db_Table::getDefaultAdapter();
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
