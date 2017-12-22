@@ -179,22 +179,29 @@ class Proposta_Model_DbTable_PlanilhaProposta extends MinC_Db_Table_Abstract
             ->setIntegrityCheck(false)
             ->from(array('p' => $this->_name), $this->_getCols(), $this->_schema);
 
-        $sql->joinLeft(array('e' => 'tbplanilhaetapa'), 'e.idplanilhaetapa = p.idetapa',  array( 'etapa' => 'e.Descricao'), $this->_schema);
+        $sql->joinLeft(array('e' => 'tbPlanilhaEtapa'), 'e.idPlanilhaEtapa = p.idEtapa',
+            array( 'etapa' => 'e.Descricao'), $this->_schema);
 
-        $sql->joinLeft(array('i' => 'tbplanilhaitens'), 'i.idplanilhaitens = p.idplanilhaitem', array( 'item' => 'i.Descricao'), $this->_schema);
+        $sql->joinLeft(array('i' => 'tbPlanilhaItens'), 'i.idPlanilhaItens = p.idPlanilhaItem',
+            array( 'item' => 'i.Descricao'), $this->_schema);
 
-        $sql->joinLeft(array('u' => 'tbplanilhaunidade'),'u.idUnidade = p.unidade', array('unidadef' => 'u.Descricao'), $this->_schema );
+        $sql->joinLeft(array('u' => 'tbPlanilhaUnidade'),'u.idUnidade = p.Unidade',
+            array('unidadef' => 'u.Descricao'), $this->_schema );
 
-        $sql->joinLeft(array('v' => 'Verificacao'),'v.idverificacao = p.fonterecurso', array('fonterecursof' => 'v.Descricao'), $this->_schema );
+        $sql->joinLeft(array('v' => 'Verificacao'),'v.idVerificacao = p.FonteRecurso',
+            array('fonterecursof' => 'v.Descricao'), $this->_schema );
 
-        $sql->joinLeft(array('pr' => 'produto'),'pr.codigo = p.idproduto', array('ProdutoF' => 'pr.Descricao'), $this->_schema );
+        $sql->joinLeft(array('pr' => 'Produto'),'pr.Codigo = p.idProduto',
+            array('ProdutoF' => 'pr.Descricao'), $this->_schema );
 
-        $sql->joinLeft(array('uf' => 'uf'), 'uf.iduf = p.ufdespesa', array('ufdespesaf' => 'uf.Descricao'), $this->getSchema('agentes'));
+        $sql->joinLeft(array('uf' => 'UF'), 'uf.idUF = p.UfDespesa',
+            array('ufdespesaf' => 'uf.Descricao'), $this->getSchema('agentes'));
 
-        $sql->joinLeft(array('m' => 'municipios'), 'm.idMunicipioIBGE = p.municipiodespesa', array('municipiodespesaf' => 'm.Descricao'), $this->getSchema('agentes'));
+        $sql->joinLeft(array('m' => 'Municipios'), 'm.idMunicipioIBGE::varchar(6) = p.MunicipioDespesa::varchar(6)',
+            array('municipiodespesaf' => 'm.Descricao'), $this->getSchema('agentes'));
 
-        $sql->where('p.idprojeto = ?', $id_projeto);
-        $sql->order('p.idetapa','p.idproduto');
+        $sql->where('p.idProjeto = ?', $id_projeto);
+        $sql->order('p.idEtapa','p.idProduto');
 
        return $db->fetchAll($sql);
     }

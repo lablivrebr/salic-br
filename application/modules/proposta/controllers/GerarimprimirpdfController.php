@@ -84,10 +84,10 @@ class Proposta_GerarimprimirpdfController extends Proposta_GenericController
         $this->view->rsAbrangencias = $tbAbrangencia->buscar( array("idProjeto"=>$id_projeto) );
 
         $tblPlanoDivulgacao = new Proposta_Model_DbTable_PlanoDeDivulgacao();
-        $this->view->rsPlanoDivulgacao = $tblPlanoDivulgacao->buscar(array("pd.idprojeto = ?" => $id_projeto)); //busca dados de divulgacao do preprojeto
+        $this->view->rsPlanoDivulgacao = $tblPlanoDivulgacao->buscar(array("pd.idProjeto = ?" => $id_projeto)); //busca dados de divulgacao do preprojeto
 
         $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
-        $this->view->rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar( array("a.idprojeto = ?" => $id_projeto), array("idplanodistribuicao DESC"));
+        $this->view->rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar( array("a.idProjeto = ?" => $id_projeto), array("idPlanoDistribuicao DESC"));
 
         $tblPlanilhaProposta = new Proposta_Model_DbTable_PlanilhaProposta;
         $this->view->rsOrcamento = $tblPlanilhaProposta->Orcamento($id_projeto);
