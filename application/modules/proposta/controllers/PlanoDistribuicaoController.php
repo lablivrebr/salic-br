@@ -286,13 +286,13 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             if (($this->isEditarProjeto($this->_idPreProjeto) && $rsPlanoDistribuicao['stPrincipal'] == 1)) {
                 throw new Exception("Em alterar projeto, n&atilde;o pode excluir o produto principal cadastrado. A opera&ccedil;&atilde;o foi cancelada.");
             }
-            
+
             $retorno = $tblPlanoDistribuicao->apagar($get->idPlanoDistribuicao);
 
             if ($retorno < 1) {
                 throw new Exception("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!!");
             }
-            
+
             parent::message("Opera&ccedil;&atilde;o realizada com sucesso!", "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "CONFIRM");
         } catch (Exception $e) {
             parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
@@ -301,48 +301,35 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
 
     public function detalharPlanoDistribuicaoAction()
     {
-        $pag = 1;
-        $get = Zend_Registry::get('get');
-        if (isset($get->pag)) $pag = $get->pag;
-        if (isset($get->tamPag)) $this->intTamPag = $get->tamPag;
-        $inicio = ($pag > 1) ? ($pag - 1) * $this->intTamPag : 0;
-        $fim = $inicio + $this->intTamPag;
-        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
-        $total = $tblPlanoDistribuicao->pegaTotal(array("a.idProjeto = ?" => $this->_idPreProjeto, "a.stPlanoDistribuicaoProduto = ?" => 'true'));
-        $tamanho = (($inicio + $this->intTamPag) <= $total) ? $this->intTamPag : $total - ($inicio);
+        try {
+            $params = $this->getRequest()->getParams();
 
-        $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(
-            array("a.idProjeto = ?" => $this->_idPreProjeto, "a.stPlanoDistribuicaoProduto = ?" => 'true'),
-            array("idPlanoDistribuicao DESC"),
-            $tamanho,
-            $inicio
-        );
+            if (empty($params['idPlanoDistribuicao'])) {
+                throw new Exception("&Eacute; necess&aacute;rio informar o produto do plano de distribui&ccedil;&atilde;o");
+            }
 
-        if ($fim > $total) { 
-            $fim = $total;
+            $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
+            $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(
+                array(
+                    "a.idPlanoDistribuicao = ?" => $params['idPlanoDistribuicao'],
+                    "a.idProjeto = ?" => $this->_idPreProjeto,
+                    "a.stPlanoDistribuicaoProduto = ?" => true
+                ),
+                array("idPlanoDistribuicao DESC")
+            );
+
+            $arrBusca['idProjeto'] = $this->_idPreProjeto;
+            $arrBusca['stAbrangencia'] = true;
+            $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
+            $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
+
+            $this->view->abrangencias = $rsAbrangencia;
+            $this->view->planosDistribuicao = $rsPlanoDistribuicao;
+            $this->view->isEditavel = $this->isEditavel($this->_idPreProjeto);
+
+        } catch (Exception $e) {
+            parent::message($e->getMessage(), "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto, "ERROR");
         }
-        $totalPag = (int)(($total % $this->intTamPag == 0) ? ($total / $this->intTamPag) : (($total / $this->intTamPag) + 1));
-        $arrDados = array(
-            "pag" => $pag,
-            "total" => $total,
-            "inicio" => ($inicio + 1),
-            "fim" => $fim,
-            "totalPag" => $totalPag,
-            "planosDistribuicao" => ($rsPlanoDistribuicao),
-            "formulario" => $this->_urlPadrao . "/proposta/plano-distribuicao/frm-plano-distribuicao?idPreProjeto=" . $this->_idPreProjeto,
-            "urlApagar" => $this->_urlPadrao . "/proposta/plano-distribuicao/apagar?idPreProjeto=" . $this->_idPreProjeto,
-            "urlPaginacao" => $this->_urlPadrao . "/proposta/plano-distribuicao/index?idPreProjeto=" . $this->_idPreProjeto
-        );
-
-        $arrBusca['idProjeto'] = $this->_idPreProjeto;
-        $arrBusca['stAbrangencia'] = true;
-        $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
-        $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
-
-        $this->view->idPreProjeto = $this->_idPreProjeto;
-        $this->view->abrangencias = $rsAbrangencia;
-        $this->view->planosDistribuicao = ($rsPlanoDistribuicao);
-        $this->view->isEditavel = $this->isEditavel($this->_idPreProjeto);
     }
 
     public function detalharSalvarAction()
