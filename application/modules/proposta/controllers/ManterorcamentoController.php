@@ -116,8 +116,8 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->ItensProduto = $tbPreprojeto->listarItensProdutos($this->idPreProjeto, null, Zend_DB::FETCH_ASSOC);
 
         $arrBusca = array(
-            'idprojeto' => $this->idPreProjeto,
-            'stabrangencia' => 1
+            'idProjeto' => $this->idPreProjeto,
+            'stAbrangencia' => 't'
         );
 
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();

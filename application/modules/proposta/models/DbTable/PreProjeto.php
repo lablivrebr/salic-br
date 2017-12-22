@@ -2345,12 +2345,33 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $db->setFetchMode(Zend_Db::FETCH_OBJ);
 
         $sql = $this->select()
-            ->from(array('pre' => 'PreProjeto'), array('pre.idPreProjeto as PreProjeto', 'pre.idPreProjeto as idProposta'), $this->getSchema('sac'))
-            ->join(array('pd' => 'planodistribuicaoproduto'), '(pre.idPreProjeto = pd.idProjeto AND pd.stplanodistribuicaoproduto = 1)', array('pd.stPrincipal as ProdutoPrincipal'), $this->getSchema('sac'))
-            ->join(array('p' => 'produto'), '(pd.idproduto = p.codigo)', array('p.codigo as CodigoProduto', 'p.Descricao as DescricaoProduto'), $this->getSchema('sac'))
-            ->where('idpreprojeto = ?', $idPreProjeto)
+            ->from(
+                array('pre' => $this->_name),
+                array(
+                    'pre.idPreProjeto as PreProjeto',
+                    'pre.idPreProjeto as idProposta'
+                ),
+                $this->_schema
+            )
+            ->join(
+                array('pd' => 'PlanoDistribuicaoProduto'),
+                'pre.idPreProjeto = pd.idProjeto',
+                array('pd.stPrincipal as ProdutoPrincipal'),
+                $this->_schema
+            )
+            ->join(
+                array('p' => 'Produto'),
+                'pd.idProduto = p.Codigo',
+                array(
+                    'p.Codigo as CodigoProduto',
+                    'p.Descricao as DescricaoProduto'
+                ),
+                $this->_schema
+            )
+            ->where('pd.stPlanoDistribuicaoProduto = ?', 't')
+            ->where('idPreProjeto = ?', $idPreProjeto)
             ->order('pd.stPrincipal DESC')
-            ->group(array('p.codigo', 'p.Descricao', 'idpreprojeto', 'pd.stPrincipal'));
+            ->group(array('p.Codigo', 'p.Descricao', 'idPreProjeto', 'pd.stPrincipal'));
 
         return $db->fetchAll($sql);
     }
@@ -2402,28 +2423,38 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $db->setFetchMode($fetchMode);
 
         $pp = array(
-            'pp.idetapa as idEtapa',
-            'pp.idplanilhaitem as idItem',
-            'pp.ufdespesa as IdUf',
+            'pp.idEtapa as idEtapa',
+            'pp.idPlanilhaItem as idItem',
+            'pp.UfDespesa as IdUf',
             'pp.Quantidade',
             'pp.Ocorrencia',
             'pp.ValorUnitario',
-            'pp.qtdeDias',
+            'pp.QtdeDias',
             'pp.idPlanilhaProposta',
-            'Verificador' => new Zend_Db_Expr("CONCAT(pp.idProduto, pp.idetapa, pp.municipiodespesa)"),
+            'Verificador' => new Zend_Db_Expr('CONCAT("pp"."idProduto", "pp"."idEtapa", "pp"."MunicipioDespesa")'),
         );
 
         $sql = $this->select()->distinct()
             ->from(array('pre' => 'PreProjeto'), null, $this->getSchema('sac'))
-            ->join(array('pp' => 'tbplanilhaproposta'), '(pre.idPreProjeto = pp.idProjeto)', $pp, $this->getSchema('sac'))
-            ->join(array('p' => 'produto'), '(pp.idProduto = p.codigo)', array('p.codigo as CodigoProduto'), $this->getSchema('sac'))
-            ->join(array('ti' => 'tbplanilhaitens'), 'ti.idplanilhaitens = pp.idplanilhaitem', array('ti.Descricao as DescricaoItem'), $this->getSchema('sac'))
-            ->join(array('uf' => 'uf'), 'uf.codufibge = pp.ufdespesa', array('uf.Descricao as DescricaoUf', 'uf.uf as SiglaUF'), $this->getSchema('sac'))
-            ->join(array('municipio' => 'municipios'), 'municipio.idMunicipioIBGE = pp.municipiodespesa', array('municipio.Descricao as Municipio'), $this->getSchema('agentes'))
-            ->join(array('mec' => 'mecanismo'), 'mec.codigo = pre.mecanismo', array('mec.Descricao as DescricaoMecanismo'), $this->getSchema('sac'))
-            ->join(array('un' => 'tbplanilhaunidade'), 'un.idunidade = pp.unidade', 'un.Descricao as Unidade', $this->getSchema('sac'))
-            ->join(array('veri' => 'Verificacao'), 'veri.idverificacao = pp.fonterecurso', array('veri.idverificacao as idFonteRecurso', 'veri.Descricao as DescricaoFonteRecurso'), $this->getSchema('sac'))
-            ->where('idpreprojeto = ?', $idPreProjeto)
+            ->join(array('pp' => 'tbPlanilhaProposta'), 'pre.idPreProjeto = pp.idProjeto', $pp, $this->_schema)
+            ->join(array('p' => 'Produto'), 'pp.idProduto = p.Codigo', array('p.Codigo as CodigoProduto'), $this->_schema)
+            ->join(array('ti' => 'tbPlanilhaItens'), 'ti.idPlanilhaItens = pp.idPlanilhaItem', array('ti.Descricao as DescricaoItem'), $this->_schema)
+            ->join(array('uf' => 'Uf'), 'uf.CodUfIbge = pp.UfDespesa', array('uf.Descricao as DescricaoUf', 'uf.Uf as SiglaUF'), $this->_schema)
+            ->join(
+                array('municipio' => 'Municipios'),
+                'municipio.idMunicipioIBGE::varchar(6) = pp.MunicipioDespesa::varchar(6)',
+                array('municipio.Descricao as Municipio'),
+                $this->getSchema('agentes')
+            )
+            ->join(array('mec' => 'Mecanismo'), 'mec.Codigo::integer = pre.Mecanismo::integer', array('mec.Descricao as DescricaoMecanismo'), $this->_schema)
+            ->join(array('un' => 'tbPlanilhaUnidade'), 'un.idUnidade = pp.Unidade', 'un.Descricao as Unidade', $this->_schema)
+            ->join(
+                array('veri' => 'Verificacao'),
+                'veri.idVerificacao = pp.FonteRecurso',
+                array('veri.idVerificacao as idFonteRecurso', 'veri.Descricao as DescricaoFonteRecurso'),
+                $this->getSchema('sac')
+            )
+            ->where('idPreProjeto = ?', $idPreProjeto)
             ->order('ti.Descricao');
 
         if ($idItem) {
@@ -2461,12 +2492,12 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
 
         $select->joinInner(
             array('p' => 'Produto'),
-            'pd.idproduto = p.codigo',
+            'pd.idProduto = p.codigo',
             null,
             $this->_schema
         );
 
-        $select->where('idpreprojeto = ?', $idPreProjeto);
+        $select->where('idPreprojeto = ?', $idPreProjeto);
 
         $select->group(array('p.codigo', 'p.Descricao', 'idpreprojeto'));
 
@@ -2502,9 +2533,9 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $select->from(
             array('pre' => 'PreProjeto'),
             array(
-                'p.codigo as codigoproduto',
-                'pp.idproduto as idproduto',
-                'pp.idetapa as idetapa',
+                'p.Codigo as codigoproduto',
+                'pp.idProduto as idproduto',
+                'pp.idEtapa as idetapa',
                 'te.Descricao as descricaoetapa',
                 'pre.idPreProjeto as idpreprojeto'
             ),
@@ -2520,7 +2551,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
 
         $select->joinInner(
             array('p' => 'Produto'),
-            'pp.idproduto = p.codigo',
+            'pp.idProduto = p.Codigo',
             null,
             $this->_schema
         );

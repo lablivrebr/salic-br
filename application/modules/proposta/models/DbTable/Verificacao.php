@@ -30,8 +30,8 @@ class Proposta_Model_DbTable_Verificacao extends MinC_Db_Table_Abstract{
         $select->from(
             array('v' => $this->_name),
             array(
-                'idverificacao',
-                $this->getExpressionTrim('v.Descricao','verificacaodescricao'),
+                'idVerificacao',
+                $this->getExpressionTrim("v.Descricao","VerificacaoDescricao"),
             ),
             $this->_schema
             );
@@ -41,7 +41,6 @@ class Proposta_Model_DbTable_Verificacao extends MinC_Db_Table_Abstract{
             $this->_schema
         );
         $select->where('tipo.idTipo = ?', '5');
-
         $db= Zend_Db_Table::getDefaultAdapter();
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
 

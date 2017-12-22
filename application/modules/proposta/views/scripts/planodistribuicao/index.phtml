@@ -118,14 +118,14 @@
                                             <td class="center-align"><?php echo $planoDistribuicao->QtdeProduzida; ?></td>
                                             <td class="proponente"><?php echo $planoDistribuicao->QtdeVendaNormal; ?></td>
                                             <td class="proponente"><?php echo $planoDistribuicao->QtdeVendaPromocional; ?></td>
-                                            <td class="proponente"><?php echo $planoDistribuicao->PrecoUnitarioNormal; ?></td>
+                                            <td class="proponente"><?= number_format($planoDistribuicao->PrecoUnitarioNormal, 2, ',', '.'); ?></td>
                                             <td class="popular"><?php echo $planoDistribuicao->QtdeVendaPopularNormal; ?></td>
                                             <td class="popular"><?php echo $planoDistribuicao->QtdeVendaPopularPromocional; ?></td>
-                                            <td class="popular"><?php echo $planoDistribuicao->ReceitaPopularNormal; ?>    </td>
+                                            <td class="popular"><?= number_format($planoDistribuicao->ReceitaPopularNormal, 2, ',', '.'); ?></td>
                                             <td class="gratuito"><?php echo $planoDistribuicao->QtdeProponente; ?></td>
                                             <td class="gratuito"><?php echo $planoDistribuicao->QtdePatrocinador; ?></td>
                                             <td class="gratuito"><?php echo $planoDistribuicao->QtdeOutros; ?></td>
-                                            <td class="right-align"><?php echo $planoDistribuicao->Receita; ?></td>
+                                            <td class="right-align"><?= number_format($planoDistribuicao->Receita, 2, ',', '.'); ?></td>
                                         </tr>
                                         </tbody>
                                     </table>
