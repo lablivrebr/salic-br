@@ -454,20 +454,20 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
     public function updateConsolidacaoPlanoDeDistribuicao($idPlanoDistribuicao)
     {
         $cols = array(
-            'sum(qtExemplares) as QtdeProduzida',
-            'sum(qtGratuitaDivulgacao) as QtdeProponente',
-            'sum(qtGratuitaPatrocinador) as QtdePatrocinador',
-            'sum(qtGratuitaPopulacao) as QtdeOutros',
-            'sum(qtPopularIntegral) as QtdeVendaPopularNormal',
-            'sum(qtPopularParcial) as QtdeVendaPopularPromocional',
-            'sum(vlUnitarioPopularIntegral) as vlUnitarioPopularNormal',
-            'sum(vlReceitaPopularIntegral) ReceitaPopularNormal',
-            'sum(vlReceitaPopularParcial) as ReceitaPopularPromocional',
-            'sum(qtProponenteIntegral) as QtdeVendaNormal',
-            'sum(qtProponenteParcial) as QtdeVendaPromocional',
-            'avg(vlUnitarioProponenteIntegral) vlUnitarioNormal',
-            'sum(vlReceitaProponenteIntegral) as PrecoUnitarioNormal',
-            'sum(vlReceitaProponenteParcial) as PrecoUnitarioPromocional',
+            new Zend_Db_Expr('sum("qtExemplares") as "QtdeProduzida"'),
+            new Zend_Db_Expr('sum("qtGratuitaDivulgacao") as "QtdeProponente"'),
+            new Zend_Db_Expr('sum("qtGratuitaPatrocinador") as "QtdePatrocinador"'),
+            new Zend_Db_Expr('sum("qtGratuitaPopulacao") as "QtdeOutros"'),
+            new Zend_Db_Expr('sum("qtPopularIntegral") as "QtdeVendaPopularNormal"'),
+            new Zend_Db_Expr('sum("qtPopularParcial") as "QtdeVendaPopularPromocional"'),
+            new Zend_Db_Expr('sum("vlUnitarioPopularIntegral") as "vlUnitarioPopularNormal"'),
+            new Zend_Db_Expr('sum("vlReceitaPopularIntegral") "ReceitaPopularNormal"'),
+            new Zend_Db_Expr('sum("vlReceitaPopularParcial") as "ReceitaPopularPromocional"'),
+            new Zend_Db_Expr('sum("qtProponenteIntegral") as "QtdeVendaNormal"'),
+            new Zend_Db_Expr('sum("qtProponenteParcial") as "QtdeVendaPromocional"'),
+            new Zend_Db_Expr('avg("vlUnitarioProponenteIntegral") "vlUnitarioNormal"'),
+            new Zend_Db_Expr('sum("vlReceitaProponenteIntegral") as "PrecoUnitarioNormal"'),
+            new Zend_Db_Expr('sum("vlReceitaProponenteParcial") as "PrecoUnitarioPromocional"'),
             //'(sum(vlReceitaPopularParcial) + sum(vlReceitaPopularIntegral)+  sum(vlReceitaProponenteIntegral)+ sum(vlReceitaProponenteParcial)) as  PrecoUnitarioPromocional'
         );
 
@@ -482,8 +482,7 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
         $dados =  $this->fetchRow($sql);
         $dados = $dados->toArray();
 
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->update($this->_name, $dados, "idPlanoDistribuicao = " . $idPlanoDistribuicao);
+        $this->update($dados, "idPlanoDistribuicao = " . $idPlanoDistribuicao);
     }
 
     public function buscarIdVinculada($idPreProjeto) {
