@@ -1773,7 +1773,7 @@ class AlterarprojetoController extends MinC_Controller_Action_Abstract
             'PrecoUnitarioNormal' => str_replace(",", ".", str_replace('/\./g', "", $post->preconormal)),
             'PrecoUnitarioPromocional' => str_replace(",", ".", str_replace('/\./g', "", $post->precopromocional)),
         );
-        $tblPlanoDistribuicao = new PlanoDistribuicao();
+        $tblPlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
         $planoDistribuicao = RealizarAnaliseProjetoDAO::planodedistribuicao($idPronac);
 
         $retorno = $tblPlanoDistribuicao->salvar($dados);

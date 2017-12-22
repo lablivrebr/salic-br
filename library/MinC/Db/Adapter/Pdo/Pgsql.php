@@ -55,7 +55,7 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
 //                $conditionTwo = $this->addSimpleQuote($arrayColumn[1]);
                 $condition = "{$conditionOne} {$separator} {$conditionTwo}";
             }
-        } elseif ($colunaLimpa && strpos($colunaLimpa, 'in') !== false) {
+        } elseif ($colunaLimpa && strpos($colunaLimpa, ' in ') !== false) {
             $separator = 'in';
             $arrayColumn = explode($separator, $condition);
             if (substr(trim($arrayColumn[1]), 0, 1) == '(' && strpos($arrayColumn[0], '"') === false) {
@@ -77,7 +77,7 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
             }
             $condition = $newConditions;
         } elseif (!is_numeric($condition)) {
-            $arrayClauses = ['and', 'AND', 'or', 'OR'];
+            $arrayClauses = [' and ', ' AND ', ' or ', ' OR '];
             $newCondition = '';
             foreach ($arrayClauses as $clause) {
                 $arrayConditions = explode($clause, $condition);
@@ -111,12 +111,12 @@ class MinC_Db_Adapter_Pdo_Pgsql extends Zend_Db_Adapter_Pdo_Pgsql
             if ($cleanCondition && strpos($cleanCondition, 'NOT EXISTS') === false) {
                 if ($cleanCondition && strpos($cleanCondition, ' in ') !== false) {
                     $condition = $this->treatWhereConditions($condition, ' in ');
-                } elseif ($cleanCondition && strpos($cleanCondition, '<>') !== false) {
-                    $condition = $this->treatWhereConditions($condition, '<>');
+                } elseif ($cleanCondition && strpos($cleanCondition, ' <> ') !== false) {
+                    $condition = $this->treatWhereConditions($condition, ' <> ');
                 } elseif ($cleanCondition && strpos($cleanCondition, ' like ') !== false) {
                     $condition = $this->treatWhereConditions($condition, ' like ');
-                } elseif ($cleanCondition && strpos($cleanCondition, '=') !== false) {
-                    $condition = $this->treatWhereConditions($condition, '=');
+                } elseif ($cleanCondition && strpos($cleanCondition, ' = ') !== false) {
+                    $condition = $this->treatWhereConditions($condition, ' = ');
                 }
             }
         }

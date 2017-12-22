@@ -1572,7 +1572,7 @@ class ReadequacoesController extends MinC_Controller_Action_Abstract {
                 $exclusaoLogica = $tbPlanoDistribuicao->update($dados, $where);
             }
         } else {
-            $PlanoDistribuicao = new PlanoDistribuicao();
+            $PlanoDistribuicao = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
             $itemPDDist = $PlanoDistribuicao->find(array('idPlanoDistribuicao=?'=>$idPlanoDistribuicao))->current();
             $dadosArray = array(
                 'idProduto =?' => $itemPDDist->idProduto,

@@ -11,6 +11,7 @@ class ManterAgentes extends MinC_Db_Table_Abstract
 {
 	protected $_name = 'Area';
 	protected $_schema = 'sac';
+    protected $_primary = 'Codigo';
 
 
 	public static function buscaAgentes($cnpjcpf = null, $nome = null, $idAgente = null)
@@ -190,9 +191,16 @@ class ManterAgentes extends MinC_Db_Table_Abstract
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
         $sql = $db->select()
-            ->from(array('Area'), array('codigo AS id', 'descricao AS descricao'), $this->getSchema('sac'))
-            ->where('codigo <> ?', '7')
-            ->order('Descricao');
+            ->from(
+                array('a' => $this->_name),
+                array(
+                    'a.Codigo AS id',
+                    'a.Descricao AS descricao'
+                ),
+                $this->_schema
+            )
+            ->where('"a"."Codigo" <> ?', '7')
+            ->order('a.Descricao');
 
         return $db->fetchAll($sql);
     }

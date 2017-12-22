@@ -16,7 +16,7 @@ class Proposta_VisualizarPlanoDistribuicaoController extends Proposta_GenericCon
         $this->_helper->layout->disableLayout();
 
         $arrBusca = array();
-        $arrBusca['idprojeto'] = $this->_idPreProjeto;
+        $arrBusca['idprojeto'] = $this->idPreProjeto;
 
         $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
         $rsAbrangencia = $tblAbrangencia->buscar($arrBusca);
@@ -25,15 +25,13 @@ class Proposta_VisualizarPlanoDistribuicaoController extends Proposta_GenericCon
         $tblPlanoDistribuicao = new PlanoDistribuicao();
 
         $rsPlanoDistribuicao = $tblPlanoDistribuicao->buscar(
-            array("a.idprojeto = ?" => $this->_idPreProjeto, "a.stplanodistribuicaoproduto = ?" => 1),
-            array("idplanodistribuicao DESC"),
-            $tamanho,
-            $inicio
+            array("a.idprojeto = ?" => $this->idPreProjeto, "a.stplanodistribuicaoproduto = ?" => 1),
+            array("idplanodistribuicao DESC")
         );
 
         $this->view->planosDistribuicao=$rsPlanoDistribuicao;
 
-        $this->view->idPreProjeto = $this->_idPreProjeto;
+        $this->view->idPreProjeto = $this->idPreProjeto;
         $this->abrangencias = $rsAbrangencia;
     }
 
