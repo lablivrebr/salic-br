@@ -1,8 +1,7 @@
 <?php
 class vwUsuariosOrgaosGrupos extends MinC_Db_Table_Abstract {
 
-    protected $_banco  = 'TABELAS';
-    protected $_schema = 'TABELAS';
+    protected $_schema = 'tabelas';
     protected $_name   = 'vwUsuariosOrgaosGrupos';
     protected $_primary = 'usu_codigo';
 
