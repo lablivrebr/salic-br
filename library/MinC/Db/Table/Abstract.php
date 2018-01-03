@@ -453,12 +453,16 @@ abstract class MinC_Db_Table_Abstract extends Zend_Db_Table_Abstract
             $strTrim = 'ltrim';
         } else {
             $strTrim = 'trim';
+
+            if (strpos($string, '.')) {
+                $string = preg_replace("/(.*)\\.(.*)/", '$1"."$2', $string);
+            }
         }
 
         if (is_null($strAlias)) {
-            return new Zend_Db_Expr("{$strTrim}( {$string})");
+            return new Zend_Db_Expr($strTrim . '("'. $string . '")');
         } else {
-            return new Zend_Db_Expr("({$strTrim} ({$string})) as {$strAlias}");
+            return new Zend_Db_Expr($strTrim . '("' . $string . '") as ' . $strAlias);
         }
     }
 
