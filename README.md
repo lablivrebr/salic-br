@@ -26,3 +26,7 @@ Para parar o container basta digitar:
   docker-compose stop
 ```
 Mais informamações sobre a construção da imagem Docker utilizada nesse projeto acesse [aqui](https://github.com/culturagovbr/docker-salic-br).
+
+## DevPage
+
+Para informações técnicas sobre o Salic-BR clique [aqui](https://culturagovbr.github.io/salic-br)
