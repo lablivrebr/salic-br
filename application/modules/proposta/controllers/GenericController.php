@@ -107,7 +107,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
 
     private function buscarProposta($idPreProjeto)
     {
-
         $tblPreProjeto = new Proposta_Model_DbTable_PreProjeto();
         $proposta = $tblPreProjeto->buscar(array('idPreProjeto = ?' => $idPreProjeto))->current();
 
@@ -115,39 +114,32 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             $proposta = array_change_key_case($proposta->toArray());
             return $proposta;
         }
+
         return false;
     }
 
     public function isEditarProposta($idPreProjeto)
     {
-
-        if (empty($idPreProjeto))
-            return false;
-
-        // Verifica se a proposta estah com o minc
         $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
         $rsStatusAtual = $tbMovimentacao->findBy(array('idProjeto = ?' => $idPreProjeto, 'stEstado = false' => false));
 
-        if ($rsStatusAtual['Movimentacao'] == $this->_movimentacaoAlterarProposta)
+        if ($rsStatusAtual['Movimentacao'] == $this->_movimentacaoAlterarProposta) {
             return true;
+        }
 
         return false;
     }
 
     public function isEditarProjeto($idPreProjeto)
     {
+        $tblProjetos = new Projetos();
+        $projeto = $tblProjetos->findBy(array('idProjeto = ?' => $idPreProjeto));
 
-        if (!empty($idPreProjeto)) {
-            $tblProjetos = new Projetos();
-            $projeto = $tblProjetos->findBy(array('idProjeto = ?' => $idPreProjeto));
-
-            if ($tblProjetos->verificarLiberacaoParaAdequacao($projeto['IdPRONAC'])
-                && $this->contagemRegressivaSegundos($projeto['DtSituacao'], $this->_diasParaAlterarProjeto) > 0
-                && $projeto['Situacao'] == $this->_situacaoAlterarProjeto) {
-                return true;
-            }
+        if ($tblProjetos->verificarLiberacaoParaAdequacao($projeto['IdPRONAC'])
+            && $this->contagemRegressivaSegundos($projeto['DtSituacao'], $this->_diasParaAlterarProjeto) > 0
+            && $projeto['Situacao'] == $this->_situacaoAlterarProjeto) {
+            return true;
         }
-
     }
 
     public function isEditavel($idPreProjeto)
@@ -168,57 +160,112 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         }
     }
 
-    public function salvarcustosvinculados($idPreProjeto)
+    public function gerarArrayCustosVinculados($idPreProjeto)
     {
-        $idEtapa = '8'; // Custos Vinculados
-        $tipoCusto = 'A';
+        $valoresCustosVinculados = array();
+        $tbAbrangencia = new Proposta_Model_DbTable_Abrangencia();
+        $ufRegionalizacaoPlanilha = $tbAbrangencia->buscarUfRegionalizacao($idPreProjeto);
+        $modelCustosVinculados = new Proposta_Model_TbCustosVinculados();
+        $itensPlanilhaProduto = new tbItensPlanilhaProduto();
 
-        if (!empty($idPreProjeto)) {
-            $TPP = new Proposta_Model_DbTable_TbPlanilhaProposta();
-            $somaPlanilhaPropostaProdutos = $TPP->somarPlanilhaPropostaProdutos($idPreProjeto, 109);
 
-            if (
-                empty($somaPlanilhaPropostaProdutos['soma'])
-                || (is_numeric($somaPlanilhaPropostaProdutos['soma']) && $somaPlanilhaPropostaProdutos['soma'] <= 0)
-            ) {
-                $TPP->excluirCustosVinculados($idPreProjeto);
-                return true;
-            }
+        $valoresCustosVinculados['percentualDivulgacao'] = $modelCustosVinculados::PERCENTUAL_DIVULGACAO_OUTRAS_REGIOES;
+        $valoresCustosVinculados['percentualRemuneracaoCaptacao'] = $modelCustosVinculados::PERCENTUAL_REMUNERACAO_CAPTACAO_DE_RECURSOS_OUTRAS_REGIOES;
+        $valoresCustosVinculados['limiteRemuneracaoCaptacao'] = $modelCustosVinculados::LIMITE_CAPTACAO_DE_RECURSOS_OUTRAS_REGIOES;
 
-            $itens = $this->calcularCustosVinculados($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
-
-            foreach ($itens as $item) {
-
-                $custosVinculados = null;
-
-                //fazer uma nova busca com o essencial para este caso
-                $custosVinculados = $TPP->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
-
-                if (isset($custosVinculados[0]->idItem)) {
-                    $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
-                    $TPP->update($item, $where);
-                } else {
-                    $TPP->insert($item);
-                }
-            }
+        if (!empty($ufRegionalizacaoPlanilha)) { # sudeste e sul
+            $valoresCustosVinculados['percentualDivulgacao'] = $modelCustosVinculados::PERCENTUAL_DIVULGACAO_SUL_SUDESTE;
+            $valoresCustosVinculados['percentualRemuneracaoCaptacao'] = $modelCustosVinculados::PERCENTUAL_REMUNERACAO_CAPTACAO_DE_RECURSOS_SUL_SUDESTE;
+            $valoresCustosVinculados['limiteRemuneracaoCaptacao'] = $modelCustosVinculados::LIMITE_CAPTACAO_DE_RECURSOS_SUL_SUDESTE;
         }
 
+        $tbCustosVinculadosMapper = new Proposta_Model_TbCustosVinculadosMapper();
+        $arrCustosVinculados = array();
+
+        $itensCustosVinculados = $itensPlanilhaProduto->buscarItens(
+            $modelCustosVinculados::ID_ETAPA_CUSTOS_VINCULADOS,
+            null,
+            Zend_DB::FETCH_ASSOC
+        );
+
+        foreach ($itensCustosVinculados as $item) {
+            switch ($item['idPlanilhaItens']) {
+                case $modelCustosVinculados::ID_CUSTO_ADMINISTRATIVO:
+                    $item['Percentual'] = $modelCustosVinculados::PERCENTUAL_CUSTO_ADMINISTRATIVO;
+                    break;
+                case $modelCustosVinculados::ID_DIVULGACAO:
+                    $item['Percentual'] = $valoresCustosVinculados['percentualDivulgacao'];
+                    break;
+                case $modelCustosVinculados::ID_REMUNERACAO_CAPTACAO:
+                    $item['Percentual'] = $valoresCustosVinculados['percentualRemuneracaoCaptacao'];
+                    $item['Limite'] = $valoresCustosVinculados['limiteRemuneracaoCaptacao'];
+                    break;
+                case $modelCustosVinculados::ID_CONTROLE_E_AUDITORIA:
+                    $item['Percentual'] = $modelCustosVinculados::PERCENTUAL_CONTROLE_E_AUDITORIA;
+                    $item['Limite'] = $modelCustosVinculados::LIMITE_CONTROLE_E_AUDITORIA;
+                    break;
+                case $modelCustosVinculados::ID_DIREITOS_AUTORAIS:
+                    $item['Percentual'] = $modelCustosVinculados::PERCENTUAL_DIREITOS_AUTORAIS;
+                    break;
+            }
+
+            $custoVinculadoProponente = $tbCustosVinculadosMapper->findBy(
+                array('idProjeto' => $idPreProjeto,
+                    'idPlanilhaItem' => $item['idPlanilhaItens']
+                )
+            );
+
+            if ($custoVinculadoProponente) {
+                $item['PercentualProponente'] = $custoVinculadoProponente['pcCalculo'];
+                $item['idCustosVinculados'] = $custoVinculadoProponente['idCustosVinculados'];
+            }
+            $arrCustosVinculados[] = $item;
+        }
+        return $arrCustosVinculados;
     }
 
-    public function calcularCustosVinculados($idPreProjeto, $valorTotalProdutos = null)
+    public function atualizarcustosvinculadosdaplanilha($idPreProjeto)
     {
+        $idEtapa = Proposta_Model_TbPlanilhaEtapa::CUSTOS_VINCULADOS;
+        $tipoCusto = Proposta_Model_TbPlanilhaEtapa::TIPO_CUSTO_ADMINISTRATIVO;
 
-        if (empty($idPreProjeto))
-            return false;
+        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+        $somaPlanilhaPropostaProdutos = $tbPlanilhaProposta->somarPlanilhaPropostaProdutos($idPreProjeto, 109);
 
-        $idEtapa = '8'; // Custos Vinculados
-        $fonteRecurso = '109'; // incentivo fiscal
+        if (empty(
+            $somaPlanilhaPropostaProdutos['soma'])
+            || (is_numeric($somaPlanilhaPropostaProdutos['soma']) && $somaPlanilhaPropostaProdutos['soma'] <= 0)
+        ) {
+            $tbPlanilhaProposta->excluirCustosVinculados($idPreProjeto);
+            return true;
+        }
+
+        $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
+        foreach ($itens as $item) {
+            $custosVinculados = null;
+            //@todo fazer uma nova busca com o essencial para este caso
+            $custosVinculados = $tbPlanilhaProposta->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
+            if (isset($custosVinculados[0]->idItem)) {
+                $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
+                $tbPlanilhaProposta->update($item, $where);
+            } else {
+                $tbPlanilhaProposta->insert($item);
+            }
+        }
+    }
+
+    public function calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $valorTotalProdutos = null)
+    {
+        $idEtapa = Proposta_Model_TbCustosVinculados::ID_ETAPA_CUSTOS_VINCULADOS;
+        $fonteRecurso = Proposta_Model_TbCustosVinculados::ID_FONTE_RECURSO_CUSTOS_VINCULADOS;
+
+        $idUf = 1;
+        $idMunicipio = 1;
         $dados = array();
 
-        $TPP = new Proposta_Model_DbTable_TbPlanilhaProposta();
-
         if (empty($valorTotalProdutos)) {
-            $somaPlanilhaPropostaProdutos = $TPP->somarPlanilhaPropostaProdutos($idPreProjeto, 109);
+            $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+            $somaPlanilhaPropostaProdutos = $tbPlanilhaProposta->somarPlanilhaPropostaProdutos($idPreProjeto, $fonteRecurso);
             $valorTotalProdutos = $somaPlanilhaPropostaProdutos['soma'];
         }
 
@@ -226,91 +273,48 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             return 0;
         }
 
-        $ufRegionalizacaoPlanilha = $TPP->buscarItensUfRegionalizacao($idPreProjeto);
+        $itensCustosVinculados = $this->gerarArrayCustosVinculados($idPreProjeto);
 
-        # definindo os criterios de regionalizacao
-        if (!empty($ufRegionalizacaoPlanilha)) { # sudeste e sul
-            $calcDivugacao = 0.2;     # custo de divulgacao 20%
-            $calcCaptacao = 0.1;      # custo para capta&ccedil;&atilde;o 10%
-            $limiteCaptacao = 100000; # valor m&aacute;ximo para capta&ccedil;&atilde;o 100.000,00
 
-            $idUf = $ufRegionalizacaoPlanilha->idUF;
-            $idMunicipio = $ufRegionalizacaoPlanilha->idMunicipio;
-        } else { # demais regi&otilde;es
-            $calcDivugacao = 0.3;     # custo de divulga&ccedil;&atilde;o 30%
-            $calcCaptacao = 0.15;     # custo para capta&ccedil;&atilde;o 15%
-            $limiteCaptacao = 150000; # valor m&aacute;ximo para capta&ccedil;&atilde;o 150.000,00
+        foreach ($itensCustosVinculados as $item) {
+            $valorCustoItem = 0;
 
-            $arrBusca['idprojeto'] = $idPreProjeto;
-            $arrBusca['stabrangencia'] = true;
-
-            $idUf = 1;
-            $idMunicipio = 1;
-        }
-
-        // Busca os itens da etapa 8 (custos vinculados)
-        $itensPlanilhaProduto = new tbItensPlanilhaProduto();
-        $itensCustoAdministrativo = $itensPlanilhaProduto->buscarItens($idEtapa);
-
-        foreach ($itensCustoAdministrativo as $item) {
-            $custosVinculados = null;
-            $valorCustoItem = null;
-            $calcular = true;
-
-            switch ($item->idPlanilhaItens) {
-                case 8197: // Custo Administrativo
-                    $valorCustoItem = ($valorTotalProdutos * 0.15);
-                    break;
-                case 8198: // Divulgacao
-                    $valorCustoItem = ($valorTotalProdutos * $calcDivugacao);
-                    break;
-                case 5249: // Remuneracao p/ Captar Recursos
-                    $valorCustoItem = ($valorTotalProdutos * $calcCaptacao);
-                    if ($valorCustoItem > $limiteCaptacao)
-                        $valorCustoItem = $limiteCaptacao;
-                    break;
-                case 8199: // Controle e Auditoria
-                    $valorCustoItem = ($valorTotalProdutos * 0.1);
-                    if ($valorCustoItem > 100000)
-                        $valorCustoItem = 100000;
-                    break;
-                default:
-                    $calcular = false;
+            if ($item['PercentualProponente'] > 0) {
+                $valorCustoItem = ($valorTotalProdutos * ($item['PercentualProponente'] / 100));
+                if (isset($item['Limite']) && $valorCustoItem > $item['Limite']) {
+                    $valorCustoItem = $item['Limite'];
+                }
             }
 
-            if ($calcular == true) {
-
-                $dados[] = array(
-                    'idprojeto' => $idPreProjeto,
-                    'idetapa' => $idEtapa,
-                    'idplanilhaitem' => $item->idPlanilhaItens,
-                    'Descricao' => '',
-                    'unidade' => '1',
-                    'quantidade' => '1',
-                    'ocorrencia' => '1',
-                    'valorunitario' => $valorCustoItem,
-                    'qtdedias' => '1',
-                    'tipodespesa' => '0',
-                    'tipopessoa' => '0',
-                    'contrapartida' => '0',
-                    'fonterecurso' => $fonteRecurso,
-                    'ufdespesa' => $idUf,
-                    'municipiodespesa' => $idMunicipio,
-                    'idusuario' => 462,
-                    'dsjustificativa' => ''
-                );
-            }
+            $dados[] = array(
+                'idProjeto' => $idPreProjeto,
+                'idEtapa' => $idEtapa,
+                'idPlanilhaitem' => $item['idPlanilhaItens'],
+                'Descricao' => '',
+                'Unidade' => '1',
+                'Quantidade' => '1',
+                'Ocorrencia' => '1',
+                'ValorUnitario' => $valorCustoItem,
+                'QtdeDias' => '1',
+                'TipoDespesa' => '0',
+                'TipoPessoa' => '0',
+                'Contrapartida' => '0',
+                'FonteRecurso' => $fonteRecurso,
+                'UfDespesa' => $idUf,
+                'MunicipioDespesa' => $idMunicipio,
+                'idUsuario' => $this->_idUsuario,
+                'dsJustificativa' => ''
+            );
         }
         return $dados;
     }
 
     public function somarTotalCustosVinculados($idPreProjeto, $valorTotalProdutos = null)
     {
-        $itens = $this->calcularCustosVinculados($idPreProjeto, $valorTotalProdutos);
-
+        $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $valorTotalProdutos);
+        $soma = '';
         if ($itens == 0)
             return 0;
-
         if ($itens) {
             $soma = 0;
             foreach ($itens as $item) {
@@ -343,11 +347,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         return $segundos;
     }
 
-    /**
-     * @param $object
-     * @param $where
-     * @return bool|string
-     */
     public function serializarObjeto($object, $where)
     {
         $result = $object->findAll($where);
@@ -358,11 +357,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         return serialize($result);
     }
 
-    /**
-     * @param $result
-     * @param null $where
-     * @return bool|mixed
-     */
     public function unserializarObjeto($object, $idPreProjeto, $metakey = null)
     {
         if (empty($idPreProjeto))
@@ -378,12 +372,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         return unserialize($result);
     }
 
-    /**
-     * @param $object
-     * @param $idPreProjeto
-     * @param null $metakey
-     * @return bool|int|mixed
-     */
     public function salvarObjetoSerializado($object, $idPreProjeto, $metakey = null, $where = null)
     {
         if (empty($where))
@@ -399,12 +387,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         return $PPM->salvarMeta($idPreProjeto, $metakey, $serializado);
     }
 
-    /**
-     * @param $array
-     * @param $idPreProjeto
-     * @param $metakey
-     * @return bool|int|mixed
-     */
     public function salvarArraySerializado($array, $idPreProjeto, $metakey)
     {
         if (empty($metakey))
@@ -417,13 +399,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
 
     }
 
-    /**
-     * @param $object
-     * @param $idPreProjeto
-     * @param $metakey
-     * @param null $whereDelete
-     * @return bool
-     */
     public function restaurarObjetoSerializadoParaTabela($object, $idPreProjeto, $metakey, $whereDelete = null)
     {
         if (empty($idPreProjeto))

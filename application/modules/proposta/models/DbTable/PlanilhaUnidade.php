@@ -1,19 +1,12 @@
 <?php
-/**
- * DAO tbPlanilhaUnidade
- * @author Guilherme Adler - MinC
- * @date 19/10/16
- */
 
 class Proposta_Model_DbTable_PlanilhaUnidade extends MinC_Db_Table_Abstract
 {
     protected $_schema  = "sac";
-    protected $_name   = "planilhaunidade";
+    protected $_name   = "PlanilhaUnidade";
+    protected $_primary = "idUnidade";
 
     public function buscarUnidade() {
-
-//        $sql = "select idUnidade, Sigla, Descricao
-//        FROM sac.dbo.tbPlanilhaUnidade order by 3";
 
         $select = $this->select();
         $select->setIntegrityCheck(false);
@@ -30,4 +23,4 @@ class Proposta_Model_DbTable_PlanilhaUnidade extends MinC_Db_Table_Abstract
 
         return $db->fetchAll($select);
     }
-} // fecha class
+}

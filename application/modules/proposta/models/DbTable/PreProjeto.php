@@ -2475,7 +2475,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
         $select->from(
             array('pre' => $this->_name),
             array(
-                'p.codigo as codigoproduto',
+                'p.Codigo as codigoproduto',
                 'p.Descricao as descricaoproduto',
                 'pre.idPreProjeto as preprojeto',
                 'pre.idPreProjeto as idproposta'
@@ -2485,21 +2485,22 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
 
         $select->joinInner(
             array('pd' => 'PlanoDistribuicaoProduto'),
-            'pre.idPreProjeto = pd.idProjeto AND pd.stPlanoDistribuicaoProduto = 1',
+            'pre.idPreProjeto = pd.idProjeto',
             null,
             $this->_schema
         );
 
         $select->joinInner(
             array('p' => 'Produto'),
-            'pd.idProduto = p.codigo',
+            'pd.idProduto = p.Codigo',
             null,
             $this->_schema
         );
 
-        $select->where('idPreprojeto = ?', $idPreProjeto);
+        $select->where('pd.stPlanoDistribuicaoProduto = ?', 't');
+        $select->where('pre.idPreProjeto = ?', $idPreProjeto);
 
-        $select->group(array('p.codigo', 'p.Descricao', 'idpreprojeto'));
+        $select->group(array('p.Codigo', 'p.Descricao', 'pre.idPreProjeto'));
 
         return $db->fetchAll($select);
     }

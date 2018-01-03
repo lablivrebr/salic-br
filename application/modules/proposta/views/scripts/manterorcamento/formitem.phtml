@@ -1,17 +1,166 @@
+<div class="container-salic">
+    <div class="row">
+        <div class="col s12">
+            <div class="section">
+                <h5>Cadastrar novo item
+                    <span class="badge" data-badge-caption=""><div><?php echo $this->Etapa['Descricao']; ?></div> <i
+                            class="material-icons">place</i> <div><?php echo $this->Municipio['Descricao']; ?>
+                            - <?php echo $this->Estado['Descricao']; ?></div></span>
+                </h5>
+            </div>
+
+            <?php foreach ($this->Dados as $dados) : ?>
+                <form name="form" id="form" method="post"
+                      action="<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'salvar-item')); ?>">
+                    <input type="hidden" name="produto" id="produto" value="<?php echo $dados->CodigoProduto ?>"/>
+                    <input type="hidden" name="idPlanilhaProposta" id="idPlanilhaProposta"
+                           value="<?php echo $dados->idPlanilhaProposta ?>"/>
+                    <input type="hidden" name="idPreProjeto" id="idPreProjeto"
+                           value="<?php echo $this->idPreProjeto ?>"/>
+                    <input type="hidden" name="uf" id="uf" value="<?php echo $this->Estado['idUF']; ?>"/>
+                    <input type="hidden" name="municipio" id="municipio"
+                           value="<?php echo $this->Municipio['idMunicipioIBGE'] ?>"/>
+                    <input type="hidden" name="idPlanilhaEtapa" id="idPlanilhaEtapa"
+                           value="<?php echo $this->Etapa['idPlanilhaEtapa'] ?>"/>
+                    <input type="hidden" name="valorMediana" id="valorMediana" value=""/>
+
+                    <div class="row">
+                        <div class="col s4">
+                            <label for="planilhaitem">Item</label>
+                            <select class="valida browser-default" id="planilhaitem" name="planilhaitem">
+                                <option disabled selected> - Selecione -</option>
+                                <?php foreach ($this->Item as $itens) : ?>
+                                    <option
+                                        value="<?php echo $itens->idPlanilhaItens ?>" <?php echo $dados->idItem == $itens->idPlanilhaItens ? "selected" : ""; ?>><?php echo $itens->Descricao ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                            <br>
+                        </div>
+
+                        <div class="col s3">
+                            <label for="unidade">Unidade</label>
+                            <select class="valida browser-default" id="unidade" name="unidade">
+                                <option disabled selected> - Selecione -</option>
+                                <?php foreach ($this->Unidade as $unidade) : ?>
+                                    <option
+                                        value="<?php echo $unidade->idUnidade ?>" <?php echo ($dados->Unidade == $unidade->idUnidade) ? "selected" : ""; ?>><?php echo $unidade->Descricao ?></option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                        <div class="input-field col s1">
+                            <input placeholder="0" type="number" maxlength="4" class="valida numero" size="4"
+                                   value="<?php echo isset($dados->QtdDias) ? $dados->QtdDias : ''; ?>" name='qtdDias'
+                                   id='qtdDias'/>
+                            <label for="qtdDias">Qtd de dias</label>
+                        </div>
+
+                        <div class="input-field col s1">
+                            <input placeholder="0" type="number" class="valida soma numero" size="3" id="qtd"
+                                   maxlength="10" name="qtd"
+                                   value="<?php echo isset($dados->Quantidade) ? (int)$dados->Quantidade : ''; ?>">
+                            <label for="qtd">Quantidade</label>
+                        </div>
+
+                        <div class="input-field col s1">
+                            <input placeholder="0" type="number" maxlength="4" class="valida soma numero" size="3"
+                                   id="ocorrencia" maxlength="10" name="ocorrencia"
+                                   value="<?php echo isset($dados->Ocorrencia) ? (int)$dados->Ocorrencia : ''; ?>">
+                            <label for="ocorrencia">Ocorr&ecirc;ncia</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input placeholder="R$" type="text" maxlength="13" class="valida soma numero" size="10"
+                                   id="vlunitario" name="vlunitario"
+                                   value="<?php echo isset($dados->ValorUnitario) ? number_format($dados->ValorUnitario, 2, ",", ".") : ''; ?>">
+                            <label for="vlunitario">Valor Unit&aacute;rio</label>
+                        </div>
+                        <div class="input-field col s1">
+                            <input placeholder="R$" type="text" value="" maxlength="6" class="disabled" size="15"
+                                   name="total" id="total" disabled>
+                            <label for="total">Total</label>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s4">
+                            <label for="fonterecurso">Fonte de recurso</label><br><br><br>
+                            <select class="valida browser-default" id="fonterecurso" name="fonterecurso">
+                                <?php
+                                if (isset($dados->Recurso))
+                                    $selected = $dados->Recurso;
+                                else
+                                    $selected = 109;
+                                ?>
+                                <?php foreach ($this->Recurso as $recurso) { ?>
+                                    <option <?php echo ($recurso->idVerificacao == $selected) ? 'selected' : ''; ?>
+                                        value="<?php echo $recurso->idVerificacao ?>"><?php echo $recurso->verificacaodescricao ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+
+                        <div id="justificativa_current_item" class="input-field col s8 justificativa">
+                            <label for="justificativa">Detalhamento / Justificativa / Observa&ccedil;&otilde;es
+                                (Opcional)</label>
+                            <textarea cols="80" id="justificativa" name="justificativa" rows="7"
+                                      class="materialize-textarea browser-default"
+                                      placeholder=" "><?php echo $dados->Justificativa; ?></textarea>
+                            <input type="hidden" name="stCustoPraticado" class="stCustoPraticado"
+                                   value="<?php echo $dados->stCustoPraticado; ?>"/>
+                        </div>
+                    </div>
+                    <?php if (!empty($this->locaisRealizacao) && count($this->locaisRealizacao) > 1) : ?>
+                        <div class="row">
+                            <div class="col s4">
+                                <div class="input-field">
+                                    <select id="combo_cidades" multiple="multiple" name="comboOutrasCidades[]"
+                                            class="comboOutrasCidades">
+                                        <option disabled>Selecione as cidades</option>
+                                        <?php foreach ($this->locaisRealizacao as $local) : ?>
+                                            <?php if ($local['idMunicipioIBGE'] != $this->Municipio['idMunicipioIBGE']) : ?>
+                                                <option
+                                                    value="<?= $local['idUF'] ?>:<?= $local['idMunicipioIBGE'] ?>"><?= $local['uf'] ?>
+                                                    - <?= $local['cidade'] ?></option>
+                                            <?php endif; ?>
+                                        <?php endforeach; ?>
+                                    </select>
+                                    <label>Deseja aplicar este item para outras cidades? (Opcional)</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="another-cities"></div>
+                    <?php endif; ?>
+                    <?php if ($this->isEditavel) : ?>
+                        <div class="row">
+                            <div class="input-field col s12 center-align">
+                                <a class="btn-close-modal waves-effect waves-teal btn btn-info"><i
+                                        class="material-icons left">clear</i>Fechar</a>
+                                <a id="btn-salvar" href="javascript:void(0);"
+                                   class="disabled btn waves-effect waves-light" name="action">Salvar
+                                    <i class="material-icons right">send</i>
+                                </a>
+                            </div>
+                        </div>
+                    <?php endif; ?>
+                </form>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</div>
+
 <script type="text/javascript">
-    $('#vlunitario').priceFormat({limit: 8});
-    $(document).ready(function() {
+    $('#vlunitario').priceFormat({limit: 10});
+
+    $(document).ready(function () {
 
         <?php if (!$this->isEditavel) : ?>
-            //DESABILITA ALTERACOES NOS DADOS DO FORMULARIO (INCLUIR/ALTERAR/EXCLUIR)
-            JSBloquearAlteracaoFormulario();
+        //DESABILITA ALTERACOES NOS DADOS DO FORMULARIO (INCLUIR/ALTERAR/EXCLUIR)
+        JSBloquearAlteracaoFormulario();
         <?php endif; ?>
 
         $('.soma').keyup(function () {
             somaValores();
         });
 
-        if ( $('#planilhaitem').val() != '') {
+        if ($('#planilhaitem').val() != '') {
             somaValores();
         }
 
@@ -37,7 +186,7 @@
         });
     });
 
-    function somaValores(){
+    function somaValores() {
 
         var soma = 0;
         var vlunitario = $("#vlunitario").val();
@@ -66,9 +215,9 @@
         // retira caracteres invalidos da string
         var result = "";
         var aux;
-        for (var i=0; i < valor.length; i++) {
-            aux = validos.indexOf(valor.substring(i, i+1));
-            if (aux>=0) {
+        for (var i = 0; i < valor.length; i++) {
+            aux = validos.indexOf(valor.substring(i, i + 1));
+            if (aux >= 0) {
                 result += aux;
             }
         }
@@ -76,150 +225,81 @@
     }
 
     //Formata numero tipo moeda usando o evento onKeyDown
-
-    function Formata(campo,tammax,teclapres,decimal) {
+    function Formata(campo, tammax, teclapres, decimal) {
         var tecla = teclapres.keyCode;
-        vr = Limpar(campo.value,"0123456789");
+        vr = Limpar(campo.value, "0123456789");
         tam = vr.length;
-        dec=decimal
+        dec = decimal
 
-        if (tam < tammax && tecla != 8){ tam = vr.length + 1 ; }
-
-        if (tecla == 8 )
-        { tam = tam - 1 ; }
-
-        if ( tecla == 8 || tecla >= 48 && tecla <= 57 || tecla >= 96 && tecla <= 105 )
-        {
-
-            if ( tam <= dec )
-            { campo.value = vr ; }
-
-            if ( (tam > dec) && (tam <= 5) ){
-                campo.value = vr.substr( 0, tam - 2 ) + "," + vr.substr( tam - dec, tam ) ; }
-            if ( (tam >= 6) && (tam <= 8) ){
-                campo.value = vr.substr( 0, tam - 5 ) + "." + vr.substr( tam - 5, 3 ) + "," + vr.substr( tam - dec, tam ) ;
-            }
-            if ( (tam >= 9) && (tam <= 11) ){
-                campo.value = vr.substr( 0, tam - 8 ) + "." + vr.substr( tam - 8, 3 ) + "." + vr.substr( tam - 5, 3 ) + "," + vr.substr( tam - dec, tam ) ; }
-            if ( (tam >= 12) && (tam <= 14) ){
-                campo.value = vr.substr( 0, tam - 11 ) + "." + vr.substr( tam - 11, 3 ) + "." + vr.substr( tam - 8, 3 ) + "." + vr.substr( tam - 5, 3 ) + "," + vr.substr( tam - dec, tam ) ; }
-            if ( (tam >= 15) && (tam <= 17) ){
-                campo.value = vr.substr( 0, tam - 14 ) + "." + vr.substr( tam - 14, 3 ) + "." + vr.substr( tam - 11, 3 ) + "." + vr.substr( tam - 8, 3 ) + "." + vr.substr( tam - 5, 3 ) + "," + vr.substr( tam - 2, tam ) ;}
+        if (tam < tammax && tecla != 8) {
+            tam = vr.length + 1;
         }
+
+        if (tecla == 8) {
+            tam = tam - 1;
+        }
+
+        if (tecla == 8 || tecla >= 48 && tecla <= 57 || tecla >= 96 && tecla <= 105) {
+
+            if (tam <= dec) {
+                campo.value = vr;
+            }
+
+            if ((tam > dec) && (tam <= 5)) {
+                campo.value = vr.substr(0, tam - 2) + "," + vr.substr(tam - dec, tam);
+            }
+            if ((tam >= 6) && (tam <= 8)) {
+                campo.value = vr.substr(0, tam - 5) + "." + vr.substr(tam - 5, 3) + "," + vr.substr(tam - dec, tam);
+            }
+            if ((tam >= 9) && (tam <= 11)) {
+                campo.value = vr.substr(0, tam - 8) + "." + vr.substr(tam - 8, 3) + "." + vr.substr(tam - 5, 3) + "," + vr.substr(tam - dec, tam);
+            }
+            if ((tam >= 12) && (tam <= 14)) {
+                campo.value = vr.substr(0, tam - 11) + "." + vr.substr(tam - 11, 3) + "." + vr.substr(tam - 8, 3) + "." + vr.substr(tam - 5, 3) + "," + vr.substr(tam - dec, tam);
+            }
+            if ((tam >= 15) && (tam <= 17)) {
+                campo.value = vr.substr(0, tam - 14) + "." + vr.substr(tam - 14, 3) + "." + vr.substr(tam - 11, 3) + "." + vr.substr(tam - 8, 3) + "." + vr.substr(tam - 5, 3) + "," + vr.substr(tam - 2, tam);
+            }
+        }
+
 
     }
 </script>
 
-<div class="container-salic">
-    <div class="row">
-        <div class="col s12">
-            <div class="section">
-                <h5>Cadastrar novo item
-                    <span class="badge" data-badge-caption=""><div><?php echo $this->Etapa['Descricao']; ?></div> <i class="material-icons">place</i> <div><?php echo $this->Municipio['Descricao']; ?> - <?php echo $this->Estado['Descricao']; ?></div></span>
-                </h5>
-            </div>
-
-            <?php foreach ($this->Dados as $dados) : ?>
-                <form name="form" id="form" method="post" action ="<?php echo $this->url(array('module'=>'proposta', 'controller' => 'manterorcamento', 'action' => 'salvaritem')); ?>">
-                    <input type="hidden" name="produto" id="produto" value="<?php echo $dados->CodigoProduto ?>" />
-                    <input type="hidden" name="idPlanilhaProposta" id="idPlanilhaProposta" value="<?php echo $dados->idPlanilhaProposta ?>" />
-                    <input type="hidden" name="idPreProjeto" id="idPreProjeto" value="<?php echo $this->idPreProjeto ?>" />
-                    <input type="hidden" name="uf" id="uf" value="<?php echo $this->Estado['idUF']; ?>" />
-                    <input type="hidden" name="municipio" id="municipio" value="<?php echo $this->Municipio['idMunicipioIBGE'] ?>" />
-                    <input type="hidden" name="idPlanilhaEtapa" id="idPlanilhaEtapa" value="<?php echo $this->Etapa['idPlanilhaEtapa'] ?>" />
-                    <input type="hidden" name="valorMediana" id="valorMediana" value="" />
-                    <input type="hidden" name="stCustoPraticado" id="stCustoPraticado" value="<?php echo $dados->stCustoPraticado; ?>" />
-
-                    <div class="row">
-                        <div class="col s4">
-                            <label for="planilhaitem">Item</label>
-                            <select class="valida browser-default" id="planilhaitem" name="planilhaitem">
-                                <option disabled selected> - Selecione - </option>
-                                <?php foreach($this->Item as $itens) : ?>
-                                    <option value="<?php echo $itens->idPlanilhaItens ?>" <?php echo $dados->idItem == $itens->idPlanilhaItens ? "selected" : ""; ?>><?php echo $itens->Descricao ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <br>
-                        </div>
-
-                        <div class="col s3">
-                            <label for="unidade">Unidade</label>
-                            <select class="valida browser-default" id="unidade" name="unidade">
-                                <option disabled selected> - Selecione - </option>
-                                <?php foreach($this->Unidade as $unidade) : ?>
-                                    <option value="<?php echo $unidade->idUnidade ?>" <?php echo ($dados->Unidade == $unidade->idUnidade) ? "selected" : ""; ?>><?php echo $unidade->Descricao ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-
-                        <div class="input-field col s1">
-                            <input placeholder="0" type="text" maxlength="4" class="valida numero" size="4" value="<?php echo isset($dados->QtdDias) ? $dados->QtdDias: ''; ?>" name='qtdDias' id='qtdDias' />
-                            <label for="qtdDias">Qtd de dias</label>
-                        </div>
-
-                        <div class="input-field col s1">
-                            <input placeholder="0" type="text" class="valida soma numero" size="3" id="qtd" maxlength="10" name="qtd" value="<?php echo isset($dados->Quantidade) ? (int) $dados->Quantidade : ''; ?>">
-                            <label for="qtd">Quantidade</label>
-                        </div>
-
-                        <div class="input-field col s1">
-                            <input placeholder="0" type="text" maxlength="4" class="valida soma numero" size="3" id="ocorrencia" maxlength="10" name="ocorrencia" value="<?php echo isset($dados->Ocorrencia) ? (int) $dados->Ocorrencia : ''; ?>">
-                            <label for="ocorrencia">Ocorr&ecirc;ncia</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input placeholder="R$" type="text" maxlength="13" class="valida soma numero" size="10" id="vlunitario" name="vlunitario" value="<?php echo isset($dados->ValorUnitario) ? number_format($dados->ValorUnitario, 2, ",", ".") : '';?>">
-                            <label for="vlunitario">Valor Unit&aacute;rio</label>
-                        </div>
-                        <div class="input-field col s1">
-                            <input placeholder="R$" type="text" value="" maxlength="6" class="disabled" size="15" name="total" id="total" disabled>
-                            <label for="total">Total</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col s4">
-                            <label for="fonterecurso">Fonte de recurso</label><br><br><br>
-                            <select class="valida browser-default" id="fonterecurso" name="fonterecurso">
-                                <?php
-                                    if( isset($dados->Recurso))
-                                        $selected = $dados->Recurso;
-                                    else
-                                        $selected = 109;
-                                ?>
-                                <?php foreach($this->Recurso as $recurso) {?>
-                                    <option <?php echo ($recurso->idverificacao == $selected) ? 'selected' : ''; ?>  value="<?php echo $recurso->idverificacao ?>"><?php echo $recurso->verificacaodescricao ?></option>
-                                <?php } ?>
-                            </select>
-                        </div>
-
-                        <div class="input-field col s8 justificativa">
-                            <label for="edito1">Detalhamento / Justificativa / Observa&ccedil;&otilde;es (Opcional)</label>
-                            <textarea cols="80" id="editor1" name="editor1" rows="7" class="materialize-textarea browser-default" placeholder=" "><?php echo $dados->Justificativa; ?></textarea>
-                        </div>
-
-                    </div>
-                    <?php if ($this->isEditavel) : ?>
-                        <div class="row">
-                            <div class="input-field col s12 center-align">
-                                <a class="btn-close-modal waves-effect waves-teal btn btn-info"><i class="material-icons left">clear</i>Fechar</a>
-                                <a id="btn-salvar" href="javascript:void(0);" class="btn-salvar btn waves-effect waves-light" name="action">Salvar
-                                    <i class="material-icons right">send</i>
-                                </a>
-                            </div>
-                        </div>
-                    <?php endif; ?>
-                </form>
-            <?php endforeach;?>
-        </div>
-    </div>
-</div>
-
 <script>
-    $3(document).ready(function(){
-        $3('.modal').find('select').material_select();
+    $3(document).ready(function ($) {
 
-        $3('.btn-close-modal').on('click', function() {
-            $3('#modal').modal('close');
+        var select = $('.modal').find('select.comboOutrasCidades');
 
+        select.material_select();
+        validarCampos();
+
+        $('.btn-close-modal').on('click', function () {
+            $('#modal').modal('close');
         });
+
+        $('body').on('keyup', 'input', function () {
+            validarCampos();
+        });
+
+        function validarCampos() {
+
+            let validar = true;
+
+            $('.valida').each(function () {
+                if ($(this).val() == '') {
+                    validar = false;
+                }
+            });
+
+            if (validar == true) {
+                $("#btn-salvar").addClass('btn-salvar').removeClass('disabled');
+                $('.mensagem1').fadeOut(function () {
+                    $(this).remove();
+                });
+            } else {
+                $("#btn-salvar").removeClass('btn-salvar').addClass('disabled');
+            }
+        }
     });
 </script>
