@@ -54,12 +54,6 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
 
     }
 
-    /**
-     * Redireciona para o fluxo inicial do sistema
-     * @access public
-     * @param void
-     * @return void
-     */
     public function indexAction()
     {
         // Usuario Logado
@@ -73,11 +67,6 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->idUsuarioLogado = $idusuario;
     }
 
-    /**
-     * produtoscadastradosAction
-     *
-     * @name produtoscadastradosAction
-     */
    public function produtoscadastradosAction()
     {
         $this->view->idPreProjeto = $this->idPreProjeto;
@@ -85,13 +74,6 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->charset = Zend_Registry::get('config')->db->params->charset;
 
     }
-
-    /**
-     * Lista os produtos na planilha orcamentaria
-     *
-     * @access public
-     * @return void
-     */
     public function listarprodutosAction()
     {
         $this->_helper->layout->disableLayout();
@@ -121,17 +103,8 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             }
         }
         $this->view->localRealizacao = $novosLocais;
-//
-//     $this->view->idPreProjeto = $this->idPreProjeto;
-//     $this->view->charset = Zend_Registry::get('config')->db->params->charset;
     }
 
-    /**
-     * altera ordem de apresenta&ccedil;&atilde;o das etapas no orcamento
-     *
-     * @access public
-     * @return void
-     */
     public function reordenaretapas($etapas)
     {
 
@@ -145,132 +118,70 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         return $newListaEtapa;
     }
 
-    /**
-     * planilhaorcamentariaAction
-     *
-     *
-     * @access public
-     * @return void
-     */
     public function planilhaorcamentariaAction()
     {
         $this->view->idPreProjeto = $this->idPreProjeto;
     }
 
-    /**
-     * planilhaorcamentariageralAction
-     *
-     * @access public
-     * @return void
-     */
     public function planilhaorcamentariageralAction()
     {
         $this->view->tipoPlanilha = 0; // 0=Planilha Or?ament?ria da Proposta
         $this->view->idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
     }
 
-    /**
-     * consultarcomponenteAction
-     *
-     * @access public
-     * @return void
-     */
-    public function consultarcomponenteAction()
-    {
-        $this->_helper->layout->disableLayout(); // desabilita o layout
-
-
-        if (!empty($this->idPreProjeto) || $this->idPreProjeto == '0') {
-            $uf = new Agente_Model_DbTable_UF();
-            $this->view->Estados = $uf->buscar();
-
-            $buscarProduto = new Proposta_Model_DbTable_PreProjeto();
-            $this->view->Produtos = $buscarProduto->buscarProdutos($this->idPreProjeto);
-
-            $buscarEtapa = ManterorcamentoDAO::buscarEtapasProdutos($this->idPreProjeto);
-            $this->view->Etapa = $buscarEtapa;
-
-            $buscarItem = ManterorcamentoDAO::buscarItensProdutos($this->idPreProjeto);
-            $this->view->Item = $buscarItem;
-
-            $buscarPlanilhaProduto = ManterorcamentoDAO::buscarPlanilhaOrcamentariaP($this->idPreProjeto);
-            $this->view->PlanilhaProduto = $buscarPlanilhaProduto;
-
-            $buscarPlanilhaCustos = ManterorcamentoDAO::buscarPlanilhaOrcamentariaC($this->idPreProjeto);
-            $this->view->PlanilhaCusto = $buscarPlanilhaCustos;
-
-            $buscarPlanilha = ManterorcamentoDAO::buscarPlanilha($this->idPreProjeto);
-            $this->view->Planilha = $buscarPlanilha;
-
-            $buscarPlanilhaEtapa = ManterorcamentoDAO::buscarPlanilhaEtapa($this->idPreProjeto);
-            $this->view->PlanilhaEtapa = $buscarPlanilhaEtapa;
-
-            $this->view->idPreProjeto = $this->idPreProjeto;
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * cadastrarprodutosAction
-     *
-     * @access public
-     * @return void
-     */
     public function cadastrarprodutosAction()
     {
         $this->_helper->layout->disableLayout();
 
         $this->view->idPreProjeto = $this->idPreProjeto;
+        $idPreProjeto = $this->_request->getParam('idPreProjeto');
+        $idProduto = $this->_request->getParam('produto');
 
-        if (isset ($_GET['idPreProjeto']) && isset ($_GET['produto'])) {
-            $idPreProjeto = $_GET['idPreProjeto'];
-            $idProduto = $_GET['produto'];
-            $TDP = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
-            $this->view->Dados = $TDP->buscarDadosCadastrarProdutos($idPreProjeto, $idProduto);
+        if(!empty($idPreProjeto) && !empty($idProduto)) {
+            $tbPlanoDistribuicaoProduto = new Proposta_Model_DbTable_PlanoDistribuicaoProduto();
+            $this->view->Dados = $tbPlanoDistribuicaoProduto->buscarDadosCadastrarProdutos($idPreProjeto, $idProduto);
             $this->view->idProduto = $idProduto;
         }
 
-        if (isset($_POST['idUF'])) {
+        $idUf = $this->_request->getParam('idUF');
+        if (!empty($idUf)) {
             $this->_helper->layout->disableLayout(); // desabilita o Zend_Layout
-            $iduf = $_POST['idUF'];
 
             $tbMun = new Agente_Model_DbTable_Municipios();
-            $cidade = $tbMun->listar($iduf);
+            $cidade = $tbMun->listar($idUf);
 
             $a = 0;
+            $cidadeArray = [];
             foreach ($cidade as $DadosCidade) {
                 $cidadeArray[$a]['idCidade'] = $DadosCidade->id;
                 $cidadeArray[$a]['nomeCidade'] = utf8_encode($DadosCidade->Descricao);
                 $a++;
             }
             $this->_helper->json($cidadeArray);
-            die;
         }
 
-        if (isset($_POST['idetapa'])) {
+        $idEtapa = $this->_request->getParam('idetapa');
+        if (!empty($idEtapa)) {
             $this->_helper->layout->disableLayout(); // desabilita o Zend_Layout
-            $idetapa = $_POST['idetapa'];
-            $idProduto = $_POST['idProduto'];
 
             $itensPlanilhaProduto = new tbItensPlanilhaProduto();
-            $item = $itensPlanilhaProduto->buscarItens($idetapa, $idProduto);
+            $item = $itensPlanilhaProduto->buscarItens($idEtapa, $idProduto);
 
             if (count($item) <= 0) {
-                $item = $itensPlanilhaProduto->buscarItens($idetapa, null);
+                $item = $itensPlanilhaProduto->buscarItens($idEtapa, null);
             }
             $a = 0;
+            $itemArray = [];
             foreach ($item as $Dadositem) {
                 $itemArray[$a]['idItem'] = $Dadositem->idPlanilhaItens;
                 $itemArray[$a]['nomeItem'] = utf8_encode($Dadositem->Descricao);
                 $a++;
             }
             $this->_helper->json($itemArray);
-            die;
         }
 
-        $etapaSelecionada["id"] = $_GET["etapa"];
-        $etapaSelecionada["etapaNome"] = $_GET["etapaNome"];
+        $etapaSelecionada["id"] = $this->_request->getParam('etapa');
+        $etapaSelecionada["etapaNome"] = $this->_request->getParam('etapaNome');
         $this->view->etapaSelecionada = $etapaSelecionada;
 
         $uf = new Agente_Model_DbTable_UF();
@@ -293,11 +204,6 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->Produtos = $buscarProduto->buscarProdutos($this->idPreProjeto);
     }
 
-    /**
-     * resumoplanilhaAction
-     *
-     * @name resumoplanilhaAction
-     */
     public function resumoplanilhaAction()
     {
         $this->_helper->layout->disableLayout();
@@ -458,10 +364,20 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
 
     private function salvarItemPlanilha($dados, $idPlanilhaProposta = null, $outraLocalidade = false)
     {
+
+        $retorno = [
+            'idPlanilhaProposta' => null,
+            'close' => false,
+            'status' => false,
+            'msg' => "Erro ao salvar item",
+            'dados' => $dados
+        ];
+
         $modelPlanilhaProposta = new Proposta_Model_TbPlanilhaProposta($dados);
-        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
         $tbPlanilhaPropostaMapper = new Proposta_Model_TbPlanilhaPropostaMapper();
-        $itensCadastrados = $tbPlanilhaProposta->buscarDadosEditarProdutos(
+
+        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+        $itemCadastrado = $tbPlanilhaProposta->buscarDadosEditarProdutos(
             $dados['idProjeto'],
             $dados['idEtapa'],
             $dados['idProduto'],
@@ -477,66 +393,49 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             $dados['FonteRecurso']
         );
 
-        $itensCadastrados = converterObjetosParaArray($itensCadastrados);
-
         try {
 
-            if ($itensCadastrados && !in_array($idPlanilhaProposta, array_column($itensCadastrados, 'idPlanilhaProposta'))) {
+            if(isset($itemCadastrado) && $itemCadastrado[0]->idPlanilhaProposta <> $idPlanilhaProposta) {
                 throw new Exception("Item duplicado na mesma etapa!");
             }
 
-            if (empty($idPlanilhaProposta)) { #insert
+            $retorno['msg'] = "Item cadastrado com sucesso.";
+            $retorno['close'] = false;
+            $retorno['action'] = 'insert';
 
-                if ($itensCadastrados) {
-                    throw new Exception("Item duplicado na mesma etapa!");
-                }
+            if(!empty($idPlanilhaProposta)) {
+                $retorno['msg'] = "Altera&ccedil;&atilde;o realizada com sucesso!";
+                $retorno['close'] = true;
+                $retorno['action'] = 'update';
 
-                $response = $tbPlanilhaPropostaMapper->save($modelPlanilhaProposta);
-                if ($response) {
-                    $retorno['idPlanilhaProposta'] = $response;
-                    $retorno['msg'] = "Item cadastrado com sucesso.";
-                    $retorno['close'] = false;
-                    $retorno['status'] = true;
-                    $retorno['action'] = 'insert';
-                }
-
-            } else { #update
-                if (isset($dados['idProduto'])) {
-                    $modelPlanilhaProposta->setIdPlanilhaProposta($idPlanilhaProposta);
-                    $result = $tbPlanilhaPropostaMapper->save($modelPlanilhaProposta);
-                    if ($result) {
-                        $retorno['idPlanilhaProposta'] = $idPlanilhaProposta;
-                        $retorno['msg'] = "Altera&ccedil;&atilde;o realizada com sucesso!";
-                        $retorno['close'] = true;
-                        $retorno['status'] = true;
-                        $retorno['action'] = 'update';
-                    }
-                }
+                $modelPlanilhaProposta->setIdPlanilhaProposta($idPlanilhaProposta);
             }
 
-            if (isset($retorno['idPlanilhaProposta']) && !empty($retorno['idPlanilhaProposta'])) {
-                $retorno['html'] = self::criarItemHtml($dados, $retorno['idPlanilhaProposta']);
+            $id = $tbPlanilhaPropostaMapper->save($modelPlanilhaProposta);
+
+            if ($id) {
+                $retorno['idPlanilhaProposta'] = $id;
+                $retorno['status'] = true;
+                $retorno['dados'] = array_merge($dados, self::obterDadosParaMontarItem($dados, $retorno['idPlanilhaProposta']));
             }
-            $retorno['dados'] = $dados;
 
             return $retorno;
 
         } catch (Exception $e) {
             $retorno['msg'] = $e->getMessage();
-            $retorno['close'] = false;
-            $retorno['status'] = false;
-            $retorno['dados'] = $dados;
             return $retorno;
         }
     }
 
-    protected function criarItemHtml($dados, $idPlanilhaProposta)
+    protected function obterDadosParaMontarItem($dados, $idPlanilhaProposta)
     {
-        $tbItens = new tbItensPlanilhaProduto();
-        $item = $tbItens->buscarItem(array("idPlanilhaItens = ?" => $dados['idPlanilhaItem']));
+        $tbItensPlanilhaProduto = new tbItensPlanilhaProduto();
+        $item = $tbItensPlanilhaProduto->buscarItem(["idPlanilhaItens = ?" => $dados['idPlanilhaItem']]);
+
         $buscarUnidade = new Proposta_Model_DbTable_TbPlanilhaUnidade();
-        $unidade = $buscarUnidade->findBy(array("idUnidade" => $dados['Unidade']));
-        $editarProduto = array(
+        $unidade = $buscarUnidade->findBy(["idUnidade" => $dados['Unidade']]);
+
+        $arrUrlEditarProduto = [
             'module' => 'proposta',
             'controller' => 'manterorcamento',
             'action' => 'formitem',
@@ -547,25 +446,20 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             'idPreProjeto' => $dados['idProjeto'],
             'idUf' => $dados['UfDespesa'],
             'idMunicipio' => $dados['MunicipioDespesa'],
-        );
-        $urlEditarProduto = $this->_helper->url->url($editarProduto);
-        $html = '<tr id="item-planilha-' . $idPlanilhaProposta . '" class="green lighten-3">'
-            . '<td class="left-align">' . utf8_encode($item->Descricao) . '</td>'
-            . '<td>' . utf8_encode($unidade['Descricao']) . '</td>'
-            . '<td>' . number_format($dados['Quantidade'], 0) . '</td>'
-            . '<td>' . number_format($dados['Ocorrencia'], 0) . '</td>'
-            . '<td class="right-align">' . number_format($dados['ValorUnitario'], 2, ",", ".") . '</td>'
-            . '<td class="right-align">' . number_format(($dados['Quantidade'] * $dados['ValorUnitario']) * $dados['Ocorrencia'], 2, ",", ".") . '</td>'
-            . '<td class="action right-align">'
-            . '<a data-ajax-modal="' . $urlEditarProduto . '" href="javascript:void(0);" class="btn small waves-effect waves-light tooltipped btn-primary" data-position="top" data-delay="50" data-tooltip="Editar" data-ajax-modal-type="bottom-sheet">'
-            . '<i class="material-icons">edit</i>'
-            . '</a>'
-            . '</td>'
-            . '<td class="action left-align">'
-            . '<a class="btn small waves-effect waves-light tooltipped btn-danger btn-excluir-item" href="javascript:void(0);" data-tooltip="Excluir" data-ajax="' . $idPlanilhaProposta . '" ><i class="material-icons">delete</i></a>'
-            . '</td>'
-            . '</tr>';
-        return $html;
+        ];
+
+        $dadosItem = [
+            'idPlanilhaProposta' => $idPlanilhaProposta,
+            'itemNome' => $item->Descricao,
+            'unidade' => $unidade['Descricao'],
+            'quantidade' => number_format($dados['Quantidade'], 0),
+            'ocorrencia' => number_format($dados['Ocorrencia'], 0),
+            'valorUnitario' => number_format($dados['ValorUnitario'], 2, ",", "."),
+            'total' => number_format(($dados['Quantidade'] * $dados['ValorUnitario']) * $dados['Ocorrencia'], 2, ",", "."),
+            'urlEditarProduto' => $this->_helper->url->url($arrUrlEditarProduto)
+        ];
+
+        return $dadosItem;
     }
 
     /*
