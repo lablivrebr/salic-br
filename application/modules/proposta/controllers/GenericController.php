@@ -242,7 +242,8 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
         foreach ($itens as $item) {
             $custosVinculados = null;
-            $custosVinculados = $tbPlanilhaProposta->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
+            $custosVinculados = $tbPlanilhaProposta->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idPlanilhaItem']);
+
             if (isset($custosVinculados[0]->idItem)) {
                 $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
                 $tbPlanilhaProposta->update($item, $where);

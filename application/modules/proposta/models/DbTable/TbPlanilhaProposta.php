@@ -131,7 +131,6 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
         if ($fonte) {
             $sql->where('pp.FonteRecurso = ?', $fonte);
         }
-        echo $sql; die;
 
         return $this->fetchAll($sql);
     }

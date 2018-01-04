@@ -652,6 +652,8 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
             array('a' => $this->_name),
             array(
                 'idPreProjeto'=>'a.idProjeto',
+                'uf.idUF',
+
             ),
             $this->_schema
         );

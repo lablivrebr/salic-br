@@ -209,7 +209,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->_helper->layout->disableLayout();
 
         $tbPreprojeto = new Proposta_Model_DbTable_PreProjeto();
-        $itens = $tbPreprojeto->listarItensProdutos($this->idPreProjeto, null,  Zend_DB::FETCH_ASSOC);
+        $itens = $tbPreprojeto->listarItensProdutos($this->idPreProjeto, null, Zend_DB::FETCH_ASSOC);
 
         $manterOrcamento = new Proposta_Model_DbTable_TbPlanilhaEtapa();
         $listaEtapa = $manterOrcamento->buscarEtapas('P', Zend_DB::FETCH_ASSOC);
@@ -220,7 +220,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $valorEtapa = array();
 
         if ($itens) {
-
+            $etapasPlanilha = [];
             foreach ($itens as $item) {
                 $valorTotalItem = $item['Quantidade'] * $item['Ocorrencia'] * $item['ValorUnitario'];
                 $valorEtapa[$item['idEtapa']] = $valorTotalItem + $valorEtapa[$item['idEtapa']];
@@ -301,6 +301,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $dados = [];
 
         try {
+
             $justificativa = substr(trim(strip_tags($params['justificativa'])), 0, 1000);
 
             $dados = array(
@@ -329,7 +330,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
 
             $retorno[] = self::salvarItemPlanilha($dados, $idPlanilhaProposta); # salva o item principal
 
-            $outrasLocalidades = isset($params['comboOutrasCidades']) ? $params['comboOutrasCidades'] : '';
+            $outrasLocalidades = isset($params['comboOutrasCidades']) ? $params['comboOutrasCidades'] : null;
 
             if ($outrasLocalidades && count($outrasLocalidades) > 0) {
 
@@ -357,9 +358,17 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             }
 
             $this->atualizarCustosVinculadosDaPlanilha($params['idPreProjeto']);
+
             $this->_helper->json($retorno);
         } catch (Exception $e) {
-            $this->_helper->json($retorno);
+
+            $this->_helper->json(
+                [
+                    'status' => false,
+                    'msg' => $e->getMessage(),
+                    'dados' => $dados
+                ]
+            );
         }
     }
 
@@ -374,27 +383,26 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             'dados' => $dados
         ];
 
-        $modelPlanilhaProposta = new Proposta_Model_TbPlanilhaProposta($dados);
-        $tbPlanilhaPropostaMapper = new Proposta_Model_TbPlanilhaPropostaMapper();
-
-        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
-        $itemCadastrado = $tbPlanilhaProposta->buscarDadosEditarProdutos(
-            $dados['idProjeto'],
-            $dados['idEtapa'],
-            $dados['idProduto'],
-            $dados['idPlanilhaItem'],
-            null,
-            $dados['UfDespesa'],
-            $dados['MunicipioDespesa'],
-            null,
-            null,
-            null,
-            null,
-            null,
-            $dados['FonteRecurso']
-        );
-
         try {
+            $modelPlanilhaProposta = new Proposta_Model_TbPlanilhaProposta($dados);
+            $tbPlanilhaPropostaMapper = new Proposta_Model_TbPlanilhaPropostaMapper();
+
+            $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+            $itemCadastrado = $tbPlanilhaProposta->buscarDadosEditarProdutos(
+                $dados['idProjeto'],
+                $dados['idEtapa'],
+                $dados['idProduto'],
+                $dados['idPlanilhaItem'],
+                null,
+                $dados['UfDespesa'],
+                $dados['MunicipioDespesa'],
+                null,
+                null,
+                null,
+                null,
+                null,
+                $dados['FonteRecurso']
+            );
 
             if(isset($itemCadastrado) && $itemCadastrado[0]->idPlanilhaProposta <> $idPlanilhaProposta) {
                 throw new Exception("Item duplicado na mesma etapa!");
@@ -580,4 +588,52 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
 
     }
 
+    public function custosVinculadosAction()
+    {
+        $this->view->acao = $this->_urlPadrao . "/proposta/manterorcamento/salvar-percentuais-custos-vinculados";
+
+        $arrBusca = array(
+            'idProjeto' => $this->idPreProjeto,
+            'stAbrangencia' => 't'
+        );
+
+        $tblAbrangencia = new Proposta_Model_DbTable_Abrangencia();
+        $this->view->localRealizacao = $tblAbrangencia->buscar($arrBusca);
+
+        $this->view->itensCustosVinculados = $this->gerarArrayCustosVinculados($this->idPreProjeto);
+    }
+
+    public function salvarPercentuaisCustosVinculadosAction()
+    {
+        $params = $this->getRequest()->getParams();
+
+        $custosVinculados = $params['itensCustosVinculados'];
+        $arrayCustosVinculados = $this->gerarArrayCustosVinculados($params['idPreProjeto']);
+
+        $mapper = new Proposta_Model_TbCustosVinculadosMapper();
+
+        try {
+            foreach ($custosVinculados as $key => $item) {
+                if (in_array($key, array_column($arrayCustosVinculados, 'idPlanilhaItens'))) {
+
+                    $dados = array(
+                        'idCustosVinculados' => $item['idCustosVinculados'],
+                        'idProjeto' => $params['idPreProjeto'],
+                        'idPlanilhaItem' => $key,
+                        'dtCadastro' =>  MinC_Db_Expr::date(),
+                        'pcCalculo' => $item['percentual'],
+                        'idUsuario' => $params['idagente']
+                    );
+
+                    $mapper->save(new Proposta_Model_TbCustosVinculados($dados));
+                }
+            }
+
+            $this->atualizarCustosVinculadosDaPlanilha($this->idPreProjeto);
+
+            parent::message('Cadastro realizado com sucesso!', "/proposta/manterorcamento/custos-vinculados?idPreProjeto=" . $this->idPreProjeto, "CONFIRM");
+        } catch (Zend_Exception $ex) {
+            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o!" . $ex->getMessage(), "/proposta/manterorcamento/custos-vinculados?idPreProjeto=" . $this->idPreProjeto, "ERROR");
+        }
+    }
 }
