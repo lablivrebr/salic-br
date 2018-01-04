@@ -17,7 +17,7 @@ class Proposta_Model_DbTable_PlanoDeDivulgacao extends MinC_Db_Table_Abstract{
 
     protected $_banco = 'sac';
     protected $_schema = 'sac';
-    protected $_name  = 'planodedivulgacao';
+    protected $_name  = 'PlanoDeDivulgacao';
     protected $_primary  = 'idPlanoDivulgacao';
 
     public static function buscarDigulgacao($idPreProjeto){
@@ -164,13 +164,13 @@ class Proposta_Model_DbTable_PlanoDeDivulgacao extends MinC_Db_Table_Abstract{
 
         $slct->joinInner(
             array('v1' => 'Verificacao'),
-                   'v1.idverificacao = pd.idpeca',
+                   'v1.idVerificacao = pd.idPeca',
                    array('v1.Descricao as peca'),
             $this->_schema
                            );
         $slct->joinInner(
                 array('v2' => 'Verificacao'),
-                'v2.idverificacao = pd.idveiculo',
+                'v2.idVerificacao = pd.idVeiculo',
                 array('v2.Descricao as veiculo'),
             $this->_schema
         );
