@@ -656,7 +656,7 @@ LEFT JOIN bdcorporativo.scsac.tbAvaliacaoSubItemPedidoAlteracao tasipa ON (tasip
             $this->_schema
         );
         $select->joinInner(array('uf' => 'UF'), 'uf.idUF = a.idUF', array('idUF'=>'uf.idUF', 'UF'=>'uf.Sigla'), $this->getSchema('agentes'));
-        $select->joinInner(array('mun' => 'Municipios'), 'mun.idMunicipioIBGE = a.idMunicipioIBGE', array('idMunicipio'=>'mun.idMunicipioIBGE', 'Municipio'=>'mun.Descricao'), $this->getSchema('agentes'));
+        $select->joinInner(array('mun' => 'Municipios'), 'mun.idMunicipioIBGE::varchar(6) = a.idMunicipioIBGE::varchar(6)', array('idMunicipio'=>'mun.idMunicipioIBGE', 'Municipio'=>'mun.Descricao'), $this->getSchema('agentes'));
         $select->where('a.idProjeto = ?', $idPreProjeto);
         $select->where("uf.Regiao = 'Sul' OR uf.Regiao = 'Sudeste'");
         $select->order('a.idProjeto DESC');

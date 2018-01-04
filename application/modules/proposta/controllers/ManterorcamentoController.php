@@ -355,7 +355,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
                 }
             }
 
-            $this->atualizarcustosvinculadosdaplanilha($params['idPreProjeto']);
+            $this->atualizarCustosVinculadosDaPlanilha($params['idPreProjeto']);
             $this->_helper->json($retorno);
         } catch (Exception $e) {
             $this->_helper->json($retorno);
@@ -506,40 +506,39 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         return ($valorSolicitadoInicialmente < $valorSolicitadoAtual);
     }
 
-    /**
-     * excluiritemAction
-     *
-     * @access public
-     * @return void
-     */
-    public function excluiritemAction()
+    public function excluirItemAction()
     {
-        $this->verificarPermissaoAcesso(true, false, false);
+        try {
 
-        $this->_helper->layout->disableLayout();
+            $this->verificarPermissaoAcesso(true, false, false);
 
-        $params = $this->getRequest()->getParams();
+            $this->_helper->layout->disableLayout();
 
-        $return['msg'] = "Erro ao excluir o item";
-        $return['status'] = false;
+            $params = $this->getRequest()->getParams();
 
-        $idPlanilhaProposta = $params['idPlanilhaProposta'];
+            $dados['msg'] = "Erro ao excluir o item";
+            $dados['status'] = false;
 
-        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+            $idPlanilhaProposta = $params['idPlanilhaProposta'];
+            $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
 
-        $where = 'idPlanilhaProposta = ' . $idPlanilhaProposta;
+            $where = 'idPlanilhaProposta = ' . $idPlanilhaProposta;
+            $result = $tbPlanilhaProposta->delete($where);
 
-        $result = $tbPlanilhaProposta->delete($where);
+            if ($result) {
+                $this->atualizarCustosVinculadosDaPlanilha($this->idPreProjeto);
+                $dados['msg'] = "Exclus&atilde;o realizada com sucesso!";
+                $dados['status'] = true;
+            }
 
-        if ($result) {
-            $this->salvarcustosvinculados($this->idPreProjeto);
+            $this->_helper->json($dados);
 
-            $return['msg'] = "Exclus&atilde;o realizada com sucesso!";
-            $return['status'] = true;
+        } catch (Exception $e) {
+            $dados['msg'] = $e->getMessage();
+            $dados['status'] = false;
+            $this->_helper->json($dados);
         }
 
-        $this->_helper->json($return);
-        die;
     }
 
     public function restaurarplanilhaAction()
