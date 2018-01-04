@@ -639,4 +639,52 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
         }
         return $db->fetchRow($exec);
     }
+
+    public function planilhaOrcamentariaProposta($idPreProjeto)
+    {
+        $a = array(
+            'a.idPreProjeto as idPronac',
+            new Zend_Db_Expr("' ' AS PRONAC"),
+            'a.NomeProjeto',
+            new Zend_Db_Expr('
+                CASE WHEN "idProduto" = 0
+                   THEN \'Administra&ccedil;&atilde;o do Projeto\'
+                   ELSE "c"."Descricao"
+              END as Produto'
+            ),
+        );
+
+        $b = array(
+            'b.idProduto',
+            'b.idPlanilhaProposta',
+            'b.idEtapa',
+            'b.Quantidade as Quantidade',
+            'b.Ocorrencia as Ocorrencia',
+            'b.ValorUnitario as vlUnitario',
+            new Zend_Db_Expr('ROUND(("b"."Quantidade"::numeric * "b"."Ocorrencia"::numeric * "b"."ValorUnitario"::numeric),2) as vlSolicitado'),
+            'b.FonteRecurso as idFonte',
+            'b.QtdeDias as QtdeDias',
+            'b.stCustoPraticado as stCustoPraticado',
+            'b.dsJustificativa as JustProponente',
+        );
+
+        $sql = $this->select()
+            ->from(array('a' => 'PreProjeto'), $a, $this->_schema)
+            ->joinInner(array('b' => 'tbPlanilhaProposta'), 'a.idPreProjeto = b.idProjeto', $b, $this->_schema)
+            ->joinLeft(array('c' => 'Produto'), 'b.idProduto = c.Codigo', null, $this->_schema)
+            ->joinInner(array('d' => 'tbPlanilhaEtapa'), 'b.idEtapa = d.idPlanilhaEtapa', 'd.Descricao as Etapa', $this->_schema)
+            ->joinInner(array('e' => 'tbPlanilhaUnidade'), 'b.Unidade = e.idUnidade', 'e.Descricao as Unidade', $this->_schema)
+            ->joinInner(array('i' => 'tbPlanilhaItens'), 'b.idPlanilhaItem = i.idPlanilhaItens', 'i.Descricao as Item', $this->_schema)
+            ->joinInner(array('x' => 'Verificacao'), 'b.FonteRecurso = x.idVerificacao', 'x.Descricao as FonteRecurso', $this->_schema)
+            ->joinLeft(array('f' => 'Municipios'), 'b.MunicipioDespesa::varchar(6) = f.idMunicipioIBGE::varchar(6)', array('u.Sigla as UF'), $this->getSchema('agentes'))
+            ->joinLeft(array('u' => 'UF'), 'f.idUFIBGE = u.idUF and b.UfDespesa = u.idUF',array('f.Descricao as Municipio'),$this->getSchema('agentes'))
+            ->where('a.idPreProjeto = ? ', $idPreProjeto)
+            ->order('x.Descricao')
+            ->order('c.Descricao DESC')
+            ->order('d.idPlanilhaEtapa DESC')
+            ->order('u.Sigla')
+            ->order('f.Descricao')
+            ->order('i.Descricao');
+        return $this->fetchAll($sql);
+    }
 }
