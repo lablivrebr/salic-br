@@ -302,7 +302,7 @@ class Proposta_LocalderealizacaoController extends Proposta_GenericController
                 $excluir = $tbPlanilhaProposta->deleteBy(array('idProjeto' => $this->idPreProjeto, 'UfDespesa' => $abrangencia['idUF'], 'MunicipioDespesa' => $abrangencia['idMunicipioIBGE']));
 
                 if ($excluir) {
-                    $this->salvarcustosvinculados($this->idPreProjeto);
+                    $this->atualizarCustosVinculadosDaPlanilha($this->idPreProjeto);
                 }
             }
 
