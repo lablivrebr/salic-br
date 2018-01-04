@@ -1,28 +1,12 @@
 <?php
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 
-/**
- * Description of tbAcesso
- *
- * @author 01129075125
- */
 class tbItensPlanilhaProduto extends MinC_Db_Table_Abstract
 {
 
     protected $_schema = 'sac';
-    protected $_name = 'tbitensplanilhaproduto';
+    protected $_name = 'tbItensPlanilhaProduto';
+    protected $_primary = 'idItensPlanilhaProduto';
 
-
-    /**
-     * M�todo para consultar o Valor Real por ano
-     * @access public
-     * @param array $dados
-     * @param integer $where
-     * @return integer (quantidade de registros alterados)
-     */
     public function buscaItemProduto($where = array())
     {
 
@@ -162,34 +146,22 @@ class tbItensPlanilhaProduto extends MinC_Db_Table_Abstract
 
     public function buscarItens($idEtapa, $idproduto = null)
     {
-        /*    $sql = "select distinct
-                        pp.idPlanilhaItem as idPlanilhaItens,
-                        right(i.Descricao,40) as Descricao
-                    from sac.dbo.tbPlanilhaProposta pp
-                        inner join sac.dbo.tbPlanilhaItens as i on pp.idPlanilhaItem = i.idPlanilhaItens
-                        inner join sac.dbo.tbPlanilhaEtapa as e on pp.idEtapa = e.idPlanilhaEtapa
-                    where idEtapa = $idEtapa order by i.Descricao "; */
-//
-//        $sql = "select distinct a.idPlanilhaItens,b.Descricao
-//                   FROM sac..tbItensPlanilhaProduto a
-//                   INNER JOIN sac..tbPlanilhaItens b on (a.idPlanilhaItens = b.idPlanilhaItens)
-//                   WHERE idPlanilhaEtapa = " . $idEtapa . " ";
-
         $select = $this->select()->distinct();
         $select->setIntegrityCheck(false);
         $select->from(
             array('a' => $this->_name),
             array(
-                'a.idPlanilhaItens',
-                'b.Descricao'
+                'a.idPlanilhaItens'
             ),
             $this->_schema
         );
         $select->joinInner(
-            array('b' => 'tbplanilhaitens'), 'a.idPlanilhaItens = b.idPlanilhaItens',
-            array(''), $this->_schema
+            array('b' => 'tbPlanilhaItens'),
+            'a.idPlanilhaItens = b.idPlanilhaItens',
+            array('b.Descricao'),
+            $this->_schema
         );
-        $select->where('idPlanilhaEtapa = ?',$idEtapa);
+        $select->where('idPlanilhaEtapa = ?', $idEtapa);
 
         if (!empty($idproduto)) {
             $select->where('idProduto = ?',$idproduto);

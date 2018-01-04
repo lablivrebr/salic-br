@@ -353,16 +353,15 @@ $3(document).ajaxComplete(function () {
     $3('#modal-pre-loader').modal('close');
 });
 
-$3(document).ready(function () {
+$3(document).ready(function ($) {
 
-    $3('.modal-pre-loader').modal();
+    $('.modal-pre-loader').modal();
 
-    $3('body').on('click', '.btn-salvar', function () {
-
+    $('body').on('click', '.btn-salvar', function () {
 
         var validar = true;
-        $3('.valida').each(function () {
-            if ($3(this).val() == '') {
+        $('.valida').each(function () {
+            if ($(this).val() == '') {
                 validar = false;
             }
         });
@@ -371,78 +370,84 @@ $3(document).ready(function () {
             Materialize.toast("Dados obrigat&oacute;rios n&atilde;o informados!", 4000);
             return false;
         } else {
-            if ($3("#qtd").val() == 0) {
+            if ($("#qtd").val() == 0) {
                 Materialize.toast('Quantidade n&atilde;o pode ser igual a zero', 4000);
-                $3("#qtd").focusin();
+                $("#qtd").focusin();
                 return false;
             }
 
-            if ($3("#ocorrencia").val() == 0) {
+            if ($("#ocorrencia").val() == 0) {
                 Materialize.toast('Ocorr&ecirc;ncia n&atilde;o pode ser igual a zero', 4000);
-                $3("#ocorrencia").focusin();
+                $("#ocorrencia").focusin();
                 return false;
             }
 
-            var vlunitario = $3("#vlunitario").val();
+            var vlunitario = $("#vlunitario").val();
             vlunitario = vlunitario.replace(/\D/g, "");
             vlunitario = vlunitario.replace(/(\d{0})(\d)/, "$1$2");
 
             if (vlunitario == 0) {
                 Materialize.toast('Valor unit&aacute;rio n&atilde;o pode ser igual a zero', 4000);
-                $3("#vlunitario").focusin();
+                $("#vlunitario").focusin();
                 return false;
             }
 
-            if ($3("#qtdDias").val() == 0) {
+            if ($("#qtdDias").val() == 0) {
                 Materialize.toast('Quantidade de dias n&atilde;o pode ser igual a zero', 4000);
-                $3("#qtdDias").focusin();
+                $("#qtdDias").focusin();
                 return false;
             }
 
-            if ($3("#editor.valida").val() == '') {
+            if ($("#justificativa.valida").val() == '') {
                 Materialize.toast('Justificativa neste caso &eacute; obrigat&oacute;ria!', 4000);
-                $3("#editor").focus();
+                $("#justificativa").focus();
                 return false;
             }
 
+            $.post(
+                $('#form').attr('action'), $('#form').serialize(), function (response) {
+                event.preventDefault();
+                $.each(response, function (index, item) {
 
-            $3.post($3('#form').attr('action'), $3('#form').serialize(), function (result) {
-                if (result.status == '1') {
-                    console.log(result.status + result.action);
+                    console.log(item.dados);
+                    let uf = item.dados.UfDespesa;
+                    let mun = item.dados.MunicipioDespesa;
+                    let stringLocalizacao = $("select option[value='" + uf + ":" + mun + "']").text();
 
-                    if( result.action == 'update') {
-                        $("#item-planilha-" +result.idPlanilhaProposta).replaceWith(result.html);
+                    if (item.status == '1') {
+                        if (item.action == 'update') {
+                            $("#item-planilha-" + item.idPlanilhaProposta).replaceWith(item.html);
+                        }
+                        else if (item.action == 'insert') {
+
+                            var produto = item.dados.idProduto;
+                            var etapa   = item.dados.idEtapa;
+                            var idEtapa = "#etapa" + produto + "" + etapa + "" + mun;
+
+                            $(idEtapa + " div.info").hide();
+                            $(idEtapa + ' table tbody').append(item.html);
+                            $("#planilhaitem").focus();
+                        }
+
+                        if (item.close == '1')
+                            $('#modal').modal('close');
+
+                        $('#form')[0].reset();
+                        Materialize.toast(stringLocalizacao + ' ' + item.msg, 4000, 'green white-text');
+                    } else {
+                        Materialize.toast(stringLocalizacao + ' ' + item.msg, 8000, 'red darken-1 white-text');
                     }
-                    else if( result.action == 'insert') {
+                });
 
-                        var produto = $3('#produto').val();
-                        var etapa = $3('#idPlanilhaEtapa').val();
-                        var mun = $3('#municipio').val();
-
-                        var idEtapa = "#etapa" + produto + "" + etapa + "" + mun;
-
-                        $3(idEtapa + " div.info").hide();
-                        $3(idEtapa + ' table tbody').append(result.html);
-                        $3("#planilhaitem").focus();
-                    }
-
-                    if(result.close == '1' )
-                        $3('#modal').modal('close');
-
-                    $3('#form')[0].reset();
-                    Materialize.toast(result.msg, 4000, 'green white-text');
-                    $3.each($('#custosvinculados[data-ajax-render]'), function () {
-                        $3.ajaxRender({
-                            strUrl: $('#custosvinculados').attr('data-ajax-render'),
-//                            strTarget: '#custosvinculados'
-                        });
+                $.each($('#custosvinculados[data-ajax-render]'), function () {
+                    $.ajaxRender({
+                        strUrl: $('#custosvinculados').attr('data-ajax-render'),
+                        strTarget: '#custosvinculados'
                     });
-                } else {
-                    Materialize.toast(result.msg, 8000, 'red darken-1 white-text');
-                }
+                });
             });
-         }
-         return false;
+        }
+        return false;
     });
     window.dispatchEvent(new Event('resize'));
 
@@ -495,48 +500,6 @@ $3(document).ready(function () {
 
         });
     <?php endif; ?>
-
-    $3('body').on('focusout', '#vlunitario', function () {
-        if($3(this).val() == 0)
-            return false;
-        $3('#modal-pre-loader').modal('open');
-
-        $3("#btn-salvar").removeClass('btn-salvar').addClass('disabled');
-        $3('#editor1').addClass('valida');
-
-        var urlAction = "<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'buscar-valor-mediana-ajax')); ?>";
-
-        var dados = {
-            idproduto: $3("#produto").val(),
-            idplanilhaitem: $3("#planilhaitem").val(),
-            idunidade: $3("#unidade").val(),
-            idufdespesa: $3("#uf").val(),
-            idmunicipiodespesa: $3("#municipio").val(),
-            vlunitario: $3("#vlunitario").val(),
-        };
-
-        $.post(urlAction, dados, function (result) {
-            if (result.status == '1') {
-//                Materialize.toast(result.msg, 5000, 'green white-text');
-                $3("#btn-salvar").addClass('btn-salvar').removeClass('disabled');
-                $3('#editor1').removeClass('valida');
-                $3("#vlunitario").parent().removeClass("danger");
-                $3(".justificativa label").text('Detalhamento / Justificativa / Observa\xE7\xF5es (Opcional)').parent().removeClass("danger");
-                $3("#stCustoPraticado").val(0);
-            } else {
-                $3("#btn-salvar").addClass('disabled').removeClass('btn-salvar ');
-                $3('#editor1').addClass('valida');
-                Materialize.toast(result.msg, 60000, 'mensagem1 orange darken-3 white-text');
-                $3("#vlunitario").parent().addClass("danger");
-                $3(".justificativa label").text('Justificativa para valor unit\xE1rio maior que R$ ' + result.valorMediana + ' (Obrigat\xF3rio)').parent().addClass("danger");
-                $3("#stCustoPraticado").val(1);
-            }
-
-            $3('#modal-pre-loader').modal('close');
-
-        });
-        return false;
-    });
 
     $3('body').on('keyup', '#editor1', function () {
         if ($3("#editor1.valida").val() != '') {
