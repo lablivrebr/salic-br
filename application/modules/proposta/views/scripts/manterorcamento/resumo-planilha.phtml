@@ -11,12 +11,11 @@
                     <tbody>
                     <?php $valorTotalCustosVinculados = null; ?>
                     <?php foreach ($this->ItensEtapaCusto as $itemEtapaCusto) : ?>
-                        <?php if ($etapaCusto->idEtapa == $itemEtapaCusto->idEtapa) :  ?>
-
+                        <?php if ($etapaCusto->idEtapa == $itemEtapaCusto->idEtapa) : ?>
                             <tr>
                                 <td class="left-align"><?php echo $itemEtapaCusto->DescricaoItem; ?></td>
-                                <td class="right-align">R$ <?php echo number_format($itemEtapaCusto->valorunitario, 2, ",", ".") ?></td>
-                                <?php $valorTotalCustosVinculados = $itemEtapaCusto->valorunitario + $valorTotalCustosVinculados; ?>
+                                <td class="right-align">R$ <?php echo number_format($itemEtapaCusto->ValorUnitario, 2, ",", ".") ?></td>
+                                <?php $valorTotalCustosVinculados = $itemEtapaCusto->ValorUnitario + $valorTotalCustosVinculados; ?>
                             </tr>
                         <?php endif; ?>
 

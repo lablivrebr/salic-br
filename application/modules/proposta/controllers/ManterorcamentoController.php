@@ -74,7 +74,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->charset = Zend_Registry::get('config')->db->params->charset;
 
     }
-    public function listarprodutosAction()
+    public function listarProdutosAction()
     {
         $this->_helper->layout->disableLayout();
 
@@ -204,7 +204,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
         $this->view->Produtos = $buscarProduto->buscarProdutos($this->idPreProjeto);
     }
 
-    public function resumoplanilhaAction()
+    public function resumoPlanilhaAction()
     {
         $this->_helper->layout->disableLayout();
 
@@ -236,6 +236,7 @@ class Proposta_ManterorcamentoController extends Proposta_GenericController
             }
 
             $this->view->EtapasProduto = $this->reordenaretapas($etapasPlanilha);
+
         }
     }
 
