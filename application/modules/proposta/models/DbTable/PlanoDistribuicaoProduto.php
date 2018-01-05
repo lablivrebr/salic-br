@@ -384,6 +384,17 @@ class Proposta_Model_DbTable_PlanoDistribuicaoProduto extends MinC_Db_Table_Abst
         if ($objApagar) {
             $TbDetalhamentoPlanoDistribuicaoProduto = new Proposta_Model_DbTable_TbDetalhamentoPlanoDistribuicaoProduto();
             $TbDetalhamentoPlanoDistribuicaoProduto->delete(["idPlanoDistribuicao = ? " => $id]);
+
+            if(!empty($objApagar->idProduto) && !empty($objApagar->idProduto)) {
+                $TbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+                $TbPlanilhaProposta->delete(
+                    [
+                        "idProjeto = ?" => $objApagar->idProjeto,
+                        "idProduto = ?" => $objApagar->idProduto
+                    ]
+                );
+            }
+
         }
 
         return $objApagar->delete();
