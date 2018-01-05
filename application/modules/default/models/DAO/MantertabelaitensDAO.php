@@ -12,7 +12,7 @@
 
 class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
 {
-    protected $_name='tbsolicitaritem';
+    protected $_name='tbSolicitarItem';
     protected $_schema = 'sac';
     protected $_primary = 'idSolicitarItem';
     /**
@@ -70,36 +70,34 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function listarProdutoEtapaItem ($item=null, $nomeItem=null, $idEtapa=null, $idProduto=null, $where=array())
     {
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
-        $sql = $db->select()->distinct()
-            ->from(array('p' => 'tbitensplanilhaproduto'), null, $this->_schema)
+        $sql = $this->select()->distinct()
+            ->from(array('p' => 'tbItensPlanilhaProduto'), null, $this->_schema)
             ->join(
-                array('pr' => 'produto')
-                ,'(p.idproduto = pr.codigo)'
+                array('pr' => 'Produto')
+                ,'p.idProduto = pr.Codigo'
                 , array(
-                    'pr.codigo as idProduto'
+                    'pr.Codigo as idProduto'
                     ,'pr.Descricao as Produto'
                     //,'i.Descricao as NomeDoItem'
                 )
                 , $this->_schema
             )
-            ->join(array('i' => 'tbplanilhaitens'), '(p.idplanilhaitens = i.idplanilhaitens)', null, $this->_schema)
-            ->join(array('e' => 'tbplanilhaetapa'), '(p.idplanilhaetapa = e.idplanilhaetapa)', null, $this->_schema)
+            ->join(array('i' => 'tbPlanilhaItens'), 'p.idPlanilhaItens = i.idPlanilhaItens', null, $this->_schema)
+            ->join(array('e' => 'tbPlanilhaEtapa'), 'p.idPlanilhaEtapa = e.idPlanilhaEtapa', null, $this->_schema)
             ;
 
         if(!empty($nomeItem)) {
             $sql->where('i.Descricao = ?', $nomeItem);
         }
         if(!empty($item)) {
-            $sql->where('i.idplanilhaitens = ?', $item);
+            $sql->where('i.idPlanilhaItens = ?', $item);
         }
         if(!empty($idEtapa)) {
-            $sql->where('e.idplanilhaetapa = ?', $idEtapa);
+            $sql->where('e.idPlanilhaEtapa = ?', $idEtapa);
         }
         if(!empty($idProduto)) {
-            $sql->where('pr.codigo = ?', $idProduto);
+            $sql->where('pr.Codigo = ?', $idProduto);
         }
 
         if(!empty($where)){
@@ -108,9 +106,9 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
             }
         }
 
-        $sql->order('pr.codigo ASC');
-
-        return $db->fetchAll($sql);
+        $sql->order('pr.Codigo ASC');
+//xd($sql->assemble());
+        return $this->fetchAll($sql);
     }
 
 
@@ -183,36 +181,24 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
 
     public function produtoEtapaItem ($item=null, $nomeItem=null)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
-        $sql = $db->select()
-            ->from(array('p' => 'tbitensplanilhaproduto'), 'p.idplanilhaitens', $this->_schema)
-            ->join(array('pr' => 'produto'), '(p.idproduto = pr.codigo)', array('pr.codigo as idProduto','pr.Descricao as Produto'), $this->_schema)
-            ->join(array('i' => 'tbplanilhaitens'), '(p.idplanilhaitens = i.idplanilhaitens)', array('i.Descricao as NomeDoItem'), $this->_schema)
-            ->join(array('e' => 'tbplanilhaetapa'), '(p.idplanilhaetapa = e.idplanilhaetapa)', array('e.idplanilhaetapa as idEtapa', 'e.Descricao as Etapa'), $this->_schema)
+        $sql = $this->select()
+            ->from(array('p' => 'tbItensPlanilhaProduto'), 'p.idPlanilhaItens', $this->_schema)
+            ->join(array('pr' => 'Produto'), 'p.idProduto = pr.Codigo', array('pr.Codigo as idProduto','pr.Descricao as Produto'), $this->_schema)
+            ->join(array('i' => 'tbPlanilhaItens'), 'p.idPlanilhaItens = i.idPlanilhaItens', array('i.Descricao as NomeDoItem'), $this->_schema)
+            ->join(array('e' => 'tbPlanilhaEtapa'), 'p.idPlanilhaEtapa = e.idPlanilhaEtapa', array('e.idPlanilhaEtapa as idEtapa', 'e.Descricao as Etapa'), $this->_schema)
             ;
-
-        //$sql = "SELECT
-            //'pr.Codigo as idProduto','pr.Descricao as Produto',
-                       //p.idPlanilhaItens,
-                       //'e.idPlanilhaEtapa as idEtapa', 'e.Descricao as Etapa',
-                       //i.Descricao as NomeDoItem
-                //FROM sac.dbo.tbItensPlanilhaProduto p
-        //INNER JOIN sac.dbo.Produto pr on (p.idProduto = pr.Codigo)
-        //INNER JOIN sac.dbo.TbPlanilhaItens i on (p.idPlanilhaItens = i.idPlanilhaItens)
-        //INNER JOIN sac.dbo.TbPlanilhaEtapa e on (p.idPlanilhaEtapa = e.idPlanilhaEtapa)";
 
         if(!empty($item)){
             //$sql .=" WHERE i.idPlanilhaItens = ".$item;
-            $sql->where("i.idplanilhaitens = ? ", $item);
+            $sql->where("i.idPlanilhaItens = ? ", $item);
         }
         if(!empty($nomeItem)){
             //$sql .=" AND i.Descricao ".$nomeItem;
             $sql->where("i.Descricao = ? ", $nomeItem);
         }
 
-        return $db->fetchRow($sql);
+        return $this->fetchRow($sql);
     }
 
     public static function buscaproduto($where=null) {
@@ -237,19 +223,14 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function listarProduto($where=null)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
-        $sql = $db->select()
-            ->from(array('produto'), array('codigo as codproduto', 'descricao as Produto'), $this->_schema)
-            ->where('stestado = 0')
-            ->order('produto')
+        $sql = $this->select()
+            ->from(array('Produto'), array('Codigo as codproduto', 'Descricao as Produto'), $this->_schema)
+            ->where('stEstado = ?', true)
+            ->order('Produto')
             ;
 
-        //$sql = "SELECT Codigo as codproduto, Descricao as Produto
-                //FROM sac.dbo.Produto WHERE stEstado = 0 ORDER BY Produto "; //WHERE stEstado = 0
-
-        return $db->fetchAll($sql);
+        return $this->fetchAll($sql);
     }
 
     public static function buscaetapa() {
@@ -269,14 +250,12 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function listarEtapa()
     {
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
-        $sql = $db->select()
-            ->from(array('tbplanilhaetapa'), array('idplanilhaetapa as codetapa', 'descricao as Etapa'), $this->_schema)
+        $sql = $this->select()
+            ->from(array('tbPlanilhaEtapa'), array('idPlanilhaEtapa as codetapa', 'Descricao as Etapa'), $this->_schema)
             ;
 
-        return $db->fetchAll($sql);
+        return $this->fetchAll($sql);
     }
 
     public static function buscaitem() {
@@ -296,14 +275,11 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function listarItem() {
 
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
-
-        $sql = $db->select()
-            ->from('tbplanilhaitens', array('idplanilhaitens as coditens', 'descricao as Item', 'idusuario'), $this->_schema)
+        $sql = $this->select()
+            ->from('tbPlanilhaItens', array('idPlanilhaItens as coditens', 'Descricao as Item', 'idUsuario'), $this->_schema)
             ->order('Descricao');
 
-        return $db->fetchAll($sql);
+        return $this->fetchAll($sql);
     }
 
     /**
