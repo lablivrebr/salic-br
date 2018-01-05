@@ -119,7 +119,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     public function isEditarProposta($idPreProjeto)
     {
         if (empty($idPreProjeto)) { 
- -            return false;
+             return false;
         }
         
         $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
