@@ -28,3 +28,6 @@ composer.phar
 /log
 npm-debug.log
 application/data/
+.sass-cache/
+Gemfile.lock
+_site/
