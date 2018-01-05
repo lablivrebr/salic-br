@@ -150,7 +150,7 @@ class Proposta_PlanoDistribuicaoController extends Proposta_GenericController
             $bln_exitePP = "true"; //Existe Produto Principal Cadastrado
 
             $tblSegmento = new Segmento();
-            $arrDados["Segmento"] = $tblSegmento->buscar(array("Codigo=?" => $arrPlanoDistribuicao[0]['Segmento']));
+            $arrDados["Segmento"] = $tblSegmento->buscar(array("Codigo = ?" => $arrPlanoDistribuicao[0]['Segmento']));
         }
 
         $arrDados["comboprodutos"] = $rsProdutos;
