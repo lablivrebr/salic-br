@@ -687,4 +687,33 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
             ->order('i.Descricao');
         return $this->fetchAll($sql);
     }
+
+    public function obterMunicipioUFdoProdutoPrincipalComMaiorCusto($idPreProjeto) {
+
+        $select = $this->select();
+        $select->from(
+            ['a' => $this->_name],
+            [
+                'a.UfDespesa',
+                'a.MunicipioDespesa',
+                'sum("a"."Quantidade" * "a"."Ocorrencia" * "a"."ValorUnitario") as totalMunicipioPorProduto'
+            ]
+        );
+
+        $select->joinInner(
+            ['b' => 'PlanoDistribuicaoProduto'],
+            'b.idProjeto = a.idProjeto AND b.idProduto = a.idProduto',
+            ['b.idProduto'],
+            $this->_schema
+        );
+
+        $select->where('a.idProjeto = ?', $idPreProjeto)
+        ->where('b.stPrincipal = ?', 't')
+        ->where('b.idProduto <> 0')
+        ->group(['b.idProduto', 'a.UfDespesa', 'a.MunicipioDespesa'])
+        ->order('totalMunicipioPorProduto DESC')
+        ->limit(1);
+
+        return $this->fetchRow($select);
+    }
 }

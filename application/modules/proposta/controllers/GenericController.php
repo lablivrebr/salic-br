@@ -257,13 +257,22 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     {
         $idEtapa = Proposta_Model_TbCustosVinculados::ID_ETAPA_CUSTOS_VINCULADOS;
         $fonteRecurso = Proposta_Model_TbCustosVinculados::ID_FONTE_RECURSO_CUSTOS_VINCULADOS;
+        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
 
         $idUf = 1;
         $idMunicipio = 1;
+
+        $municipioUF = $tbPlanilhaProposta->obterMunicipioUFdoProdutoPrincipalComMaiorCusto($idPreProjeto);
+
+        if($municipioUF) {
+            $idUf = $municipioUF->UfDespesa;
+            $idMunicipio = $municipioUF->MunicipioDespesa;
+        }
+
         $dados = array();
 
         if (empty($valorTotalProdutos)) {
-            $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+
 
             $somaPlanilhaPropostaProdutos = $tbPlanilhaProposta->somarPlanilhaPropostaProdutos($idPreProjeto, $fonteRecurso);
             $valorTotalProdutos = $somaPlanilhaPropostaProdutos['soma'];
