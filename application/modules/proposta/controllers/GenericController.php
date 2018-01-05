@@ -114,20 +114,22 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             $proposta = array_change_key_case($proposta->toArray());
             return $proposta;
         }
-
-        return false;
     }
 
     public function isEditarProposta($idPreProjeto)
     {
+        if (empty($idPreProjeto)) { 
+ -            return false;
+        }
+        
         $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
         $rsStatusAtual = $tbMovimentacao->findBy(array('idProjeto = ?' => $idPreProjeto, 'stEstado = false' => false));
 
-        if ($rsStatusAtual['Movimentacao'] == $this->_movimentacaoAlterarProposta) {
-            return true;
+        if ($rsStatusAtual['Movimentacao'] != $this->_movimentacaoAlterarProposta) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function isEditarProjeto($idPreProjeto)
@@ -321,8 +323,9 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     {
         $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $valorTotalProdutos);
         $soma = '';
-        if ($itens == 0)
+        if ($itens == 0) {
             return 0;
+        }
         if ($itens) {
             $soma = 0;
             foreach ($itens as $item) {
