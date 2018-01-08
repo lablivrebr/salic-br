@@ -346,38 +346,35 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function solicitacao($idAgente)
     {
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
-
         $col = array(
-            'prod.codigo as idproduto',
+            'prod.Codigo as idproduto',
             'prod.Descricao as produto',
-            'et.idplanilhaetapa',
+            'et.idPlanilhaEtapa',
             'et.Descricao as etapa',
-            'sol.idsolicitaritem',
-            new Zend_Db_Expr("CASE
-                WHEN  sol.idplanilhaitens > 0 THEN it.Descricao
-                ELSE sol.nomedoitem
-            END as itemsolicitado"),
+            'sol.idSolicitarItem',
+            new Zend_Db_Expr('CASE
+                WHEN sol."idPlanilhaItens" > 0 THEN it."Descricao"
+                ELSE sol."NomeDoItem"
+            END as itemsolicitado'),
             'sol.Descricao as justificativa',
-            new Zend_Db_Expr("CASE sol.stEstado
-                WHEN 0 THEN 'Solicitado'
-                WHEN 1 THEN 'Atendido'
-                ELSE 'Negado'
-            END as estado"),
-            new Zend_Db_Expr('resposta')
+            new Zend_Db_Expr('CASE sol."stEstado"
+                WHEN 0 THEN \'Solicitado\'
+                WHEN 1 THEN \'Atendido\'
+                ELSE \'Negado\'
+            END as estado'),
+            new Zend_Db_Expr('"Resposta"')
         );
 
-        $sql = $db->select()
-            ->from(array('sol' => 'tbsolicitaritem'), $col, $this->_schema)
-            ->join(array('prod' => 'produto'), 'sol.idproduto = prod.codigo', null, $this->_schema)
-            ->join(array('et' => 'tbplanilhaetapa'), 'sol.idetapa = et.idplanilhaetapa', null, $this->_schema)
-            ->joinLeft(array('it' => 'tbplanilhaitens'),  'sol.idplanilhaitens = it.idplanilhaitens', null, $this->_schema)
+        $sql = $this->select()
+            ->from(array('sol' => 'tbSolicitarItem'), $col, $this->_schema)
+            ->join(array('prod' => 'Produto'), 'sol.idProduto = prod.Codigo', null, $this->_schema)
+            ->join(array('et' => 'tbPlanilhaEtapa'), 'sol.idEtapa = et.idPlanilhaEtapa', null, $this->_schema)
+            ->joinLeft(array('it' => 'tbPlanilhaItens'),  'sol.idPlanilhaItens = it.idPlanilhaItens', null, $this->_schema)
             ->where('sol.idAgente = ?', $idAgente)
-            ->order('sol.idsolicitaritem')
+            ->order('sol.idSolicitarItem')
             ;
-
-        return $db->fetchAll($sql);
+//xd($sql->assemble());
+        return $this->fetchAll($sql);
     }
 
     public function cadastraritem($dadosassociar) {
