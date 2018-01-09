@@ -90,7 +90,7 @@
                         <tr class="centro">
                             <td colspan="4">
                                 <div id="divMsg" style="display: none;"><font color="red-text">A justificativa deve ser preenchida!</font></div>
-                                <button type="button" class="btn" name="salvar" value="" >salvar</button>
+                                <button id="btn-salvar" type="button" class="btn " name="salvar" value="" >salvar</button>
                             </td>
                         </tr>
                     </table>
@@ -106,7 +106,7 @@
 <script type="text/javascript">
     $(document).ready(function(){
 
-        $('.btn_salvar').click(function(){
+        $('#btn-salvar').click(function(){
             if($('#justificativa').val().length > 250){
                 $("#msgAlerta").dialog("destroy");
                 $("#msgAlerta").html("O campo Justificativa n&atilde;o pode ultrapassar a quantidade de 250 caracteres!");
