@@ -298,42 +298,44 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
         $select->from(
             array('sol' => $this->_name),
             array(
-                "prod.codigo as idproduto",
+                "prod.Codigo as idproduto",
                 "prod.Descricao as produto",
-                "et.idplanilhaetapa",
+                "et.idPlanilhaEtapa",
                 "et.Descricao as etapa",
-                "sol.idsolicitaritem",
-                new zend_db_expr("(case when sol.idplanilhaitens > 0 then it.Descricao else sol.nomedoitem end) as itemsolicitado"),
+                "sol.idSolicitarItem",
+                new zend_db_expr('(case when "sol"."idPlanilhaItens" > 0 then "it"."Descricao" 
+                                           else "sol"."NomeDoItem" end) as itemsolicitado'),
                 "sol.Descricao as justificativa",
-                new zend_db_expr( "(case sol.stestado when 0 then 'solicitado' when 1 then 'atendido' else 'negado' end) as estado"),
-                "resposta"
+                new zend_db_expr( '(case "sol"."stEstado" when 0 then \'solicitado\' 
+                                           when 1 then \'atendido\' 
+                                           else \'negado\' end) as estado'),
+                "Resposta"
             ),
             $this->_schema
         );
 
         $select->joininner(
-            array('prod'=>'produto'), 'sol.idproduto = prod.codigo',
+            array('prod'=>'Produto'), 'sol.idProduto = prod.Codigo',
             null,
             $this->_schema
         );
 
         $select->joininner(
-            array('et'=>'tbplanilhaetapa'), 'sol.idetapa = et.idplanilhaetapa',
+            array('et'=>'tbPlanilhaEtapa'), 'sol.idEtapa = et.idPlanilhaEtapa',
             null,
             $this->_schema
         );
 
         $select->joinleft(
-            array('it' => 'tbplanilhaitens'), 'sol.idplanilhaitens = it.idplanilhaitens',
+            array('it' => 'tbPlanilhaItens'), 'sol.idPlanilhaItens = it.idPlanilhaItens',
             null,
             $this->_schema
         );
         $select->where('sol.idAgente = '.$idagente);
-        $select->order('sol.idsolicitaritem');
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
+        $select->order('sol.idSolicitarItem');
 
-        return $db->fetchAll($select);
+
+        return $this->fetchAll($select);
     }
 
     /**

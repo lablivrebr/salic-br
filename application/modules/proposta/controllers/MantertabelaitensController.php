@@ -158,7 +158,6 @@ class Proposta_MantertabelaitensController extends Proposta_GenericController {
                 $res = $res->listarSolicitacoes($arrBusca,$itemNome);
 
 
-//xd(123);
                 if(count($res)>0) {
                     throw new Exception("Cadastro duplicado de Produto na mesma etapa envolvendo o mesmo Item, transa&ccedil;&atilde;o cancelada!");
                 }
@@ -189,7 +188,6 @@ class Proposta_MantertabelaitensController extends Proposta_GenericController {
                     //codigo antigo
                     //$incluiritem = MantertabelaitensDAO::cadastraritem($Descricao, $this->idUsuario);
                     $incluiritem = new MantertabelaitensDAO();
-//xd($dadosincluir);
                     $incluiritem = $incluiritem->cadastrarItemObj($dadosincluir);
 
                     if ($incluiritem) {
@@ -253,7 +251,6 @@ class Proposta_MantertabelaitensController extends Proposta_GenericController {
             $order = array(2,4,6);
             $ordenacao = null;
         }
-
         $pag = 1;
         $get = Zend_Registry::get('get');
         $this->view->idPreProjeto = $get->idPreProjeto;
@@ -290,6 +287,7 @@ class Proposta_MantertabelaitensController extends Proposta_GenericController {
         }
 
         $tbSolicitarItem = new Proposta_Model_DbTable_TbSolicitarItem();
+//xd(123);
         $total = $tbSolicitarItem->buscarItens($where, $order, null, null, true);
         $fim = $inicio + $this->intTamPag;
 
