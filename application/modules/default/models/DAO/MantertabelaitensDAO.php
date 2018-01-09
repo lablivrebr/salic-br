@@ -79,7 +79,7 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
                 , array(
                     'pr.Codigo as idProduto'
                     ,'pr.Descricao as Produto'
-                    //,'i.Descricao as NomeDoItem'
+                    ,'i.Descricao as NomeDoItem'
                 )
                 , $this->_schema
             )
@@ -330,7 +330,6 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
         );
         $select->where('sol.idAgente = '.$idagente);
         $select->order('sol.idsolicitaritem');
-
         $db= Zend_Db_Table::getDefaultAdapter();
         $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
@@ -405,7 +404,6 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
      */
     public function cadastrarItemObj($dadosassociar)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
 
         $cadastrar = $this->insert($dadosassociar);
 
@@ -440,8 +438,7 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
 
     public function associarItemObj($dadosassociar)
     {
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $cadastrar = $db->insert($this->_schema.".tbsolicitaritem", $dadosassociar);
+        $cadastrar = $this->insert($dadosassociar);
 
         if ($cadastrar) {
             return true;
@@ -498,46 +495,43 @@ class MantertabelaitensDAO extends  MinC_Db_Table_Abstract
 
     public function listarSolicitacoes($where=array(), $nomeItem=null)
     {
-        $db= Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
 
         $cols = array(
-            'prod.codigo as idProduto',
-            'prod.Descricao as Produto',
-            'et.idplanilhaetapa',
-            'et.Descricao as Etapa',
-            'sol.idsolicitaritem',
-            new Zend_Db_Expr("CASE
-                WHEN  sol.idplanilhaitens > 0 THEN it.Descricao
-                ELSE sol.nomedoitem
-            END as ItemSolicitado"),
+            'prod.Codigo as idproduto',
+            'prod.Descricao as produto',
+            'et.idPlanilhaEtapa',
+            'et.Descricao as etapa',
+            'sol.idSolicitarItem',
+            new Zend_Db_Expr('CASE
+                WHEN  "sol"."idPlanilhaItens" > 0 THEN "it"."Descricao"
+                ELSE "sol"."NomeDoItem"
+            END as itemsolicitado'),
             'sol.Descricao as Justificativa',
-            new Zend_Db_Expr("CASE sol.stestado
-                WHEN 0 THEN 'Solicitado'
-                WHEN 1 THEN 'Atendido'
-                ELSE 'Negado'
-            END as Estado"),
-            new Zend_Db_Expr('resposta')
+            new Zend_Db_Expr('CASE sol."stEstado"
+                WHEN 0 THEN \'Solicitado\'
+                WHEN 1 THEN \'Atendido\'
+                ELSE \'Negado\'
+            END as estado'),
+            new Zend_Db_Expr('"Resposta"')
         );
 
-        $sql = $db->select()
-            ->from(array('sol' => 'tbsolicitaritem'), $cols, $this->_schema)
-            ->join(array('prod' => 'produto'), 'sol.idproduto = prod.codigo', null,$this->_schema)
-            ->join(array('et' => 'tbplanilhaetapa'), 'sol.idetapa = et.idplanilhaetapa', null, $this->_schema)
-            ->joinLeft(array('it' => 'tbplanilhaitens'), 'sol.idplanilhaitens = it.idplanilhaitens', null,$this->_schema)
-            ;
-
+        $sql = $this->select()
+            ->from(array('sol' => 'tbSolicitarItem'), $cols, $this->_schema)
+            ->join(array('prod' => 'Produto'), 'sol.idProduto = prod.Codigo', null,$this->_schema)
+            ->join(array('et' => 'tbPlanilhaEtapa'), 'sol.idEtapa = et.idPlanilhaEtapa', null, $this->_schema)
+            ->joinLeft(array('it' => 'tbPlanilhaItens'), 'sol.idPlanilhaItens = it.idPlanilhaItens', null,$this->_schema);
         foreach ($where as $coluna=>$valor)
         {
-            $sql->where($coluna .' =?', $valor);
+            $sql->where($coluna .' = ?', $valor);
         }
 
         if(!empty($nomeItem)){
             $sql->where('sol.NomeDoItem = ?', $nomeItem);
-            $sql->orWhere('it.Descricao = ?', $nomeItem);
+            $sql->orWhere('"it"."Descricao" = ?', $nomeItem);
         }
-        $sql->order('sol.idsolicitaritem');
+        $sql->order('sol.idSolicitarItem');
 
-        return $db->fetchAll($sql);
+//xd($sql->assemble());
+        return $this->fetchAll($sql);
     }
 }
