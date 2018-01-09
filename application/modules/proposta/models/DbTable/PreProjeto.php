@@ -155,7 +155,7 @@ class Proposta_Model_DbTable_PreProjeto extends MinC_Db_Table_Abstract
                 $arrMovimentacao['Movimentacao'] = 95;
                 $arrMovimentacao['DtMovimentacao'] = $date->format('Y-m-d H:i:sP');
                 $arrMovimentacao['stEstado'] = 0;
-                $arrMovimentacao['Usuario'] = $arrData['idusuario'];
+                $arrMovimentacao['Usuario'] = $arrData['idUsuario'];
                 $mprMovimentacao->save(new Proposta_Model_TbMovimentacao($arrMovimentacao));
             }
         }
