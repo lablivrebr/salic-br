@@ -28,7 +28,13 @@
             <!-- ========== FIM TITULO ========== -->
 
             <div id="conteudo">
-                <form name="form" id="form" action="<?php echo $this->url(array('module'=>'proposta', 'controller' => 'mantertabelaitens', 'action' => 'solicitaritens')); ?>?idPreProjeto=<?php if(isset($_GET['idPreProjeto']))echo $_GET['idPreProjeto'];?>" method="post">
+                <form name="form" id="form" action="<?php echo $this->url(array(
+                                                                                'module'=>'proposta',
+                                                                                'controller' => 'mantertabelaitens',
+                                                                                'action' => 'solicitaritens'
+                                                                                )
+                                                                        );
+                                                                    ?>?idPreProjeto=<?php $this->idPreProjeto ?>" method="post">
                     <table class="tabela">
                         <tr class="titulo_tabela">
                             <th colspan="4">Novo Produto / Etapa / Item </th>
