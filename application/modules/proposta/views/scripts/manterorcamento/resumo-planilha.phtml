@@ -1,0 +1,67 @@
+<?php if($this->EtapaCusto) : ?>
+    <?php foreach ($this->EtapaCusto as $etapaCusto) : ?>
+        <?php  if($this->ItensEtapaCusto) : ?>
+            <table class="bordered striped centered" width="98%" >
+                <thead>
+                <tr class="title">
+                    <th colspan="2">Custos Vinculados
+
+                        <?php if ($this->isEditavel) : ?>
+                            <a  href="<?php echo $this->url( array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' =>'custos-vinculados','idPreProjeto' => $this->idPreProjeto)); ?>"
+                                class="waves-effect waves-darken black-text small">
+                                <i class="material-icons">edit</i></a>
+                        <?php endif; ?>
+                    </th>
+
+                </tr>
+
+                </thead>
+                <tbody>
+                <?php $valorTotalCustosVinculados = null; ?>
+                <?php foreach ($this->ItensEtapaCusto as $itemEtapaCusto) : ?>
+                    <?php if ($etapaCusto->idEtapa == $itemEtapaCusto->idEtapa) :  ?>
+
+                        <tr>
+                            <td class="left-align"><?php echo $itemEtapaCusto->DescricaoItem; ?></td>
+                            <td class="right-align">R$ <?php echo number_format($itemEtapaCusto->ValorUnitario, 2, ",", ".") ?></td>
+                            <?php $valorTotalCustosVinculados = $itemEtapaCusto->ValorUnitario + $valorTotalCustosVinculados; ?>
+                        </tr>
+                    <?php endif; ?>
+
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    <?php endforeach; ?>
+    <br>
+    <?php if( $this->EtapasProduto ) : ?>
+        <table style="margin: 0px;" class="bordered striped">
+            <thead>
+            <tr class="title">
+                <th colspan="2"><?php echo "Resumo da Planilha Or&ccedil;ament&aacute;ria"; ?></th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($this->EtapasProduto as $totalEtapa) : ?>
+                <?php $valorProjeto = $valorProjeto + $totalEtapa['valorTotal']; ?>
+                <tr>
+                    <td class="">Valor total <?php echo $totalEtapa['DescricaoEtapa']; ?></td>
+                    <td class="right-align">R$ <?php echo number_format($totalEtapa['valorTotal'], 2, ",", "."); ?></td>
+                </tr>
+            <?php endforeach; ?>
+            <tr>
+                <td>Valor do Projeto </td>
+                <td class="right-align">R$ <?php echo number_format($valorProjeto, 2, ",", "."); ?></td>
+            </tr>
+            <tr">
+            <td>Valor Custos Vinculados </td>
+            <td class="right-align">R$ <?php echo number_format($valorTotalCustosVinculados, 2, ",", "."); ?></td>
+            </tr>
+            <tr>
+                <td>Valor total do Projeto </td>
+                <td class="right-align">R$ <?php echo number_format($valorTotalCustosVinculados + $valorProjeto, 2, ",", "."); ?></td>
+            </tr>
+            </tbody>
+        </table>
+    <?php endif; ?>
+<?php endif; ?>

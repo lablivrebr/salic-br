@@ -231,11 +231,10 @@
                     $(this).dialog('close');
                 },
                 'Sim': function () {
-                    var urlAction = "<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'excluiritem')); ?>";
+                    var urlAction = "<?php echo $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'excluir-item')); ?>";
                     var dados = {idPlanilhaProposta: idPlanilhaProposta, idPreProjeto: idPlanilhaProposta};
 
                     $.post(urlAction, dados, function (result) {
-                        result = $3.parseJSON(result)
                         if (result.status == '1') {
                             $("#item-planilha-" + idPlanilhaProposta).remove();
                             Materialize.toast(result.msg, 4000, 'green white-text');

@@ -59,6 +59,10 @@ $arrMenuProponente['planilhaorcamentaria'] = array(
     'menu' => array(),
     'grupo' => array()
 );
+$arrMenuProponente['planilhaorcamentaria']['menu'][] = array('label' => 'Custos Vinculados', 'title' => '',
+    'url' => $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'custos-vinculados', 'idPreProjeto' => $idPreProjeto)),
+    'grupo' => array()
+);
 $arrMenuProponente['planilhaorcamentaria']['menu'][] = array('label' => 'Custos por produtos', 'title' => '',
     'url' => $this->url(array('module' => 'proposta', 'controller' => 'manterorcamento', 'action' => 'produtoscadastrados', 'idPreProjeto' => $idPreProjeto)),
     'grupo' => array()

@@ -70,8 +70,6 @@
     $logoLink =  $this->url(array('module' => 'default', 'controller' => 'principalproponente', 'action' => ''), '', true);
     if( isset($auth['usu_codigo']) && !isset($auth['cpf']) ) {
         $logoLink =  $this->url(array('module' => 'default', 'controller' => 'principal', 'action' => ''), '', true);
-    } else if (!isset($auth['usu_codigo'])) {
-        $logoLink = $this->url(array('module' => 'autenticacao', 'controller' => 'index', 'action' => 'index'), '', true);
     }
     ?>
     <div id="logo">

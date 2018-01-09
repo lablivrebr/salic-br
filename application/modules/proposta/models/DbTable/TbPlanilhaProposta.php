@@ -392,35 +392,48 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
         return $db->fetchAll($sql);
     }
 
-    public function buscarCustos($idPreProjeto, $tipoCusto, $idEtapa = null, $idItem = null, $idUf = null, $idMunicipio = null,
-                                 $fonte = null, $unidade = null, $quantidade = null, $ocorrencia = null, $vlunitario = null, $qtdDias = null, $dsJustificativa = null)
+    public function buscarCustos(
+        $idPreProjeto,
+        $tipoCusto,
+        $idEtapa = null,
+        $idItem = null,
+        $idUf = null,
+        $idMunicipio = null,
+        $fonte = null,
+        $unidade = null,
+        $quantidade = null,
+        $ocorrencia = null,
+        $vlunitario = null,
+        $qtdDias = null,
+        $dsJustificativa = null
+    )
     {
         $tpp = array(
-            'tpp.idusuario',
-            'tpp.idprojeto as idProposta',
+            'tpp.idUsuario',
+            'tpp.idProjeto as idProposta',
             'tpp.idPlanilhaProposta',
-            'tpp.quantidade',
-            'tpp.ocorrencia',
-            'tpp.valorunitario',
-            'tpp.qtdedias',
-            'tpp.dsjustificativa as justificativa',
+            'tpp.Quantidade',
+            'tpp.Ocorrencia',
+            'tpp.ValorUnitario',
+            'tpp.QtdeDias',
+            'tpp.dsJustificativa as justificativa',
         );
 
         $tpe = array(
-            'tpe.tpcusto as custo',
+            'tpe.tpCusto as custo',
             'tpe.Descricao as etapa',
-            'tpe.idplanilhaetapa as idEtapa',
-            'tpe.tpcusto',
+            'tpe.idPlanilhaEtapa as idEtapa',
+            'tpe.tpCusto',
         );
 
         $tpi = array(
             'tpi.Descricao as Item',
-            'tpi.idplanilhaitens as idItem',
+            'tpi.idPlanilhaItens as idItem',
         );
 
         $uf = array(
             'uf.Descricao as Uf',
-            'uf.sigla as SiglaUF',
+            'uf.Sigla as SiglaUF',
             'uf.idUF as idUF',
         );
 
@@ -434,29 +447,29 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
         );
 
         $un = array(
-            'un.idunidade as idunidade',
+            'un.idUnidade as idunidade',
             'un.Descricao as unidade',
         );
 
         $veri = array(
-            'veri.idverificacao as idFonteRecurso',
+            'veri.idVerificacao as idFonteRecurso',
             'veri.Descricao as DescricaoFonteRecurso'
         );
 
         $sql = $this->select()
             ->setIntegrityCheck(false)
-            ->from(array('tpp' => 'tbplanilhaproposta'), $tpp, $this->getSchema('sac'))
-            ->joinLeft(array('pd' => 'produto'), 'pd.codigo = tpp.idproduto', null, $this->getSchema('sac'))
-            ->join(array('tpe' => 'tbplanilhaetapa'), 'tpe.idplanilhaetapa = tpp.idetapa', $tpe, $this->getSchema('sac'))
-            ->join(array('tpi' => 'tbplanilhaitens'), 'tpi.idplanilhaitens = tpp.idplanilhaitem', $tpi, $this->getSchema('sac'))
-            ->joinLeft(array('uf' => 'uf'), 'uf.iduf = tpp.ufdespesa', $uf, $this->getSchema('agentes'))
-            ->joinLeft(array('municipio' => 'municipios'), 'municipio.idMunicipioIBGE = tpp.municipiodespesa', $mun, $this->getSchema('agentes'))
-            ->join(array('prep' => 'PreProjeto'), 'prep.idPreProjeto = tpp.idprojeto', null, $this->getSchema('sac'))
-            ->join(array('mec' => 'mecanismo'), 'mec.codigo = prep.mecanismo', 'mec.Descricao as mecanismo', $this->getSchema('sac'))
-            ->join(array('un' => 'tbplanilhaunidade'), 'un.idunidade = tpp.unidade', 'un.Descricao as Unidade', $this->getSchema('sac'))
-            ->join(array('veri' => 'Verificacao'), 'veri.idverificacao = tpp.fonterecurso', $veri, $this->getSchema('sac'))
-            ->where('tpe.tpcusto = ?', $tipoCusto)
-            ->where('tpp.idprojeto = ?', $idPreProjeto)
+            ->from(array('tpp' => 'tbPlanilhaProposta'), $tpp, $this->_schema)
+            ->joinLeft(array('pd' => 'Produto'), 'pd.Codigo = tpp.idProduto', null, $this->_schema)
+            ->join(array('tpe' => 'tbPlanilhaEtapa'), 'tpe.idPlanilhaEtapa = tpp.idEtapa', $tpe, $this->_schema)
+            ->join(array('tpi' => 'tbPlanilhaItens'), 'tpi.idPlanilhaItens = tpp.idPlanilhaItem', $tpi, $this->_schema)
+            ->joinLeft(array('uf' => 'UF'), 'uf.idUF = tpp.UfDespesa', $uf, $this->getSchema('agentes'))
+            ->joinLeft(array('municipio' => 'Municipios'), 'municipio.idMunicipioIBGE::varchar(6) = tpp.MunicipioDespesa::varchar(6)', $mun, $this->getSchema('agentes'))
+            ->join(array('prep' => 'PreProjeto'), 'prep.idPreProjeto = tpp.idProjeto', null, $this->_schema)
+            ->join(array('mec' => 'Mecanismo'), 'mec.Codigo::int = prep.Mecanismo::int', 'mec.Descricao as mecanismo', $this->_schema)
+            ->join(array('un' => 'tbPlanilhaUnidade'), 'un.idUnidade = tpp.Unidade', 'un.Descricao as Unidade', $this->_schema)
+            ->join(array('veri' => 'Verificacao'), 'veri.idVerificacao = tpp.FonteRecurso', $veri, $this->_schema)
+            ->where('tpe.tpCusto = ?', $tipoCusto)
+            ->where('tpp.idProjeto = ?', $idPreProjeto)
             ->order('tpe.Descricao');
 
         if ($idEtapa) {
@@ -498,11 +511,7 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
             $sql->where('tpp.QtdeDias = ?', $qtdDias);
         }
 
-        $db = Zend_Db_Table::getDefaultAdapter();
-        $db->setFetchMode(Zend_DB::FETCH_OBJ);
-
-
-        return $db->fetchAll($sql);
+        return $this->fetchAll($sql);
     }
 
     public function buscarItensUfRegionalizacao($idProposta)
@@ -629,5 +638,82 @@ class Proposta_Model_DbTable_TbPlanilhaProposta extends MinC_Db_Table_Abstract
             $this->view->message = $e->getMessage();
         }
         return $db->fetchRow($exec);
+    }
+
+    public function planilhaOrcamentariaProposta($idPreProjeto)
+    {
+        $a = array(
+            'a.idPreProjeto as idPronac',
+            new Zend_Db_Expr("' ' AS PRONAC"),
+            'a.NomeProjeto',
+            new Zend_Db_Expr('
+                CASE WHEN "idProduto" = 0
+                   THEN \'Administra&ccedil;&atilde;o do Projeto\'
+                   ELSE "c"."Descricao"
+              END as Produto'
+            ),
+        );
+
+        $b = array(
+            'b.idProduto',
+            'b.idPlanilhaProposta',
+            'b.idEtapa',
+            'b.Quantidade as Quantidade',
+            'b.Ocorrencia as Ocorrencia',
+            'b.ValorUnitario as vlUnitario',
+            new Zend_Db_Expr('ROUND(("b"."Quantidade"::numeric * "b"."Ocorrencia"::numeric * "b"."ValorUnitario"::numeric),2) as vlSolicitado'),
+            'b.FonteRecurso as idFonte',
+            'b.QtdeDias as QtdeDias',
+            'b.stCustoPraticado as stCustoPraticado',
+            'b.dsJustificativa as JustProponente',
+        );
+
+        $sql = $this->select()
+            ->from(array('a' => 'PreProjeto'), $a, $this->_schema)
+            ->joinInner(array('b' => 'tbPlanilhaProposta'), 'a.idPreProjeto = b.idProjeto', $b, $this->_schema)
+            ->joinLeft(array('c' => 'Produto'), 'b.idProduto = c.Codigo', null, $this->_schema)
+            ->joinInner(array('d' => 'tbPlanilhaEtapa'), 'b.idEtapa = d.idPlanilhaEtapa', 'd.Descricao as Etapa', $this->_schema)
+            ->joinInner(array('e' => 'tbPlanilhaUnidade'), 'b.Unidade = e.idUnidade', 'e.Descricao as Unidade', $this->_schema)
+            ->joinInner(array('i' => 'tbPlanilhaItens'), 'b.idPlanilhaItem = i.idPlanilhaItens', 'i.Descricao as Item', $this->_schema)
+            ->joinInner(array('x' => 'Verificacao'), 'b.FonteRecurso = x.idVerificacao', 'x.Descricao as FonteRecurso', $this->_schema)
+            ->joinLeft(array('f' => 'Municipios'), 'b.MunicipioDespesa::varchar(6) = f.idMunicipioIBGE::varchar(6)', array('u.Sigla as UF'), $this->getSchema('agentes'))
+            ->joinLeft(array('u' => 'UF'), 'f.idUFIBGE = u.idUF and b.UfDespesa = u.idUF',array('f.Descricao as Municipio'),$this->getSchema('agentes'))
+            ->where('a.idPreProjeto = ? ', $idPreProjeto)
+            ->order('x.Descricao')
+            ->order('c.Descricao DESC')
+            ->order('d.idPlanilhaEtapa DESC')
+            ->order('u.Sigla')
+            ->order('f.Descricao')
+            ->order('i.Descricao');
+        return $this->fetchAll($sql);
+    }
+
+    public function obterMunicipioUFdoProdutoPrincipalComMaiorCusto($idPreProjeto) {
+
+        $select = $this->select();
+        $select->from(
+            ['a' => $this->_name],
+            [
+                'a.UfDespesa',
+                'a.MunicipioDespesa',
+                'sum("a"."Quantidade" * "a"."Ocorrencia" * "a"."ValorUnitario") as totalMunicipioPorProduto'
+            ]
+        );
+
+        $select->joinInner(
+            ['b' => 'PlanoDistribuicaoProduto'],
+            'b.idProjeto = a.idProjeto AND b.idProduto = a.idProduto',
+            ['b.idProduto'],
+            $this->_schema
+        );
+
+        $select->where('a.idProjeto = ?', $idPreProjeto)
+        ->where('b.stPrincipal = ?', 't')
+        ->where('b.idProduto <> 0')
+        ->group(['b.idProduto', 'a.UfDespesa', 'a.MunicipioDespesa'])
+        ->order('totalMunicipioPorProduto DESC')
+        ->limit(1);
+
+        return $this->fetchRow($select);
     }
 }

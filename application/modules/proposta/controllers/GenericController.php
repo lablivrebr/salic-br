@@ -114,20 +114,22 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             $proposta = array_change_key_case($proposta->toArray());
             return $proposta;
         }
-
-        return false;
     }
 
     public function isEditarProposta($idPreProjeto)
     {
+        if (empty($idPreProjeto)) { 
+             return false;
+        }
+        
         $tbMovimentacao = new Proposta_Model_DbTable_TbMovimentacao();
         $rsStatusAtual = $tbMovimentacao->findBy(array('idProjeto = ?' => $idPreProjeto, 'stEstado = false' => false));
 
-        if ($rsStatusAtual['Movimentacao'] == $this->_movimentacaoAlterarProposta) {
-            return true;
+        if ($rsStatusAtual['Movimentacao'] != $this->_movimentacaoAlterarProposta) {
+            return false;
         }
 
-        return false;
+        return true;
     }
 
     public function isEditarProjeto($idPreProjeto)
@@ -167,7 +169,6 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         $ufRegionalizacaoPlanilha = $tbAbrangencia->buscarUfRegionalizacao($idPreProjeto);
         $modelCustosVinculados = new Proposta_Model_TbCustosVinculados();
         $itensPlanilhaProduto = new tbItensPlanilhaProduto();
-
 
         $valoresCustosVinculados['percentualDivulgacao'] = $modelCustosVinculados::PERCENTUAL_DIVULGACAO_OUTRAS_REGIOES;
         $valoresCustosVinculados['percentualRemuneracaoCaptacao'] = $modelCustosVinculados::PERCENTUAL_REMUNERACAO_CAPTACAO_DE_RECURSOS_OUTRAS_REGIOES;
@@ -224,7 +225,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         return $arrCustosVinculados;
     }
 
-    public function atualizarcustosvinculadosdaplanilha($idPreProjeto)
+    public function atualizarCustosVinculadosDaPlanilha($idPreProjeto)
     {
         $idEtapa = Proposta_Model_TbPlanilhaEtapa::CUSTOS_VINCULADOS;
         $tipoCusto = Proposta_Model_TbPlanilhaEtapa::TIPO_CUSTO_ADMINISTRATIVO;
@@ -243,8 +244,8 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $somaPlanilhaPropostaProdutos['soma']);
         foreach ($itens as $item) {
             $custosVinculados = null;
-            //@todo fazer uma nova busca com o essencial para este caso
-            $custosVinculados = $tbPlanilhaProposta->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idplanilhaitem']);
+            $custosVinculados = $tbPlanilhaProposta->buscarCustos($idPreProjeto, $tipoCusto, $idEtapa, $item['idPlanilhaItem']);
+
             if (isset($custosVinculados[0]->idItem)) {
                 $where = 'idPlanilhaProposta = ' . $custosVinculados[0]->idPlanilhaProposta;
                 $tbPlanilhaProposta->update($item, $where);
@@ -258,13 +259,23 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     {
         $idEtapa = Proposta_Model_TbCustosVinculados::ID_ETAPA_CUSTOS_VINCULADOS;
         $fonteRecurso = Proposta_Model_TbCustosVinculados::ID_FONTE_RECURSO_CUSTOS_VINCULADOS;
+        $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
 
         $idUf = 1;
         $idMunicipio = 1;
+
+        $municipioUF = $tbPlanilhaProposta->obterMunicipioUFdoProdutoPrincipalComMaiorCusto($idPreProjeto);
+
+        if($municipioUF) {
+            $idUf = $municipioUF->UfDespesa;
+            $idMunicipio = $municipioUF->MunicipioDespesa;
+        }
+
         $dados = array();
 
         if (empty($valorTotalProdutos)) {
-            $tbPlanilhaProposta = new Proposta_Model_DbTable_TbPlanilhaProposta();
+
+
             $somaPlanilhaPropostaProdutos = $tbPlanilhaProposta->somarPlanilhaPropostaProdutos($idPreProjeto, $fonteRecurso);
             $valorTotalProdutos = $somaPlanilhaPropostaProdutos['soma'];
         }
@@ -272,9 +283,7 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
         if (!is_numeric($valorTotalProdutos)) {
             return 0;
         }
-
         $itensCustosVinculados = $this->gerarArrayCustosVinculados($idPreProjeto);
-
 
         foreach ($itensCustosVinculados as $item) {
             $valorCustoItem = 0;
@@ -287,10 +296,11 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
             }
 
             $dados[] = array(
+                'idProduto' => 0,
                 'idProjeto' => $idPreProjeto,
                 'idEtapa' => $idEtapa,
-                'idPlanilhaitem' => $item['idPlanilhaItens'],
-                'Descricao' => '',
+                'idPlanilhaItem' => $item['idPlanilhaItens'],
+                'Descricao' => null,
                 'Unidade' => '1',
                 'Quantidade' => '1',
                 'Ocorrencia' => '1',
@@ -302,8 +312,8 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
                 'FonteRecurso' => $fonteRecurso,
                 'UfDespesa' => $idUf,
                 'MunicipioDespesa' => $idMunicipio,
-                'idUsuario' => $this->_idUsuario,
-                'dsJustificativa' => ''
+                'idUsuario' => $this->_SGCacesso['IdUsuario'],
+                'dsJustificativa' => null
             );
         }
         return $dados;
@@ -313,8 +323,9 @@ abstract class Proposta_GenericController extends MinC_Controller_Action_Abstrac
     {
         $itens = $this->calcularCustosVinculadosPlanilhaProposta($idPreProjeto, $valorTotalProdutos);
         $soma = '';
-        if ($itens == 0)
+        if ($itens == 0) {
             return 0;
+        }
         if ($itens) {
             $soma = 0;
             foreach ($itens as $item) {

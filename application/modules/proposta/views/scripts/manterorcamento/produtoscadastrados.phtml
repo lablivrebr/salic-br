@@ -305,8 +305,8 @@
                     <a id="btn-restaurar-planilha" class="btn-floating waves-effect waves-light btn tooltipped btn-info" data-tooltip="Restaurar planilha"><i class="material-icons left">restore</i></a>
                 </p>
             <?php endif; ?>
-            <div id="container-list" data-ajax-render='/proposta/manterorcamento/listarprodutos/idPreProjeto/<?php echo( isset($this->idPreProjeto) ) ? $this->idPreProjeto : ''; ?>'></div>
-            <div id="custosvinculados" data-ajax-render='/proposta/manterorcamento/resumoplanilha/idPreProjeto/<?php echo( isset($this->idPreProjeto) ) ? $this->idPreProjeto : ''; ?>'></div>
+            <div id="container-list" data-ajax-render='/proposta/manterorcamento/listar-produtos/idPreProjeto/<?php echo( isset($this->idPreProjeto) ) ? $this->idPreProjeto : ''; ?>'></div>
+            <div id="custosvinculados" data-ajax-render='/proposta/manterorcamento/resumo-planilha/idPreProjeto/<?php echo( isset($this->idPreProjeto) ) ? $this->idPreProjeto : ''; ?>'></div>
         </div>
     </div>
 </div>
@@ -408,15 +408,32 @@ $3(document).ready(function ($) {
                 $('#form').attr('action'), $('#form').serialize(), function (response) {
                 event.preventDefault();
                 $.each(response, function (index, item) {
-
-                    console.log(item.dados);
                     let uf = item.dados.UfDespesa;
                     let mun = item.dados.MunicipioDespesa;
                     let stringLocalizacao = $("select option[value='" + uf + ":" + mun + "']").text();
 
+                    let itemHtml = ''
+                        + '<tr id="item-planilha-' + item.dados.idPlanilhaProposta + '" class="green lighten-3">'
+                        + '<td class="left-align aaaa">' + item.dados.itemNome + '</td>'
+                        + '<td>' + item.dados.unidade + '</td>'
+                        + '<td>' + item.dados.quantidade + '</td>'
+                        + '<td>' + item.dados.ocorrencia + '</td>'
+                        + '<td class="right-align">' + item.dados.valorUnitario + '</td>'
+                        + '<td class="right-align">' + item.dados.total + '</td>'
+                        + '<td class="action right-align">'
+                        + '<a data-ajax-modal="' + item.dados.urlEditarProduto + '" href="javascript:void(0);" class="btn small waves-effect waves-light tooltipped btn-primary" data-position="top" data-delay="50" data-tooltip="Editar" data-ajax-modal-type="bottom-sheet">'
+                        + '<i class="material-icons">edit</i>'
+                        + '</a>'
+                        + '</td>'
+                        + '<td class="action left-align">'
+                        + '<a class="btn small waves-effect waves-light tooltipped btn-danger btn-excluir-item" href="javascript:void(0);" data-tooltip="Excluir" data-ajax="' + item.dados.idPlanilhaProposta + '" ><i class="material-icons">delete</i></a>'
+                        + '</td>'
+                        + '</tr>';
+
                     if (item.status == '1') {
                         if (item.action == 'update') {
-                            $("#item-planilha-" + item.idPlanilhaProposta).replaceWith(item.html);
+
+                            $("#item-planilha-" + item.idPlanilhaProposta).replaceWith(itemHtml);
                         }
                         else if (item.action == 'insert') {
 
@@ -425,8 +442,7 @@ $3(document).ready(function ($) {
                             var idEtapa = "#etapa" + produto + "" + etapa + "" + mun;
 
                             $(idEtapa + " div.info").hide();
-                            $(idEtapa + ' table tbody').append(item.html);
-                            $("#planilhaitem").focus();
+                            $(idEtapa + ' table tbody').append(itemHtml).focus();
                         }
 
                         if (item.close == '1')

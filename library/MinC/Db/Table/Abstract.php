@@ -449,21 +449,19 @@ abstract class MinC_Db_Table_Abstract extends Zend_Db_Table_Abstract
 
     public function getExpressionTrim($string, $strAlias = null)
     {
-        if ($this->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
-            $strTrim = 'ltrim';
-        } else {
+        $strTrim = 'ltrim';
+        if (!($this->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql)) {
             $strTrim = 'trim';
-
             if (strpos($string, '.')) {
                 $string = preg_replace("/(.*)\\.(.*)/", '$1"."$2', $string);
             }
         }
 
-        if (is_null($strAlias)) {
-            return new Zend_Db_Expr($strTrim . '("'. $string . '")');
-        } else {
-            return new Zend_Db_Expr($strTrim . '("' . $string . '") as ' . $strAlias);
-        }
+        if (!is_null($strAlias)) {
+            $strAlias = "  as {$strAlias}";
+        } 
+        
+        return new Zend_Db_Expr($strTrim . '("' . $string . '")' . $strAlias);
     }
 
     public function getExpressionDateDiff(

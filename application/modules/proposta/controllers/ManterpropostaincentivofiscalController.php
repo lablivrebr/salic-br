@@ -744,16 +744,20 @@ xd($ex->getMessage());
         $arrResultado = array();
 
         $this->verificarPermissaoAcesso(true, false, false);
-
         $params = $this->getRequest()->getParams();
 
         $idPreProjeto = $this->getRequest()->getParam('idPreProjeto');
 
-        if (!empty($idPreProjeto)) {
+        try {
+
+            if (empty($idPreProjeto)) {
+                throw new Exception("&Eacute; necess&aacute;rio informar o n&uacute;mero da proposta.");
+            }
 
             $tbPreProjeto = new Proposta_Model_DbTable_PreProjeto();
 
             if (!$tbPreProjeto->getAdapter() instanceof Zend_Db_Adapter_Pdo_Mssql) {
+
                 $arrResultado = $this->validarEnvioPropostaSemSp($idPreProjeto);
             } else {
                 $arrResultado = $this->validarEnvioPropostaComSp($idPreProjeto);
@@ -781,9 +785,11 @@ xd($ex->getMessage());
 
             $this->view->acao = $this->_urlPadrao . "/proposta/manterpropostaincentivofiscal/enviar-proposta/idPreProjeto/" . $this->idPreProjeto;
 
-        } else {
-            parent::message("Necess&aacute;rio informar o n&uacute;mero da proposta.", "/proposta/manterpropostaincentivofiscal/listarproposta", "ERROR");
+
+        } catch (Exception $e) {
+            parent::message($e->getMessage(), "/proposta/manterpropostaincentivofiscal/identificacaodaproposta/idPreProjeto/" . $this->idPreProjeto, "ERROR");
         }
+
     }
 
     /**
@@ -826,24 +832,15 @@ xd($ex->getMessage());
 
     }
 
-    /**
-     * validarEnvioPropostaSemSp
-     *
-     * @param mixed $idPreProjeto
-     * @access public
-     * @return void
-     */
     public function validarEnvioPropostaSemSp($idPreProjeto)
     {
         try {
 
             $tbPreProjeto = new Proposta_Model_DbTable_PreProjeto();
-            $arrResultado = $tbPreProjeto->checklistEnvioPropostaSemSp($idPreProjeto);
+            return $tbPreProjeto->checklistEnvioPropostaSemSp($idPreProjeto);
 
-            return $arrResultado;
-
-        } catch (Zend_Exception $ex) {
-            parent::message("N&atilde;o foi poss&iacute;vel realizar a opera&ccedil;&atilde;o! (semsp)" . $ex->getMessage(), "/proposta/manterpropostaincentivofiscal/index?idPreProjeto=" . $idPreProjeto, "ERROR");
+        } catch (Exception $e) {
+            throw $e;
         }
     }
 

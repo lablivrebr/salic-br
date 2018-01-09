@@ -58,10 +58,23 @@
                                         <td><?php echo $localizacao['uf']; ?></td>
                                         <td><?php echo $localizacao['cidade']; ?></td>
                                         <td nowrap>
-                                            <a href="<?php echo $this->url(array('module' => 'proposta', 'controller' => 'localderealizacao', 'action' => 'form-local-de-realizacao')); ?>?cod=<?php echo $localizacao['idAbrangencia']; ?>&idPreProjeto=<?php echo $this->idPreProjeto; ?>&edit=1" class="btn white-text">Editar</a>
-                                            <button type="button"
-                                                   class=" btn white-text red"
-                                                   onclick="excluir(<?php echo $localizacao['idAbrangencia']; ?>);">Excluir</a></td>
+                                            <a href="<?php echo $this->url(
+                                                array(
+                                                    'module' => 'proposta',
+                                                    'controller' => 'localderealizacao',
+                                                    'action' => 'form-local-de-realizacao')); ?>?cod=<?php echo $localizacao['idAbrangencia']; ?>&idPreProjeto=<?php echo $this->idPreProjeto; ?>&edit=1"
+                                               class="btn small waves-effect waves-light tooltipped btn-primary"
+                                               data-tooltip="Editar"
+                                            >
+                                                <i class="material-icons">edit</i>
+                                            </a>
+                                            <a type="button"
+                                               class="btn small waves-effect waves-light tooltipped btn-danger btn-excluir-item"
+                                                data-tooltip="Excluir"
+                                               onclick="excluir(<?php echo $localizacao['idAbrangencia']; ?>);">
+                                                <i class="material-icons">delete</i>
+                                            </a>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </table>
