@@ -62,7 +62,7 @@
                                             'controller' => 'mantertabelaitens',
                                             'action' => 'solicitaritens'
                                     )
-                            ); ?>?idPreProjeto=<?php $this->idPreProjeto ?>'">Novo</button>
+                            ); ?>?idPreProjeto=<?php echo $this->idPreProjeto ?>'">Novo</button>
 
                             <button type="button" name="imprimir" class="btn"
                                    onclick='$("#conteudoImprimir").val($(".conteudoImprimivel").html()); $("#formGerarPdf").submit();'>
