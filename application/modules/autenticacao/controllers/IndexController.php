@@ -30,36 +30,39 @@ class Autenticacao_IndexController extends MinC_Controller_Action_Abstract
 
             if (empty($username) || empty($password)) {
                 throw new Exception("Login ou Senha inv&aacute;lidos!");
-            } else if (strlen($username) == 11 && !Validacao::validarCPF($username)) {
+            }
+
+            if (strlen($username) == 11 && !Validacao::validarCPF($username)) {
                 throw new Exception("O CPF informado &eacute; inv&aacute;lido!");
-            } else if (strlen($username) == 14 && !Validacao::validarCNPJ($username)) {
+            }
+
+            if (strlen($username) == 14 && !Validacao::validarCNPJ($username)) {
                 throw new Exception("O CPF informado &eacute; inv&aacute;lido!");
+            }
+
+            $Usuario = new Autenticacao_Model_Usuario();
+            $buscar = $Usuario->login($username, $password);
+            if ($buscar) {
+                $auth = array_change_key_case((array)Zend_Auth::getInstance()->getIdentity());
+                $objUnidades = $Usuario->buscarUnidades($auth['usu_codigo'], 21)->current();
+
+                if ($objUnidades) {
+                    $objUnidades = $objUnidades->toArray();
+                }
+                // registra o primeiro grupo do usuario (pega unidade autorizada, orgao e grupo do usuario)
+                $Grupo = array_change_key_case($objUnidades);
+                $GrupoAtivo = new Zend_Session_Namespace('GrupoAtivo');
+                $GrupoAtivo->codGrupo = $Grupo['gru_codigo'];
+                $GrupoAtivo->codOrgao = $Grupo['uog_orgao'];
+                $this->orgaoAtivo = $GrupoAtivo->codOrgao;
+
+                $this->_helper->json(array('status' => 1, 'msg' => 'Login realizado com sucesso!', 'redirect' => '/principal'));
             } else {
 
-                $Usuario = new Autenticacao_Model_Usuario();
-                $buscar = $Usuario->login($username, $password);
-                if ($buscar) {
-                    $auth = array_change_key_case((array)Zend_Auth::getInstance()->getIdentity());
-                    $objUnidades = $Usuario->buscarUnidades($auth['usu_codigo'], 21)->current();
-
-                    if ($objUnidades) {
-                        $objUnidades = $objUnidades->toArray();
-                    }
-                    // registra o primeiro grupo do usuario (pega unidade autorizada, orgao e grupo do usuario)
-                    $Grupo = array_change_key_case($objUnidades);
-                    $GrupoAtivo = new Zend_Session_Namespace('GrupoAtivo');
-                    $GrupoAtivo->codGrupo = $Grupo['gru_codigo'];
-                    $GrupoAtivo->codOrgao = $Grupo['uog_orgao'];
-                    $this->orgaoAtivo = $GrupoAtivo->codOrgao;
-
-                    $this->_helper->json(array('status' => 1, 'msg' => 'Login realizado com sucesso!', 'redirect' => '/principal'));
-                } else {
-
-                    //se nenhum registro foi encontrado na tabela Usuario, ele passa a tentar se logar como proponente.
-                    //neste ponto o _forward encaminha o processamento para o metodo login do controller login, que recebe
-                    //o post igualmente e tenta encontrar usuario cadastrado em SGCAcesso
-                    $this->forward("login-proponente", "index", "autenticacao");
-                }
+                //se nenhum registro foi encontrado na tabela Usuario, ele passa a tentar se logar como proponente.
+                //neste ponto o _forward encaminha o processamento para o metodo login do controller login, que recebe
+                //o post igualmente e tenta encontrar usuario cadastrado em SGCAcesso
+                $this->forward("login-proponente", "index", "autenticacao");
             }
 
         } catch (Exception $objException) {
